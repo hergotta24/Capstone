@@ -4,84 +4,31 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://kit.fontawesome.com/0a86d3bf39.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/storefront.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <meta charset="UTF-8">
-    <title>Storefront</title>
+    <title>Manage Storefront</title>
 </head>
 <style>
-    html, body {
-        height: 100%;
-        width: 100%;
-    }
-
-    #main {
-        background: #212529;
-        margin: 0;
-        left: 0;
-    }
-
-    #sidebar {
-        background-color: #161718;
-    }
-
-    #header {
-        z-index: 1;
-        top: 0;
-        max-height: 55px;
-        background-color: #161718;
-    }
-
-    a {
-        color: #E8DCCD;
-        display: inline-block;
-        width: 100%;
-        height: 100%;
-        text-decoration: none;
-    }
-
-    .hover:hover, #searchBtn:hover {
-        background-color: #46494d;
-    }
-
-    li {
-        font-size: 14px;
-        margin-inline: 10px;
-        padding: 8px;
-    }
-
-    #searchBtn {
-        max-width: 50px;
-        background: #212529;
-        border-color: #E8DCCD;
-    }
-
-    #search {
-        color: #E8DCCD;
-        width: 70%;
-        background: #212529;
-    }
-
-    #search::placeholder {
-        color: #E8DCCD;
-        opacity: 70%;
-    }
-
-    #logoutBtn, #loginBtn, #createBtn {
-        color: #E8DCCD;
-    }
-
-    hr {
-        height: 10px;
-        background-color: #161718;
-        border: none;
-        opacity: 0.75;
-    }
-
-    i, h3, td, .btn {
+    i, h3, td, button {
         color: #E8DCCD !important;
     }
 
+    #storeName[readonly] {
+        border: none;
+        cursor: default;
+        outline: none;
+        background-color: inherit;
+
+    }
+
+    #storeName {
+        background-color: #46494d;
+        color: inherit;
+        max-width: 250px;
+    }
 
     #banner {
     {% if store.bannerURL == None %}
@@ -98,91 +45,120 @@
         background-image: url('{{ store.logoURL }}');
     {% endif %}
     }
-    #logo:hover {
-        opacity:50%;
+
+    #logoBtn:hover, #bannerBtn:hover {
+        filter: brightness(0.75);
+        opacity: 100%;
+
     }
 
+    .modal-content {
+        background-color: #212529;
+        border-radius: 0;
+
+        color: #E8DCCD;
+
+    }
 </style>
 <body class="d-grid w-100 overflow-x-hidden">
-<div class="row d-flex flex-nowrap align-items-center align-content-center py-3 ps-0 mx-auto w-100 position-fixed"
-     id="header">
-    <div class=" col-lg-1 col-sm-1">
-        <button type="button" data-bs-toggle="collapse" data-bs-target="#sidebarContent" aria-expanded="false"
-                aria-controls="sidebarContent" class="btn btn-sm hover">
-            <i class="fa fa-bars fa-md"></i>
-        </button>
-    </div>
-    <div class="col-lg-1"></div>
-    <div class="col-lg-6 offset-lg-1 col-sm-2">
-        <div class="input-group mx-auto w-100 border-solid border-2" id="searchbar" style="border-color:#E8DCCD">
-            <input class="form-control ps-3 rounded-start-pill" type="search" id="search" placeholder="Search"
-                   aria-label="Search" aria-describedby="basic-addon2">
-            <div class="input-group-append">
-                <button class="btn rounded-end-pill pe-3 hover" id="searchBtn"><i class="fa fa-search"></i></button>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-1 col-sm-1 offset-lg-2 d-flex justify-content-end">
-        <div class="col">
-            {% if user.is_authenticated %}
-                <a href="/logout" class="btn btn-dark btn-sm d-inline" id="logoutBtn">Logout</a>
-            {% else %}
-                <a href="/login" class="btn btn-dark btn-sm d-inline" id="loginBtn">Login</a>
-            {% endif %}
-        </div>
-        <div class="col" style="margin-inline:15px">
-            <a href="/cart" class="btn btn-sm hover justify-content-center d-inline"><i
-                    class="fa fa-shopping-cart fa-lg"></i></a>
-        </div>
-    </div>
-
-</div>
-<div class="row d-flex w-100 h-100 pt-5" id="main">
-    <div class="col-auto d-flex h-100 px-0" id="sidebar">
-        <div class="collapse collapse-horizontal show" id="sidebarContent">
-            <ul class="nav flex-column w-100 sticky-top" style="top:55px;" id="list">
-                <li class="hover">
-                    <a href="#"><i class="fa fa-home"></i> Home </a>
-                </li>
-                <hr class="border-0 w-75 align-self-center m-3" style="background-color: #E8DCCD; height:3px;">
-                {% if user.is_authenticated %}
-                    <h6 class="ps-3" style="color:#E8DCCD"> You </h6>
-                    <li class="hover">
-                        <a href="/account"><i class="fa fa-user"></i> Account </a>
-                    </li>
-                    <li class="hover">
-                        <a href="/followed"><i class="fa fa-bookmark"></i> Saved Creators </a>
-                    </li>
-                    <hr class="border-0 w-75 align-self-center m-3" style="background-color: #E8DCCD; height:3px;">
-                    <h6 class="ps-3" style="color:#E8DCCD"> Storefront </h6>
-                    <li class="hover fw-bold">
-                        <a href="/products"><i class="fa fa-shop"></i> Manage </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
+{% include 'header.html' %}
+<div class="row d-flex h-100 pt-5" id="main">
+    {% include 'sidebar.html' %}
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
-        <div class="row d-flex my-3 mx-auto w-100 h-100"
-             style="max-width: 1700px;max-height: 180px; min-height:180px" id="banner">
-            <div class="d-flex justify-content-center align-items-center position-relative" style="height:160px; width: 160px; left:10px; top:10px;" id="logo">
-                <i class="fa fa-image fa-5x"></i>
+        <div class="row d-flex my-3 mx-auto w-100 h-100 position-relative"
+             style="max-width: 1235px;max-height: 338px; min-height:180px"
+             id="banner">
+            <div class="d-block justify-content-center align-items-center position-absolute p-1 z-1"
+                 style="height:80px; width: 80px; left:10px; top:10px;" id="logo">
+                <button type="button"
+                        class="d-block w-100 h-100 border-0 justify-content-center edit invisible disabled"
+                        id="logoBtn" style="background: inherit" data-bs-toggle="modal"
+                        data-bs-target="#logoInputModal">
+                    <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
+                </button>
             </div>
-            <div class="d-flex justify-content-center align-items-center ms-auto position-relative" style="height:40px; width: 40px; right:10px; top:10px;background-color: dimgray;" id="edit">
-                <i class="fa fa-pencil fa-lg"></i>
+            <div class="modal fade" id="logoInputModal" tabindex="-1" aria-labelledby="logoInputModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" style="top:25%">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="logoInputModalLabel">Upload Logo</h5>
+                            <button type="button" class="btn-close hover" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="logoInput">
+                                <input type="file" id="logoInput" accept="image/png, image/jpeg">
+                            </label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn hover" data-bs-dismiss="modal"
+                                    onclick="document.getElementById('logoInput').value=''">Close
+                            </button>
+                            <button type="button" class="btn hover" data-bs-dismiss="modal">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-block justify-content-center align-items-center position-absolute z-1 p-1"
+                 style="height:40px; width: 40px; right:10px; top:10px">
+                <button type="button" class="hover btn btn-sm" onclick="setEditable()"
+                        style="background-color: dimgray;" id="edit">
+                    <i class="fa fa-pencil fa-lg" style="filter: brightness(100%)"></i>
+                </button>
+            </div>
+            <button type="button"
+                    class="d-block border-0 justify-content-center position-relative z-0 h-100 edit invisible disabled"
+                    id="bannerBtn" style="background: inherit; max-width:inherit; max-height: inherit"
+                    data-bs-toggle="modal" data-bs-target="#bannerInputModal">
+                <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
+            </button>
+            <div class="modal fade" id="bannerInputModal" tabindex="-1" aria-labelledby="bannerInputModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" style="top:25%">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="bannerInputModalLabel">Upload Banner</h5>
+                            <button type="button" class="btn-close hover" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="bannerInput">
+                                <input type="file" id="bannerInput" accept="image/png, image/jpeg">
+                            </label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn hover" data-bs-dismiss="modal"
+                                    onclick="document.getElementById('bannerInput').value=''">Close
+                            </button>
+                            <button type="button" class="btn hover" data-bs-dismiss="modal">Save changes</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row justify-content-start">
             <div class="col-auto">
                 {% if store.name == None %}
-                    <h3> {{ user.username }}'s Store </h3>
+                    <h3><label for="storeName"></label><input type="text" class="px-1" id="storeName"
+                                                              value="{{ user.username }}'s Store" readonly></h3>
                 {% else %}
-                    <h3> {{ store.name }} </h3>
+                    <h3><label for="storeName"></label><input type="text" class="px-1" id="storeName"
+                                                              value="{{ store.name }}'s Store" readonly></h3>
                 {% endif %}
+            </div>
+            <div class="col-lg-2">
+                <button type="submit" id="confirm" class="hover btn btn-sm"
+                        style="border-radius: 0;border-color: #E8DCCD;" disabled hidden>Confirm Changes
+                </button>
+                <button type="button" id="cancel" class="hover btn btn-sm"
+                        style="border-radius: 0;border-color: #E8DCCD;" onclick="cancelEditable()" disabled hidden>
+                    Cancel
+                </button>
             </div>
         </div>
 
-        <div class="row justify-content-end">
+        <div class="row col-10 justify-content-end">
             <div class="col-auto">
                 <a href="/createproduct" class="hover btn btn-sm btn-dark"
                    style="max-width: 120px;border-color: #E8DCCD;" id="createBtn"> Create Product</a>
@@ -190,31 +166,65 @@
         </div>
         <div class="row d-flex flex-grow-1 my-2 w-100 h-100 m-0 position-relative">
             <div class="col d-flex w-100 m-0 p-0 position-relative">
-                <table class="table table-dark table-borderless w-100 m-0">
-                    <thead style="border-bottom: #161718; border-bottom-style: solid;border-width: 3px">
-                    <tr>
-                        <td><span> Product Name </span></td>
-                        <td><span> Quantity Available </span></td>
-                        <td><span> Price </span></td>
-                        <td><span> Rating </span></td>
-                        <td><span> Amount Sold </span></td>
-                    </tr>
-                    </thead>
-                    <tbody style="border-width: 3px">
-                    {% for i in products %}
-                        <tr>
-                            <td>{{ i.name }}</td>
-                            <td>{{ i.qoh }}</td>
-                            <td>{{ i.price }}</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                {#                <table class="table table-dark table-borderless w-100 m-0">#}
+                {#                    <thead style="border-bottom: #161718; border-bottom-style: solid;border-width: 3px">#}
+                {#                    <tr>#}
+                {#                        <td><span> Product Name </span></td>#}
+                {#                        <td><span> Quantity Available </span></td>#}
+                {#                        <td><span> Price </span></td>#}
+                {#                        <td><span> Rating </span></td>#}
+                {#                        <td><span> Amount Sold </span></td>#}
+                {#                    </tr>#}
+                {#                    </thead>#}
+                {#                    <tbody style="border-width: 3px">#}
+                {#                    {% for i in products %}#}
+                {#                        <tr>#}
+                {#                            <td>{{ i.name }}</td>#}
+                {#                            <td>{{ i.qoh }}</td>#}
+                {#                            <td>{{ i.price }}</td>#}
+                {#                            <td></td>#}
+                {#                            <td></td>#}
+                {#                        </tr>#}
+                {#                    {% endfor %}#}
+                {#                    </tbody>#}
+                {#                </table>#}
+
+                <div class="container col-12">
+                    <div class="row col-12">
+                        <div class="col-12">
+                            <!-- Header Row -->
+                            <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
+                                <div class="col-12 col-md-2 p-0">Product Name</div>
+                                <div class="col-12 col-md-2 p-0">Quantity On Hand</div>
+                                <div class="col-12 col-md-2 p-0">Price</div>
+                                <div class="col-12 col-md-3 p-0">Star Rating</div>
+                                <div class="col-12 col-md-3 p-0"></div>
+                            </div>
+                            {% for product in products %}#}
+                                <!-- Product List -->
+                                <div class="product border px-2 py-3 d-flex col-12 primary-color rounded mb-3">
+                                    <div class="product-name col-12 col-md-2">{{ product.name }}</div>
+                                    <div class="col-12 col-md-2">{{ product.qoh }}</div>
+                                    <div class="col-12 col-md-2">{{ product.price }}</div>
+                                    <div class="col-12 col-md-3 rating">⭐⭐⭐⭐</div>
+                                    <div class="col-12 col-md-3 d-flex p-0">
+                                        <button class="col-6 bg-danger" data-productId="{{ product.productId }}">Remove</button>
+                                        <div class="col-6 px-auto">
+                                            <a href="{% url 'EditProductView' product_id=product.productId %}" class="col-10 float-end">
+                                                <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            {% endfor %}#}
+                            <!-- Add more products here -->
+
+                        </div>
+                    </div>
+                </div>
+            </div>  <!-- No content outside this div -->
         </div>
-    </div>  <!-- No content outside this div -->
-</div>
 </body>
 </html>

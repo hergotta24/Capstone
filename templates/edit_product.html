@@ -5,7 +5,7 @@
         <div class="m-auto h-100 w-100 gap-3 p-3">
             <div class="container mx-auto flex-wrap w-100 w-lg-75">
                 <div class="col-12 col-md-6 h-100">
-                    <div class="pe-2 position-relative">
+                    <div class="position-relative">
 
                         <!-- Full-width images with number text -->
                         <div class="mySlides">
@@ -48,7 +48,7 @@
                         </div>
 
                         <!-- Thumbnail images -->
-                        <div class="row">
+                        <div class="row d-none d-md-block">
                             <div class="column">
                                 <img class="demo cursor" src="{{ product.image.url }}" style="width:100%"
                                      onclick="currentSlide(1)" alt="The Woods">
@@ -77,33 +77,30 @@
                     </div>
                 </div>
                 <div class="col-12 col-md-6 d-flex fit-content flex-wrap px-2">
-                    <div class="col-12">
-                        <h1 class="primary-color">{{ product.name }}</h1>
+                    <div class="col-12 mb-2 pe-5">
+                        <label for="product-name" class="col-12 col-lg-4 primary-color">Product Name:</label>
+                        <input id="product-name" type="text" class="col-12 col-lg-7 btn p-0 btn-primary" value="{{ product.name }}" />
                     </div>
-                    <div class="col-12">
-                        <span class="fa fa-star fa-lg checked"></span>
-                        <span class="fa fa-star fa-lg checked"></span>
-                        <span class="fa fa-star fa-lg checked"></span>
-                        <span class="fa fa-star fa-lg unchecked"></span>
-                        <span class="fa fa-star fa-lg unchecked"></span>
+                    <div class="col-12 pe-5 mb-2">
+                        <label for="product-price" class="col-12 col-lg-4 primary-color">Price: </label>
+                        <input id="product-price" class="col-12 col-lg-7 btn p-0 btn-primary" type="number" value="{{ product.price }}"/>
                     </div>
-                    <div class="col-12 my-2">
-                        <p class="primary-color">
-                            {{ product.description }}
-                        </p>
+                    <div class="col-12 pe-5 mb-2">
+                        <label for="product-qoh" class="col-12 col-lg-4 primary-color">Quantity On Hand: </label>
+                        <input id="product-qoh" class="col-12 col-lg-7 btn p-0 btn-primary" type="number" value="{{ product.qoh }}"/>
                     </div>
-                    <div class="col-12 d-flex pe-5">
-                        <h3 class="col-5 primary-color"><span>Price:</span> ${{ product.price }}</h3>
-                        <input class="col-4 btn p-0 btn-primary" type="number" placeholder="Quantity"/>
+                    <div class="col-12 d-flex flex-wrap my-2">
+                        <label for="product-description" class="col-12 primary-color">Product Description</label>
+                        <div contenteditable="true" id="product-description" class="col-12 p-2 fit-content primary-color border">{{ product.description }}"</div>
                     </div>
+
                     <div class="col-12 d-flex mt-3">
-                        <button class="col-12 btn-primary btn"> Add To Cart</button>
+                        <button type="submit" id="update-product" class="col-12 btn-primary btn">Update Product</button>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-    <script src="{% static 'js/product-detail.js' %}"></script>
+    <script src="{% static 'js/update-product.js' %}"></script>
 {% endblock %}
 

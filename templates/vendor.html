@@ -1,18 +1,131 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+    <style>
+    i, h3, td, button {
+        color: #E8DCCD !important;
+    }
+
+    #storeName[readonly] {
+        border: none;
+        cursor: default;
+        outline: none;
+        background-color: inherit;
+
+    }
+
+    #storeName {
+        background-color: #46494d;
+        color: inherit;
+        max-width: 250px;
+    }
+
+    #banner {
+    {% if store.bannerURL == None %}
+        background-color: gray;
+    {% else %}
+        background-image: url('{{ store.bannerURL }}');
+    {% endif %}
+    }
+
+    #logo {
+    {% if store.bannerURL == None %}
+        background-color: dimgray;
+    {% else %}
+        background-image: url('{{ store.logoURL }}');
+    {% endif %}
+    }
+
+    #logoBtn:hover, #bannerBtn:hover {
+        filter: brightness(0.75);
+        opacity: 100%;
+
+    }
+
+    .modal-content {
+        background-color: #212529;
+        border-radius: 0;
+
+        color: #E8DCCD;
+
+    }
+</style>
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
-        <div class="row d-flex my-3 mx-auto w-100 h-100" style="max-width: 1700px;max-height: 180px; min-height:180px" id="banner">
-            <div class="d-flex justify-content-center align-items-center position-relative" style="height:160px; width: 160px; left:10px; top:10px;" id="logo">
-                <i class="fa fa-image fa-5x" aria-hidden="true"></i>
+        <div class="row d-flex my-3 mx-auto w-100 h-100 position-relative"
+             style="max-width: 1235px;max-height: 338px; min-height:180px"
+             id="banner">
+            <div class="d-block justify-content-center align-items-center position-absolute p-1 z-1"
+                 style="height:80px; width: 80px; left:10px; top:10px;" id="logo">
+                <button type="button"
+                        class="d-block w-100 h-100 border-0 justify-content-center edit invisible disabled"
+                        id="logoBtn" style="background: inherit" data-bs-toggle="modal"
+                        data-bs-target="#logoInputModal">
+                    <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
+                </button>
             </div>
-            <div class="d-flex justify-content-center align-items-center ms-auto position-relative" style="height:40px; width: 40px; right:10px; top:10px;background-color: dimgray;" id="edit">
-                <i class="fa fa-pencil fa-lg" aria-hidden="true"></i>
+            <div class="modal fade" id="logoInputModal" tabindex="-1" aria-labelledby="logoInputModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" style="top:25%">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="logoInputModalLabel">Upload Logo</h5>
+                            <button type="button" class="btn-close hover" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="logoInput">
+                                <input type="file" id="logoInput" accept="image/png, image/jpeg">
+                            </label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn hover" data-bs-dismiss="modal"
+                                    onclick="document.getElementById('logoInput').value=''">Close
+                            </button>
+                            <button type="button" class="btn hover" data-bs-dismiss="modal">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-block justify-content-center align-items-center position-absolute z-1 p-1"
+                 style="height:40px; width: 40px; right:10px; top:10px">
+                <button type="button" class="hover btn btn-sm" onclick="setEditable()"
+                        style="background-color: dimgray;" id="edit">
+                    <i class="fa fa-pencil fa-lg" style="filter: brightness(100%)"></i>
+                </button>
+            </div>
+            <button type="button"
+                    class="d-block border-0 justify-content-center position-relative z-0 h-100 edit invisible disabled"
+                    id="bannerBtn" style="background: inherit; max-width:inherit; max-height: inherit"
+                    data-bs-toggle="modal" data-bs-target="#bannerInputModal">
+                <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
+            </button>
+            <div class="modal fade" id="bannerInputModal" tabindex="-1" aria-labelledby="bannerInputModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" style="top:25%">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="bannerInputModalLabel">Upload Banner</h5>
+                            <button type="button" class="btn-close hover" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="bannerInput">
+                                <input type="file" id="bannerInput" accept="image/png, image/jpeg">
+                            </label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn hover" data-bs-dismiss="modal"
+                                    onclick="document.getElementById('bannerInput').value=''">Close
+                            </button>
+                            <button type="button" class="btn hover" data-bs-dismiss="modal">Save changes</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="m-auto h-100 w-100 gap-3 p-3">
             <div class="d-flex ps-4" id="content">
-                    <div class="d-flex flex-wrap">
+                    <div class="d-flex w-100 flex-wrap">
                         {% for product in products %}
                             {% include 'product_card.html' %}
                         {% endfor %}

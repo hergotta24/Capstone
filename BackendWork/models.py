@@ -1,15 +1,26 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 
 
 # Create your models here.
 class User(AbstractUser):
+    email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
     shipping_address = models.ForeignKey('Address', on_delete=models.SET_NULL, null=True,
-                                            related_name="userShippingAddress", blank=True)
+                                         related_name="userShippingAddress", blank=True)
     billing_address = models.ForeignKey('Address', on_delete=models.SET_NULL, null=True,
                                         related_name="userBillingAddress", blank=True)
+    payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, null=True,
+                                related_name="paymentMethod", blank=True)
+
+
+class Payment(models.Model):
+    name = models.CharField(max_length=100)
+    card_number = models.CharField(max_length=16)
+    expiration_date = models.CharField(max_length=4)
+    back_number = models.CharField(max_length=3)
 
 
 class Address(models.Model):
@@ -77,15 +88,21 @@ class Invoice(models.Model):
 
 
 class Product(models.Model):
+    class Meta:
+        unique_together = ['name', 'soldByStoreId']
+
     productId = models.AutoField(primary_key=True)
     soldByStoreId = models.ForeignKey(Storefront, on_delete=models.CASCADE)
-    invoiceId = models.ForeignKey(Invoice, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=1000)
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    price = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0.01)])
     qoh = models.PositiveIntegerField(default=0, verbose_name='Quantity on Hand')
-    categoryId = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
-    subCategoryId = models.ForeignKey('SubCategory', on_delete=models.SET_NULL, null=True)
+    categoryId = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
+    subCategoryId = models.ForeignKey('SubCategory', on_delete=models.SET_NULL, null=True, blank=True)
+    weight = models.FloatField(validators=[MinValueValidator(0.01)])
+    length = models.FloatField(validators=[MinValueValidator(0.01)])
+    width = models.FloatField(validators=[MinValueValidator(0.01)])
+    height = models.FloatField(validators=[MinValueValidator(0.01)])
     dateAdded = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='product_images/', null=True, blank=True)
 

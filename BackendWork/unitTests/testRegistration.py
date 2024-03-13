@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-
+import json
 from BackendWork.forms import UserCreationForm
 from BackendWork.models import User
 
@@ -24,8 +24,11 @@ class RegistrationTest(TestCase):
         self.assertEqual(response.status_code, 200, "registration page not returning 200 OK")
 
     def testRegistrationSuccessRedirect(self):  # might technically be an acceptance test?
-        response = self.client.post('/register/', self.form_data, follow=True)
-        self.assertEqual(response.status_code, 302, "registration page not returning 302 found (redirect)")
+        # response = self.client.post('/register/', self.form_data, follow=True)
+        response = self.client.post('/register/', json.dumps(self.form_data), content_type="application/json",
+                                    follow=True)
+        self.assertEqual(response.status_code, 200, "registration page not returning 200 OK upon successful"
+                                                    " registration")
 
     def testRegistrationFormValid(self):
         form = UserCreationForm(data=self.form_data)

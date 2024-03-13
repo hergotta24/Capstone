@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://kit.fontawesome.com/0a86d3bf39.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Create Product</title>
+</head>
+<style>
+    i, h3, td, button {
+        color: #E8DCCD !important;
+    }
+
+    #productName {
+        background-color: #46494d;
+        color: inherit;
+        max-width: 250px;
+    }
+
+    label, a {
+        color: #E8DCCD
+    }
+
+    #productImgBtn:hover {
+        filter: brightness(0.75);
+        opacity: 100%;
+
+    }
+
+    .modal-content {
+        background-color: #212529;
+        border-radius: 0;
+
+        color: #E8DCCD;
+
+    }
+
+    .red {
+        background-color: red;
+    }
+</style>
+<body class="d-grid w-100 overflow-x-hidden">
+{% include 'header.html' %}
+<div class="row d-flex h-100 pt-5" id="main">
+    {% include 'sidebar.html' %}
+    <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
+        <div class="row d-flex flex-column mx-auto gx-5 w-100" style="max-height: 390px">
+            <div class="col-auto d-flex w-100 h-100 p-1"
+                 style="max-width:390px; max-height:390px; min-height:390px;min-width:390px; background-color:gray"
+                 id="productImg">
+                <button type="button"
+                        class="d-block w-100 h-100 border-0 justify-content-center"
+                        id="productImgBtn" style="background: inherit" data-bs-toggle="modal"
+                        data-bs-target="#productImgInputModal">
+                    <i class="fa fa-pencil fa-lg"></i>
+                </button>
+                <div class="modal fade" id="productImgInputModal" tabindex="-1"
+                     aria-labelledby="productImgInputModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog" style="top:25%">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="productImgInputModalLabel">Upload Product Image</h5>
+                                <button type="button" class="btn-close hover" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <label for="productImgInput">
+                                    <input type="file" id="productImgInput" accept="image/png, image/jpeg">
+                                </label>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn hover" data-bs-dismiss="modal"
+                                        onclick="document.getElementById('productImgInput').value=''">Close
+                                </button>
+                                <button type="button" class="btn hover" data-bs-dismiss="modal">Save
+                                    changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col d-flex flex-column h-100 justify-content-start">
+                <div class="row d-flex me-auto" style="height: 50px">
+                    <h3 class="p-0 m-0"><label for="productName"></label>
+                        <input type="text" id="productName" value="Product Name">
+                    </h3>
+                </div>
+                <div class="row input-group d-flex flex-row me-auto py-0">
+                    <div class="col-auto">
+                        <label for="price">Price</label>
+                        <input type="number" style="width:100px" id="price" value="00.00">
+                    </div>
+                    <div class="col-auto justify-content-start">
+                        <label for="qty">Qty</label>
+                        <input type="number" style="width:100px" id="qty">
+                    </div>
+                </div>
+                <div class="row d-flex me-auto overflow-y-hidden h-100 align-content-start">
+                    <label for="description">Description</label>
+                    <textarea class="h-75" id="description"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row d-flex flex-row w-100 mx-auto" style="margin-top: 100px">
+            <button type="submit" class="btn hover btn-sm btn-dark me-2" style="max-width: 120px;border-color: #E8DCCD;">Create Product</button>
+            <a class="btn btn-sm hover btn-dark" href="/storefront" style="color: #E8DCCD;max-width: 200px;border-color: #E8DCCD;">Return to Storefront</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
