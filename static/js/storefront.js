@@ -131,8 +131,8 @@ $(document).ready(function () {
         // Optionally, display an error message to the user
     });
 });
-
-    function getCookie(name) {
+    function getCookie(name)
+    {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -145,7 +145,7 @@ $(document).ready(function () {
         }
     }
     return cookieValue;
-}
+    }
 
 });
 

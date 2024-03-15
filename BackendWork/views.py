@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.views import View
-from BackendWork.forms import UserCreationForm, UserChangeForm, AddProductForm, StorefrontForm
+from BackendWork.forms import *
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse, HttpResponseForbidden
-from BackendWork.models import User, Product, Storefront, Invoice, ProductReviews
+from BackendWork.models import User, Product, Storefront, Invoice, LineItem, ProductReviews
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -98,14 +99,41 @@ class AccountCartView(View):
     @staticmethod
     @login_required(login_url='/login/')
     def get(request):
-        invoiceNumber = Invoice.objects.filter(customerId=request.user.id).order_by("customerId").first()
-        user_cart = Product.objects.filter(invoiceId=invoiceNumber)
-        return render(request, 'cart.html', {"cart": user_cart})
+        invoiceNumber = Invoice.objects.get(customerId=request.user.id, orderStatus='C1')
+        user_cart = LineItem.objects.filter(invoiceId=invoiceNumber)
+        subtotal = 0.00
+        for y in user_cart:
+            subtotal += float(y.productId.price)
+        tax = round(subtotal * 0.082, 2)
+        shipping = 20.00
+        discount = 1.00
+        total = subtotal + tax + shipping
+        return render(request, 'cart.html',
+                      {"cart": user_cart, "subtotal": format(subtotal, '0.2f'), "tax": format(tax, '0.2f')
+                          , "shipping": format(shipping, '0.2f'), "discount": format(discount, '0.2f'),
+                       "total": format(total, '0.2f')})
 
     @staticmethod
     @login_required(login_url='/login/')
-    def post(self, request):
-        return JsonResponse(status=200)
+    def post(request):
+        data = json.loads(request.body)
+        name = data.get('name')
+        card = data.get('card')
+        expiration = data.get('expiration')
+        back = data.get('back_number')
+
+        form_data = {
+            'name': name,
+            'card_number': card,
+            'expiration_date': expiration,
+            'back_number': back,
+        }
+
+        form = CardCreationForm(form_data)
+        if form.is_valid():
+            return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
+        else:
+            return JsonResponse({'message': form.errors}, status=401)
 
 
 def home(request):
@@ -146,7 +174,6 @@ class StorefrontView(View):
         return JsonResponse({'success': True, 'message': 'Changes confirmed successfully'})
 
 
-
 class VendorView(View):
     @staticmethod
     def get(request, store_id):
@@ -171,6 +198,36 @@ class ProductDetailView(View):
         reviews = ProductReviews.objects.filter(productId=product.productId)
         return render(request, 'product_detail.html', {'product': product, 'reviews': reviews})
 
+    @staticmethod
+    @login_required(login_url='/login/')
+    def post(request, product_id):
+        data = json.loads(request.body)
+        quantity = data.get('quantity')
+        cart = Invoice.objects.get(customerId=request.user.id, orderStatus='C1')
+        product = get_object_or_404(Product, productId=product_id)
+
+        try:
+            addingProduct = LineItem.objects.get(invoiceId=cart.invoiceId, productId=product.productId)
+        except LineItem.DoesNotExist:
+            form_data = {
+                'invoiceId': cart.invoiceId,
+                'productId': product.productId,
+                'quantity': quantity,
+                'linePrice': 1,
+            }
+            form = LineItemCreationForm(form_data)
+
+            print("Form is created here")
+
+            if form.is_valid():
+                form.save();
+                return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
+            else:
+                return JsonResponse({'message': form.errors}, status=401)
+
+        addingProduct.quantity += int(quantity)
+        addingProduct.save()
+        return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
 
 
 class UpdateProductView(LoginRequiredMixin, View):

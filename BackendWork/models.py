@@ -12,6 +12,15 @@ class User(AbstractUser):
                                          related_name="userShippingAddress", blank=True)
     billing_address = models.ForeignKey('Address', on_delete=models.SET_NULL, null=True,
                                         related_name="userBillingAddress", blank=True)
+    payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, null=True,
+                                related_name="paymentMethod", blank=True)
+
+
+class Payment(models.Model):
+    name = models.CharField(max_length=100)
+    card_number = models.CharField(max_length=16)
+    expiration_date = models.CharField(max_length=4)
+    back_number = models.CharField(max_length=3)
 
 
 class Address(models.Model):
@@ -60,6 +69,7 @@ class StoreReviews(models.Model):
 
 
 class Invoice(models.Model):
+    ORDER_STATUS = [('C1', 'Cart'), ('C2', 'Completed')]
     invoiceId = models.AutoField(primary_key=True)
     customerId = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     storeId = models.ForeignKey(Storefront, on_delete=models.SET_NULL, null=True)
@@ -67,7 +77,7 @@ class Invoice(models.Model):
     discount = models.DecimalField(max_digits=8, decimal_places=2)
     tax = models.DecimalField(max_digits=8, decimal_places=2)
     shipping = models.DecimalField(max_digits=8, decimal_places=2)
-    orderStatus = models.CharField(max_length=20)
+    orderStatus = models.CharField(max_length=2, choices=ORDER_STATUS)
     invoiceDate = models.DateTimeField(auto_now_add=True)
 
 
@@ -85,7 +95,6 @@ class Product(models.Model):
 
     productId = models.AutoField(primary_key=True)
     soldByStoreId = models.ForeignKey(Storefront, on_delete=models.CASCADE)
-    # invoiceId = models.ForeignKey(Invoice, on_delete=models.CASCADE)  # not sure this should be in Product model
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=1000)
     price = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0.01)])

@@ -51,10 +51,11 @@
                     </div>
                     <div class="col-12 d-flex pe-5">
                         <h3 class="col-5 primary-color"><span>Price:</span> ${{ product.price }}</h3>
-                        <input class="col-4 btn p-0 btn-primary" type="number" placeholder="Quantity"/>
+                        <input class="col-4 btn p-0 btn-primary" type="number" id='quantity' placeholder="Quantity"/>
                     </div>
                     <div class="col-12 d-flex mt-3">
-                        <button class="col-12 btn-primary btn"> Add To Cart</button>
+                        <button class="col-12 btn-primary btn" id="add_to_cart"
+                                value="{{ product.productId }}">Add To Cart</button>
                     </div>
                     <div>
                         <tr>

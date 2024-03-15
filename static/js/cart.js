@@ -1,43 +1,33 @@
-let slideIndex = 1;
-showSlides(slideIndex);
+let coll = document.getElementsByClassName("collapsible");
+let i;
 
-// Next/previous controls
-function plusSlides(n) {
-  showSlides(slideIndex += n);
+for (i = 0; i < coll.length; i++)
+{
+    coll[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        let content = this.nextElementSibling;
+        if (content.style.display === "table") {
+            content.style.display = "none";
+        } else {
+            content.style.display = "table";
+        }
+    });
 }
 
-// Thumbnail image controls
-function currentSlide(n) {
-  showSlides(slideIndex = n);
-}
 
-function showSlides(n) {
-  console.log("it's working")
-  let i;
-  let slides = document.getElementsByClassName("mySlides");
-  let dots = document.getElementsByClassName("demo");
-  let captionText = document.getElementById("caption");
-  if (n > slides.length) {slideIndex = 1}
-  if (n < 1) {slideIndex = slides.length}
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none";
-  }
-  for (i = 0; i < dots.length; i++) {
-    dots[i].className = dots[i].className.replace(" active", "");
-  }
-  slides[slideIndex-1].style.display = "block";
-  dots[slideIndex-1].className += " active";
-  captionText.innerHTML = dots[slideIndex-1].alt;
-}
+document.getElementById('cartForm').addEventListener('submit', function (event) {
+    event.preventDefault();
 
-$('#add_to_cart').click(function (e) {
-    e.preventDefault(); // Prevent default form submission
-
-    // Gather data from elements
-    var formData = {'quantity': document.getElementById('quantity').value}
+    // Collect form data
+    const formData = {
+        name: this.elements.name.value,
+        card: this.elements.card.value,
+        expiration: this.elements.expiration.value,
+        back_number: this.elements.back_number.value,
+    };
 
     // Send form data using fetch post request
-    fetch('/products/' + document.getElementById('add_to_cart').value + '/', {
+    fetch('/cart/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -62,9 +52,10 @@ $('#add_to_cart').click(function (e) {
             console.error('Error:', error);
             let errorMessage = typeof error.message === 'object' ? Object.values(error.message).join(" ") : error.message;
         });
+});
 
-    function getCookie(name)
-    {
+// Function to get CSRF token from cookie
+function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -77,5 +68,4 @@ $('#add_to_cart').click(function (e) {
         }
     }
     return cookieValue;
-    }
-});
+}

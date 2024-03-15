@@ -2,7 +2,7 @@
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django import forms
 
-from .models import User, Product, Storefront, ProductImage
+from .models import User, Product, Storefront, Payment, LineItem, ProductImage
 
 
 class UserCreationForm(UserCreationForm):
@@ -25,6 +25,18 @@ class UserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class CardCreationForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = ("name", "card_number", "expiration_date", "back_number")
+
+
+class LineItemCreationForm(forms.ModelForm):
+    class Meta:
+        model = LineItem
+        fields = ("invoiceId", "productId", "quantity", "linePrice")
 
 
 class StorefrontForm(forms.ModelForm):
