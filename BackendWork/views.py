@@ -144,6 +144,20 @@ def categoryFilter(request, category):
     return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
+def addFavorite(request, product_id):
+    product = get_object_or_404(Product, productId=product_id)
+    user = User.objects.get(username=request.user)
+    user.add_favorite(product)
+    return JsonResponse({'message': 'Favorite product added!'}, status=200)
+
+
+def removeFavorite(request, product_id):
+    product = get_object_or_404(Product, productId=product_id)
+    user = User.objects.get(username=request.user)
+    user.remove_favorite(product)
+    return JsonResponse({'message': 'Favorite product removed!'}, status=200)
+    
+
 class StorefrontView(View):
     @staticmethod
     def get(request):
