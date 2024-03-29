@@ -130,5 +130,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "BackendWork.User"
 
-PAYPAL_RECEIVER_EMAIL = 'sb-d47z47829882391@business.example.com'
+PAYPAL_RECEIVER_EMAIL = 'sb-vrejt23278038@business.example.com'
 PAYPAL_TEST = True

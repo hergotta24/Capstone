@@ -8,7 +8,7 @@
             </div>
             <div class="col-12"><h2 class="primary-color">Shipping Details</h2></div>
             <div class="col-12 col-lg-8 px-2">
-                <form id="updateAccountForm" class="d-flex flex-wrap mt-2" method="POST">
+                <form id="addShippingDetails" class="d-flex flex-wrap mt-2" method="POST">
                     <div class="col-12 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="email">Email</label>
                         <input type="email" class="col-12 form-control form-control-lg login-input" id="email"
@@ -17,21 +17,21 @@
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="first_name">First
-                            Name</label>
-                        <input type="text" class="col-12 form-control form-control-lg login-input" id="first_name"
+                            Name*</label>
+                        <input type="text" class="col-12 form-control required form-control-lg login-input" id="first_name"
                                name="first_name"
                                placeholder="First Name" value="{{ user.first_name }}">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="Last Name">Last
                             Name</label>
-                        <input type="text" class="col-12 form-control form-control-lg login-input" id="last_name"
+                        <input type="text" class="col-12 form-control required form-control-lg login-input" id="last_name"
                                name="first_name" value="{{ user.last_name }}">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-line-1">Address
                             Line 1</label>
-                        <input type="text" class="col-12 form-control form-control-lg login-input" id="address-line-1"
+                        <input type="text" class="col-12 form-control form-control-lg required login-input" id="address-line-1"
                                name="address-line-1"
                                placeholder="Address Line 1" value="{{ user.address.line1 }}">
                     </div>
@@ -49,12 +49,12 @@
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="city">City/Town</label>
-                        <input type="text" class="col-12 form-control form-control-lg login-input" id="city"
+                        <input type="text" class="col-12 form-control form-control-lg required login-input" id="city"
                                name="city" value="{{ user.address.city }}">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="state">State</label>
-                        <select type="text" class="col-12 form-control form-control-lg login-input" id="state"
+                        <select type="text" required class="col-12 form-control form-control-lg login-input" id="state"
                                 name="state">
                             <option value="" selected>{{ user.address.state }}</option>
                             {% for item in state_choices %}
@@ -65,8 +65,8 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
-                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-zipCode">Area Code</label>
-                        <input type="text" class="col-12 form-control form-control-lg login-input" id="address-zipCode"
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-zipCode">Area Code*</label>
+                        <input type="text" required class="col-12 form-control form-control-lg login-input" id="address-zipCode"
                                name="address-zipCode" value="{{ user.address.zipCode }}">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
@@ -96,7 +96,7 @@
                         <div class="col-12 d-flex flex-wrap my-2 border-bottom">
                             <h2 class="primary-color col-12 ps-2 text-left">Order Summary</h2>
                             <div class="col-12 align-items-center pb-2 d-flex">
-                                <span class="primary-color ps-3 mb-1">({{ cartItems.count }} items)</span>
+                                <span class="primary-color ps-3 mb-1">({{ cartCount }} items)</span>
                                 <span class="primary-color ps-3 mb-1"><a href="/cart"
                                                                          class="text-bg-success p-1 rounded">Edit Cart</a></span>
                             </div>
@@ -145,5 +145,5 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="{% static 'js/cart.js' %}"></script>
+    <script src="{% static 'js/checkout.js' %}"></script>
 {% endblock %}

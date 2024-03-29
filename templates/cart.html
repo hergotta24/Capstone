@@ -7,7 +7,7 @@
                 {% if cartItems.count > 0 %}
                     <div class="col-12 mt-5 mb-3">
                         <h1 class="primary-color text-left">Shopping Cart</h1>
-                        <span class="primary-color">({{ cartItems.count }} items)</span>
+                        <span class="primary-color">({{ cartCount }} items)</span>
                     </div>
                     {% for item in cartItems %}
                         <div class="cart-item border-top border-bottom px-2 py-3 d-flex col-12 primary-color mb-3">

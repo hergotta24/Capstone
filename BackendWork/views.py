@@ -333,9 +333,9 @@ def checkout_view(request):
     cart = request.user.cart
     paypal_dict = {
         'business': settings.PAYPAL_RECEIVER_EMAIL,
-        'amount': '200',
-        'item_name': 'Order-Item-No-1',
-        'invoice': 'Invoice-No-1',
+        'amount': cart.cart_summary['subtotal'],
+        'item_name': 'Order-Item-No-022',
+        'invoice': 'Invoice-No-022',
         'currency_code': 'USD',
         'notify_url': 'http://{}{}'.format(host, reverse('paypal-ipn')),
         'return_url': 'http://{}{}'.format(host, reverse('payment-complete')),
