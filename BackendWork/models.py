@@ -14,6 +14,7 @@ class User(AbstractUser):
                                         related_name="userBillingAddress", blank=True)
     payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, null=True,
                                 related_name="paymentMethod", blank=True)
+    favorite = models.ManyToManyField('Product')
 
 
 class Payment(models.Model):
@@ -133,6 +134,6 @@ class ProductReviews(models.Model):
 class LineItem(models.Model):
     lineItemId = models.AutoField(primary_key=True)
     invoiceId = models.ForeignKey(Invoice, on_delete=models.CASCADE)
-    productId = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    productId = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     quantity = models.PositiveIntegerField()
     linePrice = models.DecimalField(max_digits=8, decimal_places=2)

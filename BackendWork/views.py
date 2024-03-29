@@ -174,7 +174,6 @@ class StorefrontView(View):
         return JsonResponse({'success': True, 'message': 'Changes confirmed successfully'})
 
 
-
 class VendorView(View):
     @staticmethod
     def get(request, store_id):
@@ -316,3 +315,11 @@ class ProductDeleteView(View):
     # @login_required(login_url='/login/')
     def post(request, productid):
         Product.objects.filter(productId=productid).delete()
+
+
+class SavedProductView(View):
+    @staticmethod
+    @login_required(login_url='/login')
+    def get(request):
+        favorite = User.objects.get(id=request.user.id).favorite.all()
+        return render(request, 'favorite.html', {'favorites': favorite})

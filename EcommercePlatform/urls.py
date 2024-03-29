@@ -27,6 +27,7 @@ urlpatterns = [
                   path('logout/', custom_logout, name='Logout'),
                   path('account/', AccountManagementView.as_view(), name='AccountManagementView'),
                   path('storefront/', StorefrontView.as_view(), name='StorefrontView'),
+                  path('favorite/', SavedProductView.as_view(), name='SavedProductView'),
                   path('cart/', AccountCartView.as_view(), name='AccountCartView'),
                   path('storefront/<int:product_id>/', UpdateProductView.as_view(), name='EditProductView'),
                   path('createproduct/', createproduct, name='createproduct'),

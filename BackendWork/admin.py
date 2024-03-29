@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import UserCreationForm, UserChangeForm
-from .models import (User, Address, Storefront, StoreReviews, Product, ProductImage, ProductReviews, Invoice, LineItem )
+from .models import (User, Address, Storefront, StoreReviews, Product, ProductImage, ProductReviews, Invoice, LineItem)
 
 
 class UserAdmin(UserAdmin):
@@ -20,7 +20,7 @@ class UserAdmin(UserAdmin):
                     'phone_number',
                     'shipping_address',
                     'billing_address',
-
+                    'favorite',
                 )
             }
         )

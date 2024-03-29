@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load static %}
+    <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
+        <h2 class="primary-color text-left my-5">My Favorites</h2>
+        {% for product in favorites %}
+            {% include 'product_card.html' %}
+        {% endfor %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/cart.js' %}"></script>
+{% endblock %}
