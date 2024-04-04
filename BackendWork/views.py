@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Sum
 from django.shortcuts import render, redirect
@@ -10,6 +12,8 @@ from BackendWork.models import User, Product, Storefront, Invoice, LineItem, Pro
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
+
+# TAX_RATE = 0.082
 
 
 class UserLoginView(View):
@@ -134,6 +138,26 @@ class AccountCartView(View):
             return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
         else:
             return JsonResponse({'message': form.errors}, status=401)
+
+
+def updateCartQty(request):
+    if request.method == 'POST':
+        invoice = Invoice.objects.get(customerId=request.user.id, orderStatus='C1')
+        user_cart = LineItem.objects.filter(invoiceId=invoice)
+        newQty = int(request.POST.get('newQty'))
+        cartItem = user_cart.get(productId=request.POST.get('productId'))
+        cartItem.quantity = newQty
+        cartItem.linePrice = cartItem.productId.price * newQty
+        cartItem.save()
+
+        subtotal = 0
+        for item in user_cart:
+            subtotal += item.linePrice
+        invoice.subtotal = subtotal
+        # invoice.tax =
+        invoice.save()
+
+    return redirect('AccountCartView')
 
 
 def home(request):

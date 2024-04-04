@@ -28,6 +28,7 @@ urlpatterns = [
                   path('account/', AccountManagementView.as_view(), name='AccountManagementView'),
                   path('storefront/', StorefrontView.as_view(), name='StorefrontView'),
                   path('cart/', AccountCartView.as_view(), name='AccountCartView'),
+                  path('updateCartQty/', updateCartQty, name='updateCartQty'),
                   path('storefront/<int:product_id>/', UpdateProductView.as_view(), name='EditProductView'),
                   path('createproduct/', createproduct, name='createproduct'),
                   path('products/<int:product_id>/', ProductDetailView.as_view(), name='product_detail'),
