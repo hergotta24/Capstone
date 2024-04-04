@@ -1,100 +1,56 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
-        <h2 class="primary-color text-left my-5">My Cart</h2>
-        <div>
-            <button type="button" class="collapsible w-75 m-0" id="tableCollapse">Purchase Summary</button>
-            <table class="table table-dark table-borderless w-75 m-0" style="display: table;">
-                <thead style="border-bottom: #161718; border-bottom-style: solid;border-width: 3px">
-                <tr>
-                    <td><span> Product Name </span></td>
-                    <td><span> Quantity </span></td>
-                    <td><span> Price </span></td>
-                </tr>
-                </thead>
-                <tbody style="border-width: 3px">
-                {% for product in cart %}
-                    <tr>
-                        <td>{{ product.productId.name }}</td>
-                        <td>{{ product.quantity }}</td>
-                        <td>${{ product.productId.price }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-                <tbody style="border-width: 3px">
-                <tr>
-                    <td></td>
-                    <td>Subtotal:</td>
-                    <td>${{ subtotal }}</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>Tax:</td>
-                    <td>${{ tax }}</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>Shipping:</td>
-                    <td>${{ shipping }}</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>Discount:</td>
-                    <td>${{ discount }}</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>Total:</td>
-                    <td>${{ total }}</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div>
-            <button type="button" class="collapsible w-75 m-0">Payment Information</button>
-            <table class="table table-dark table-borderless w-75 m-0" style="display: none;">
-                <form method="post" action="{% url 'AccountCartView' %}" id="cartForm">
-                    {% csrf_token %}
-                    <tbody style="border-width: 3px">
-                    <tr>
-                        <td></td>
-                        <td>
-                            <label>Full Name: </label>
-                            <input type="text" id="name" name="name" pattern="[A-Za-z]+"
-                                   oninvalid="setCustomValidity('Please enter on alphabets only.')">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>
-                            <label>Card Number: </label>
-                            <input type="text" id="card" name="card" minlength="15" maxlength="16" size="16"
-                                   pattern="[0-9]{16}" oninvalid="setCustomValidity('Please enter correct card format.')">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>
-                            <label>Expiration Date: </label>
-                            <input type="text" id="expiration" name="expiration" minlength="4" maxlength="4" size="4"
-                                   oninvalid="setCustomValidity('Please enter expire date.')">
-                        </td>
-                        <td>
-                            <label>Back Number: </label>
-                            <input type="text" id="back_number" name="back_number" minlength="3" maxlength="3" size="3"
-                                   oninvalid="setCustomValidity('Please enter correct card format.')">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>
-                            <button class="btn btn-primary w-75" type="submit">Submit</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </form>
-            </table>
+    <div class="col flex-column overflow-x-hidden h-100 w-100" id="content">
+        <div class="col-12 ps-4 pt-4 d-flex">
+            <div class="container d-flex flex-wrap col-12">
+                {% if cartItems.count > 0 %}
+                    <div class="col-12 mt-5 mb-3">
+                        <h1 class="primary-color text-left">Shopping Cart</h1>
+                        <span class="primary-color">({{ cartCount }} items)</span>
+                    </div>
+                    {% for item in cartItems %}
+                        <div class="cart-item border-top border-bottom px-2 py-3 d-flex col-12 primary-color mb-3">
+                            <div class="product-name d-flex flex-wrap col-12 col-md-4">
+                                <div class="col-12">
+                                    <h5>
+                                        <a href="{% url 'product_detail' product_id=item.product.productId %}">{{ item.product.name }}</a>
+                                    </h5>
+                                </div>
+                                <div class="col-12">
+                                    <a href="{% url 'vendor' store_id=item.product.soldByStoreId_id %}"
+                                       class="primary-color">{{ item.product.soldByStoreId.name }}</a>
+                                </div>
+                            </div>
+                            <div class="align-items-center col-12 col-md-1 d-flex">
+                                <input class="item-qty col-12 btn p-2 btn-primary" type="number"
+                                       value="{{ item.quantity }}"/>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <h6 class="col-12 text-center">Item Price</h6>
+                                <div class="col-12 text-center">${{ item.product.price }}</div>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <h6 class="col-12 text-center">Item Total</h6>
+                                <div class="col-12 text-center">${{ item.total_price }}</div>
+                            </div>
+                            <div class="align-items-center col-12 col-md-1 d-flex justify-content-center">
+                                <i class="fa-solid text-danger fa-trash"></i>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="col-12 d-flex justify-content-between">
+                        <h4 class="primary-color">Item Subtotal: ${{ cartTotal }}</h4>
+                        <a href="/checkout" id="proceed-checkout" class="col-3 btn-primary bg-success btn">Proceed to
+                            Checkout</a>
+                    </div>
+                {% else %}
+                    <div class="d-flex px-auto col-12 mt-5">
+                        <h3 class="primary-color mx-auto text-center">You Don't Have Any Items In Cart Return To
+                            Homepage... </h3>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
