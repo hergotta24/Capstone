@@ -8,7 +8,7 @@ from BackendWork.forms import *
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse, HttpResponseForbidden
-from BackendWork.models import User, Product, Storefront, ProductReviews, STATE_CHOICES
+from BackendWork.models import User, Product, Storefront, ProductReviews, STATE_CHOICES, Cart, CartItem
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -138,20 +138,12 @@ class AccountCartView(View):
 
 def updateCartQty(request):
     if request.method == 'POST':
-        invoice = Invoice.objects.get(customerId=request.user.id, orderStatus='C1')
-        user_cart = LineItem.objects.filter(invoiceId=invoice)
+        user_cart = get_object_or_404(Cart, user=request.user)
         newQty = int(request.POST.get('newQty'))
-        cartItem = user_cart.get(productId=request.POST.get('productId'))
-        cartItem.quantity = newQty
-        cartItem.linePrice = cartItem.productId.price * newQty
-        cartItem.save()
 
-        subtotal = 0
-        for item in user_cart:
-            subtotal += item.linePrice
-        invoice.subtotal = subtotal
-        # invoice.tax =
-        invoice.save()
+        cartItem = get_object_or_404(CartItem, cart=user_cart, product=request.POST.get('productId'))
+        cartItem.quantity = newQty
+        cartItem.save()
 
     return redirect('AccountCartView')
 
