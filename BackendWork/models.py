@@ -134,6 +134,17 @@ class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, through='CartItem')
 
+    def add_product(self, product, quantity=1):
+        cart_item, created = CartItem.objects.get_or_create(cart=self, product=product)
+
+        # If the product is already in the cart, update the quantity
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+        else:
+            cart_item.quantity = quantity
+            cart_item.save()
+
     @property
     def get_cart_items(self):
         return self.cart_item.all()
