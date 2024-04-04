@@ -210,7 +210,7 @@ class ProductDetailView(View):
     def get(request, product_id):
         product = get_object_or_404(Product, productId=product_id)
         reviews = ProductReviews.objects.filter(productId=product.productId)
-        favorite = request.user.hasFavorite(product)
+        favorite = request.user.has_favorite(product)
         return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
                                                        'favorite': favorite})
 
