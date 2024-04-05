@@ -136,3 +136,32 @@ class LineItem(models.Model):
     productId = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     quantity = models.PositiveIntegerField()
     linePrice = models.DecimalField(max_digits=8, decimal_places=2)
+
+
+class Cart(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, through='CartItem')
+
+    @property
+    def get_cart_items(self):
+        return self.cart_item.all()
+
+    @property
+    def cart_summary(self):
+        total_count = 0
+        subtotal = 0
+        cart_items = self.get_cart_items
+        for item in cart_items:
+            total_count += item.quantity
+            subtotal += item.total_price
+        return {'total_count': total_count, 'subtotal': subtotal}
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_item')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    @property
+    def total_price(self):
+        return self.quantity * self.product.price
