@@ -23,8 +23,9 @@
                                 </div>
                             </div>
                             <div class="align-items-center col-12 col-md-1 d-flex">
-                                <input class="item-qty col-12 btn p-2 btn-primary" type="number"
-                                       value="{{ item.quantity }}"/>
+                                <input class="item-qty col-12 btn p-2 btn-primary" type="number" name="quantity_{{ item.product.productId }}"
+                                       value="{{ item.quantity }}" min="1" onchange="checkQuantityChange(this)"/>
+                                <button type="submit" class="update-btn" style="display: none;">Update Quantity</button>
                             </div>
                             <div class="col-12 col-md-3">
                                 <h6 class="col-12 text-center">Item Price</h6>
@@ -57,4 +58,5 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/cart.js' %}"></script>
+    <script src="{% static 'js/update-qty.js' %}"></script>
 {% endblock %}
