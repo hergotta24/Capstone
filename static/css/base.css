@@ -1,0 +1,65 @@
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+
+#main {
+    background: #212529;
+    margin: 0;
+    left: 0;
+}
+
+#header {
+    z-index: 3;
+    top: 0;
+    max-height: 55px;
+    background-color: #161718;
+}
+
+#searchBtn {
+    max-width: 50px;
+    background: #212529;
+    border-color: #E8DCCD;;
+}
+
+#searchBtn:hover{
+    background-color: #e3d7c9;
+    color: #2C2C2C;
+    border-color: #e3d7c9;
+}
+
+#search {
+    color: #E8DCCD;
+    width: 70%;
+    background: #212529;
+}
+
+#search::placeholder {
+    color: #E8DCCD;
+    opacity: 70%;
+}
+
+#sidebar {
+    background-color: #161718;
+}
+
+
+.link {
+    color: #E8DCCD;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+}
+
+.item{
+    font-size: 14px;
+    padding: 8px;
+    margin-inline: 5px;
+    color: #f2f2f2;
+}
+
+.item:hover{
+    background-color: gray;
+}

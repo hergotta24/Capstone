@@ -1,9 +1,3 @@
-.login-input {
-    background-color: transparent !important;
-    color: #e3d7c9 !important;
-    border: solid 3px #e3d7c9;
-}
-
 .primary-color {
     color: #e3d7c9;
 }
@@ -47,64 +41,6 @@ input:-webkit-autofill {
     background-color: transparent !important;
 }
 
-.card-img-top {
-    opacity: 1;
-    width: 100%;
-    height: 300px; /* Adjust the height of the image as needed */
-    object-fit: cover;
-    border-radius: 8px;
-    transition: .5s ease;
-    backface-visibility: hidden;
-}
-
-.checked {
-    color: orange;
-}
-
-.unchecked {
-    color: grey;
-}
-
-.middle {
-    transition: .5s ease;
-    opacity: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%)
-}
-
-.image-container {
-    position: relative;
-}
-
-
-.middle {
-    transition: .5s ease;
-    opacity: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%)
-}
-
-.image-container:hover .card-img-top {
-    opacity: 0.3;
-}
-
-.image-container:hover .middle {
-    opacity: 1;
-}
-
-.text {
-    background-color: #4CAF50;
-    color: white;
-    font-size: 16px;
-    padding: 16px 20px;
-}
-
 .navbar {
     background-color: #2A283E;
     position: fixed;
@@ -119,41 +55,7 @@ input:-webkit-autofill {
     padding: 20px;
 }
 
-html, body {
-    height: 100%;
-    width: 100%;
-}
 
-#main {
-    background: #212529;
-    margin: 0;
-    left: 0;
-}
-
-#sidebar {
-    background-color: #161718;
-}
-
-#header {
-    z-index: 3;
-    top: 0;
-    max-height: 55px;
-    background-color: #161718;
-}
-
-a {
-    color: #E8DCCD;
-    display: inline-block;
-    width: 100%;
-    height: 100%;
-    text-decoration: none;
-}
-
-li {
-    font-size: 14px;
-    padding: 8px;
-    color: #f2f2f2;
-}
 
 div.cart_grid
 {
@@ -173,118 +75,5 @@ div.price
     border: 1px solid rgba(0, 0, 0, 0.8)
 }
 
-#searchBtn {
-    max-width: 50px;
-    background: #212529;
-    border-color: #E8DCCD;;
-}
-
-#search {
-    color: #E8DCCD;
-    width: 70%;
-    background: #212529;
-}
-
-#search::placeholder {
-    color: #E8DCCD;
-    opacity: 70%;
-}
 
 
-
-
-
-
-----------------------------------
-* {
-    box-sizing: border-box;
-}
-
-
-.container {
-    position: relative;
-    display: flex;
-}
-
-/* Hide the images by default */
-.mySlides {
-    display: none;
-}
-
-/* Add a pointer when hovering over the thumbnail images */
-.cursor {
-    cursor: pointer;
-}
-
-/* Next & previous buttons */
-.prev,
-.next {
-    cursor: pointer;
-    position: absolute;
-    top: 40%;
-    width: auto;
-    height: auto;
-    padding: 16px;
-    margin-top: -50px;
-    color: white;
-    font-weight: bold;
-    font-size: 20px;
-    border-radius: 0 3px 3px 0;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-/* Position the "next button" to the right */
-.next {
-    right: 0px;
-    border-radius: 3px 0 0 3px;
-}
-
-.fit-content {
-    height: fit-content;
-}
-
-/* On hover, add a black background color with a little bit see-through */
-.prev:hover,
-.next:hover {
-    background-color: rgba(0, 0, 0, 0.8);
-}
-
-/* Number text (1/3 etc) */
-.numbertext {
-    color: #f2f2f2;
-    font-size: 12px;
-    padding: 8px 12px;
-    position: absolute;
-    top: 0;
-}
-
-/* Container for image text */
-.caption-container {
-    text-align: center;
-    background-color: #222;
-    padding: 2px 16px;
-    color: white;
-}
-
-.row:after {
-    content: "";
-    display: table;
-    clear: both;
-}
-
-/* Six columns side by side */
-.column {
-    float: left;
-    width: 16.66%;
-}
-
-/* Add a transparency effect for thumnbail images */
-.demo {
-    opacity: 0.6;
-}
-
-.active,
-.demo:hover {
-    opacity: 1;
-}
