@@ -1,9 +1,3 @@
-.login-input {
-    background-color: transparent !important;
-    color: #e3d7c9 !important;
-    border: solid 3px #e3d7c9;
-}
-
 .primary-color {
     color: #e3d7c9;
 }
@@ -45,64 +39,6 @@ input:-webkit-autofill {
 /*END---------bootstrap override-------------------------------------------------------------------------*/
 input:-webkit-autofill {
     background-color: transparent !important;
-}
-
-.card-img-top {
-    opacity: 1;
-    width: 100%;
-    height: 300px; /* Adjust the height of the image as needed */
-    object-fit: cover;
-    border-radius: 8px;
-    transition: .5s ease;
-    backface-visibility: hidden;
-}
-
-.checked {
-    color: orange;
-}
-
-.unchecked {
-    color: grey;
-}
-
-.middle {
-    transition: .5s ease;
-    opacity: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%)
-}
-
-.image-container {
-    position: relative;
-}
-
-
-.middle {
-    transition: .5s ease;
-    opacity: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%)
-}
-
-.image-container:hover .card-img-top {
-    opacity: 0.3;
-}
-
-.image-container:hover .middle {
-    opacity: 1;
-}
-
-.text {
-    background-color: #4CAF50;
-    color: white;
-    font-size: 16px;
-    padding: 16px 20px;
 }
 
 .navbar {
