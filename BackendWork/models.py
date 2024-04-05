@@ -16,7 +16,6 @@ class User(AbstractUser):
                                 related_name="paymentMethod", blank=True)
     favorite = models.ManyToManyField('Product')
 
-
 class Payment(models.Model):
     name = models.CharField(max_length=100)
     card_number = models.CharField(max_length=16)

@@ -6,7 +6,7 @@ from BackendWork.forms import *
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse, HttpResponseForbidden
-from BackendWork.models import User, Product, Storefront, ProductReviews, STATE_CHOICES
+from BackendWork.models import User, Product, Storefront, ProductReviews
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -147,7 +147,7 @@ def categoryFilter(request, category):
 def addFavorite(request, product_id):
     product = get_object_or_404(Product, productId=product_id)
     user = User.objects.get(username=request.user)
-    user.add_favorite(product)
+    User.favorite.add(product)
     return JsonResponse({'message': 'Favorite product added!'}, status=200)
 
 
@@ -155,6 +155,7 @@ def removeFavorite(request, product_id):
     product = get_object_or_404(Product, productId=product_id)
     user = User.objects.get(username=request.user)
     user.remove_favorite(product)
+    User.favorite.remove(product)
     return JsonResponse({'message': 'Favorite product removed!'}, status=200)
 
 
@@ -206,7 +207,7 @@ class ProductDetailView(View):
     def get(request, product_id):
         product = get_object_or_404(Product, productId=product_id)
         reviews = ProductReviews.objects.filter(productId=product.productId)
-        favorite = request.user.has_favorite(product)
+        favorite = User.objects.filter(id=request.user.id, favorite=product.productId).exists()
         return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
                                                        'favorite': favorite})
 
