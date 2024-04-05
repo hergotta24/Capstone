@@ -1,8 +1,8 @@
 <div class="col-12 col-md-6 col-lg-6 col-xl-4 col-xxl-3 px-2 px-lg-5 py-4">
 
-    {% if product.image %}
+    {% if product.thumbnail %}
         <div class="image-container">
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top image">
+            <img src="{{ product.thumbnail.image.url }}" alt="{{ product.name }}" class="card-img-top image">
             <div class="middle">
                 <div class="text"><a href="{% url 'product_detail' product_id=product.productId %}">Product Detail</a></div>
             </div>

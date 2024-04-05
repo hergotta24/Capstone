@@ -6,10 +6,14 @@ from BackendWork.forms import *
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse, HttpResponseForbidden
-from BackendWork.models import User, Product, Storefront, Invoice, LineItem, ProductReviews
+from BackendWork.models import User, Product, Storefront, ProductReviews, STATE_CHOICES
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from paypal.standard.forms import PayPalPaymentsForm
 
 
 class UserLoginView(View):
@@ -99,41 +103,33 @@ class AccountCartView(View):
     @staticmethod
     @login_required(login_url='/login/')
     def get(request):
-        invoiceNumber = Invoice.objects.get(customerId=request.user.id, orderStatus='C1')
-        user_cart = LineItem.objects.filter(invoiceId=invoiceNumber)
-        subtotal = 0.00
-        for y in user_cart:
-            subtotal += float(y.productId.price)
-        tax = round(subtotal * 0.082, 2)
-        shipping = 20.00
-        discount = 1.00
-        total = subtotal + tax + shipping
-        return render(request, 'cart.html',
-                      {"cart": user_cart, "subtotal": format(subtotal, '0.2f'), "tax": format(tax, '0.2f')
-                          , "shipping": format(shipping, '0.2f'), "discount": format(discount, '0.2f'),
-                       "total": format(total, '0.2f')})
+        cart = request.user.cart
+        return render(request, 'cart.html', {'cartItems': cart.get_cart_items,
+                                             'cartCount': cart.cart_summary['total_count'],
+                                             'cartTotal': cart.cart_summary['subtotal']})
 
-    @staticmethod
-    @login_required(login_url='/login/')
-    def post(request):
-        data = json.loads(request.body)
-        name = data.get('name')
-        card = data.get('card')
-        expiration = data.get('expiration')
-        back = data.get('back_number')
 
-        form_data = {
-            'name': name,
-            'card_number': card,
-            'expiration_date': expiration,
-            'back_number': back,
-        }
-
-        form = CardCreationForm(form_data)
-        if form.is_valid():
-            return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
-        else:
-            return JsonResponse({'message': form.errors}, status=401)
+# @staticmethod
+# @login_required(login_url='/login/')
+# def post(request):
+#     data = json.loads(request.body)
+#     name = data.get('name')
+#     card = data.get('card')
+#     expiration = data.get('expiration')
+#     back = data.get('back_number')
+#
+#     form_data = {
+#         'name': name,
+#         'card_number': card,
+#         'expiration_date': expiration,
+#         'back_number': back,
+#     }
+#
+#     form = CardCreationForm(form_data)
+#     if form.is_valid():
+#         return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
+#     else:
+#         return JsonResponse({'message': form.errors}, status=401)
 
 
 def home(request):
@@ -181,8 +177,8 @@ class StorefrontView(View):
 
         store.name = store_name
         store.description = store_description
-        store.bannerInput = banner_input
-        store.logoInput = logo_input
+        store.bannerImage = banner_input
+        store.logoImage = logo_input
         store.save()
 
         return JsonResponse({'success': True, 'message': 'Changes confirmed successfully'})
@@ -210,40 +206,40 @@ class ProductDetailView(View):
     def get(request, product_id):
         product = get_object_or_404(Product, productId=product_id)
         reviews = ProductReviews.objects.filter(productId=product.productId)
-        favorite = request.user.hasFavorite(product)
+        favorite = request.user.has_favorite(product)
         return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
                                                        'favorite': favorite})
 
-    @staticmethod
-    @login_required(login_url='/login/')
-    def post(request, product_id):
-        data = json.loads(request.body)
-        quantity = data.get('quantity')
-        cart = Invoice.objects.get(customerId=request.user.id, orderStatus='C1')
-        product = get_object_or_404(Product, productId=product_id)
-
-        try:
-            addingProduct = LineItem.objects.get(invoiceId=cart.invoiceId, productId=product.productId)
-        except LineItem.DoesNotExist:
-            form_data = {
-                'invoiceId': cart.invoiceId,
-                'productId': product.productId,
-                'quantity': quantity,
-                'linePrice': 1,
-            }
-            form = LineItemCreationForm(form_data)
-
-            print("Form is created here")
-
-            if form.is_valid():
-                form.save();
-                return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
-            else:
-                return JsonResponse({'message': form.errors}, status=401)
-
-        addingProduct.quantity += int(quantity)
-        addingProduct.save()
-        return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
+    # @staticmethod
+    # @login_required(login_url='/login/')
+    # def post(request, product_id):
+    #     data = json.loads(request.body)
+    #     quantity = data.get('quantity')
+    #     cart = {} #Invoice.objects.get(customerId=request.user.id, orderStatus='C1')
+    #     product = get_object_or_404(Product, productId=product_id)
+    #
+    #     # try:
+    #     #     addingProduct = LineItem.objects.get(invoiceId=cart.invoiceId, productId=product.productId)
+    #     # except LineItem.DoesNotExist:
+    #     #     form_data = {
+    #     #         'invoiceId': cart.invoiceId,
+    #     #         'productId': product.productId,
+    #     #         'quantity': quantity,
+    #     #         'linePrice': 1,
+    #     #     }
+    #     #     form = LineItemCreationForm(form_data)
+    #
+    #         print("Form is created here")
+    #
+    #         if form.is_valid():
+    #             form.save();
+    #             return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
+    #         else:
+    #             return JsonResponse({'message': form.errors}, status=401)
+    #
+    #     addingProduct.quantity += int(quantity)
+    #     addingProduct.save()
+    #     return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
 
 
 class UpdateProductView(LoginRequiredMixin, View):
@@ -331,3 +327,35 @@ class ProductDeleteView(View):
     # @login_required(login_url='/login/')
     def post(request, productid):
         Product.objects.filter(productId=productid).delete()
+
+
+@login_required(login_url='/login/')
+def checkout_view(request):
+    host = request.get_host()
+    cart = request.user.cart
+    paypal_dict = {
+        'business': settings.PAYPAL_RECEIVER_EMAIL,
+        'amount': cart.cart_summary['subtotal'],
+        'item_name': 'Order-Item-No-022',
+        'invoice': 'Invoice-No-022',
+        'currency_code': 'USD',
+        'notify_url': 'http://{}{}'.format(host, reverse('paypal-ipn')),
+        'return_url': 'http://{}{}'.format(host, reverse('payment-complete')),
+        'cancel_url': 'http://{}{}'.format(host, reverse('payment-failed')),
+    }
+
+    paypay_payment_button = CustomPayPalPaymentsForm(initial=paypal_dict)
+
+    return render(request, 'checkout.html', {'paypay_payment_button': paypay_payment_button,
+                                             'cartItems': cart.get_cart_items,
+                                             'cartCount': cart.cart_summary['total_count'],
+                                             'cartTotal': cart.cart_summary['subtotal'],
+                                             'state_choices': STATE_CHOICES})
+
+
+def payment_complete_view(request):
+    return render(request, 'payment-completed.html')
+
+
+def payment_failed_view(request):
+    return render(request, 'payment-failed.html')
