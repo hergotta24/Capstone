@@ -32,6 +32,6 @@
         {% endif %}
         <h4 class="primary-color">{{ product.name }}</h4>
         <h5 class="primary-color">${{ product.price }}</h5>
-        <a href="{% url 'vendor' store_id=product.soldByStoreId_id %}" class="primary-color">Store Name</a>
+        <a href="{% url 'vendor' store_id=product.soldByStoreId_id %}" class="primary-color">{{ product.soldByStoreId.name }}</a>
     </div>
 </div>
