@@ -144,19 +144,26 @@ def categoryFilter(request, category):
     return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
-def addFavorite(request, product_id):
-    product = get_object_or_404(Product, productId=product_id)
+def removeFavorite(request):
+    data = json.loads(request.body)
+    favorite_id = data['favorite_id']
+    product = get_object_or_404(Product, productId=favorite_id)
     user = User.objects.get(username=request.user)
-    User.favorite.add(product)
-    return JsonResponse({'message': 'Favorite product added!'}, status=200)
-
-
-def removeFavorite(request, product_id):
-    product = get_object_or_404(Product, productId=product_id)
-    user = User.objects.get(username=request.user)
-    user.remove_favorite(product)
-    User.favorite.remove(product)
+    user.favorite.remove(product)
+    user.save()
+    print('Favorite product removed!')
     return JsonResponse({'message': 'Favorite product removed!'}, status=200)
+
+
+def addFavorite(request):
+    data = json.loads(request.body)
+    favorite_id = data['favorite_id']
+    product = get_object_or_404(Product, productId=favorite_id)
+    user = User.objects.get(username=request.user)
+    user.favorite.add(product)
+    user.save()
+    print('Favorite product added!')
+    return JsonResponse({'message': 'Favorite product added!'}, status=200)
 
 
 class StorefrontView(View):
@@ -336,6 +343,8 @@ class SavedProductView(View):
     def get(request):
         favorite = User.objects.get(id=request.user.id).favorite.all()
         return render(request, 'favorite.html', {'favorites': favorite})
+
+
 @login_required(login_url='/login/')
 def checkout_view(request):
     host = request.get_host()
@@ -366,3 +375,7 @@ def payment_complete_view(request):
 
 def payment_failed_view(request):
     return render(request, 'payment-failed.html')
+
+
+def update_favorite(request):
+    return render(request, 'product_card.html')

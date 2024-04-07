@@ -14,7 +14,8 @@ class User(AbstractUser):
                                         related_name="userBillingAddress", blank=True)
     payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, null=True,
                                 related_name="paymentMethod", blank=True)
-    favorite = models.ManyToManyField('Product')
+    favorite = models.ManyToManyField('Product', null=True, blank=True)
+
 
 class Payment(models.Model):
     name = models.CharField(max_length=100)

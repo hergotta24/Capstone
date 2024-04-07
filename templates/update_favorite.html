@@ -1,0 +1,12 @@
+{% load static %}
+{% csrf_token %}
+{% block content %}
+    <input type="checkbox" name="favorite" id="favorite" value={{ product_id }} />
+    <span></span>
+
+    <script src="{% static 'js/update_favorite.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/favorite_button.css' %}" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/fontawesome.min.css"
+          integrity="sha384-BY+fdrpOd3gfeRvTSMT+VUZmA728cfF9Z2G42xpaRkUGu2i3DyzpTURDo5A6CaLK" crossorigin="anonymous">
+{% endblock %}
+
