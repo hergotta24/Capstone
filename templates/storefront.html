@@ -84,10 +84,10 @@
             </div>
         </div>
         <div class="row d-flex flex-grow-1 my-2 w-100 h-100 m-0 position-relative">
-            <div class="col d-flex w-100 m-0 p-0 position-relative">
+            <div class="col d-flex flex-wrap w-100 m-0 p-0 position-relative">
                 <div class="container col-12">
-
                     <div class="row col-12">
+                        <h3 class="col-12 primary-color">Products</h3>
                         {% if products.count > 0 %}
                             <div class="col-12">
                             <!-- Header Row -->
@@ -117,6 +117,39 @@
                                         </div>
 
                                     </div>
+                                </div>
+
+                            {% endfor %}
+                        {% else %}
+                            <h3 class="primary-color text-center">You don't have any products.... Add some by clicking the Create Product Button</h3>
+                        {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+                <div class="container col-12">
+                    <div class="row col-12">
+                        <h3 class="col-12 primary-color">Orders</h3>
+                        {% if products.count > 0 %}
+                            <div class="col-12 primary-color">
+                            <!-- Header Row -->
+                            <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
+                                <div class="col-12 col-md-2 p-0">Customer</div>
+                                <div class="col-12 col-md-3 p-0">Shipping Address</div>
+                                <div class="col-12 col-md-3 p-0">Products Bought</div>
+                                <div class="col-12 col-md-2 p-0">Order Total</div>
+                            </div>
+                            {% for order in orders %}
+                                <!-- Product List -->
+                                <div class="product border px-2 py-3 d-flex col-12 primary-color rounded mb-3">
+                                    <div class="product-name col-12 col-md-2">{{ order.customer }}</div>
+                                    <div class="col-12 col-md-3">{{ order.shippingAddress }}</div>
+                                    <div class="col-12 col-md-3">
+                                        {% for item in order.get_order_items %}
+                                            <div>{{ item.product.name }}                x{{ item.quantity }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-12 col-md-2">${{ order.order_summary.subtotal }}</div>
                                 </div>
 
                             {% endfor %}

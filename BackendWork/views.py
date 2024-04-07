@@ -6,7 +6,7 @@ from BackendWork.forms import *
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse, HttpResponseForbidden
-from BackendWork.models import User, Product, Storefront, ProductReviews, STATE_CHOICES
+from BackendWork.models import *
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -164,7 +164,8 @@ class StorefrontView(View):
         user = request.user
         store = Storefront.objects.filter(owner=user).first()
         products = Product.objects.filter(soldByStoreId=store)
-        return render(request, 'storefront.html', {'store': store, 'products': products})
+        orders = Order.objects.filter(seller=user)
+        return render(request, 'storefront.html', {'store': store, 'products': products, 'orders': orders})
 
     @staticmethod
     def post(request):
@@ -331,15 +332,18 @@ class ProductDeleteView(View):
 def checkout_view(request):
     host = request.get_host()
     cart = request.user.cart
+
+    invoice = Invoice.objects.create(user=request.user)
+
     paypal_dict = {
         'business': settings.PAYPAL_RECEIVER_EMAIL,
         'amount': cart.cart_summary['subtotal'],
-        'item_name': 'Order-Item-No-022',
-        'invoice': 'Invoice-No-022',
+        'item_name': 'Order-Item-No-{}'.format(invoice.invoiceId),
+        'invoice': 'Invoice-No-{}'.format(invoice.invoiceId),
         'currency_code': 'USD',
         'notify_url': 'http://{}{}'.format(host, reverse('paypal-ipn')),
-        'return_url': 'http://{}{}'.format(host, reverse('payment-complete')),
-        'cancel_url': 'http://{}{}'.format(host, reverse('payment-failed')),
+        'return_url': 'http://{}{}'.format(host, '/payment-completed/{}'.format(invoice.invoiceId)),
+        'cancel_url': 'http://{}{}'.format(host, '/payment-failed/{}'.format(invoice.invoiceId)),
     }
 
     paypay_payment_button = CustomPayPalPaymentsForm(initial=paypal_dict)
@@ -351,8 +355,32 @@ def checkout_view(request):
                                              'state_choices': STATE_CHOICES})
 
 
-def payment_complete_view(request):
-    return render(request, 'payment-completed.html')
+def payment_complete_view(request, invoice_id):
+    payer_id = request.GET.get('PayerID')
+    cart = request.user.cart
+    invoice = Invoice.objects.get(pk=invoice_id)
+
+    if invoice.get_invoice_items.count() == 0:
+        for cart_item in cart.get_cart_items:
+            InvoiceItem.objects.create(invoice=invoice, product=cart_item.product, quantity=cart_item.quantity)
+            sellers = cart.sellers_in_cart
+
+        for seller in sellers:
+            order = Order.objects.create(seller=seller, customer=request.user)
+            for cart_item in cart.get_cart_items:
+                OrderItem.objects.create(order=order, product=cart_item.product, quantity=cart_item.quantity)
+
+        cart.clear_cart()
+
+        return render(request, 'payment-completed.html', {
+                                             'cartItems': invoice.get_invoice_items,
+                                             'cartCount': invoice.invoice_summary['total_count'],
+                                             'cartTotal': invoice.invoice_summary['subtotal']})
+    else:
+        return render(request, 'payment-completed.html', {
+            'cartItems': cart.get_cart_items,
+            'cartCount': cart.invoice_summary['total_count'],
+            'cartTotal': cart.invoice_summary['subtotal']})
 
 
 def payment_failed_view(request):

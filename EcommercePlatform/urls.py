@@ -27,7 +27,6 @@ urlpatterns = [
                   path('logout/', custom_logout, name='Logout'),
                   path('account/', AccountManagementView.as_view(), name='AccountManagementView'),
                   path('storefront/', StorefrontView.as_view(), name='StorefrontView'),
-
                   path('storefront/<int:product_id>/', UpdateProductView.as_view(), name='EditProductView'),
                   path('createproduct/', createproduct, name='createproduct'),
                   path('products/<int:product_id>/', ProductDetailView.as_view(), name='product_detail'),
@@ -41,6 +40,6 @@ urlpatterns = [
                   path('cart/', AccountCartView.as_view(), name='AccountCartView'),
                   path('checkout/', checkout_view, name='checkout'),
                   path('paypal/', include('paypal.standard.ipn.urls')),
-                  path('payment-completed/', payment_complete_view, name='payment-complete'),
-                  path('payment-failed/', payment_failed_view, name='payment-failed'),
+                  path('payment-completed/<int:invoice_id>/', payment_complete_view, name='payment-complete'),
+                  path('payment-failed/<int:invoice_id>', payment_failed_view, name='payment-failed'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

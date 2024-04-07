@@ -148,9 +148,82 @@ class Cart(models.Model):
             subtotal += item.total_price
         return {'total_count': total_count, 'subtotal': subtotal}
 
+    def clear_cart(self):
+        self.cart_item.all().delete()
+
+    @property
+    def sellers_in_cart(self):
+        sellers = set()
+        cart_items = self.get_cart_items
+        for item in cart_items:
+            sellers.add(item.product.soldByStoreId.owner)
+        return list(sellers)
+
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_item')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    @property
+    def total_price(self):
+        return self.quantity * self.product.price
+
+
+class Invoice(models.Model):
+    invoiceId = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invoices')
+    products = models.ManyToManyField(Product, through='InvoiceItem')
+
+    @property
+    def get_invoice_items(self):
+        return self.invoice_item.all()
+
+    @property
+    def invoice_summary(self):
+        total_count = 0
+        subtotal = 0
+        cart_items = self.invoice_item.all()
+        for item in cart_items:
+            total_count += item.quantity
+            subtotal += item.total_price
+        return {'total_count': total_count, 'subtotal': subtotal}
+
+
+class InvoiceItem(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='invoice_item')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    @property
+    def total_price(self):
+        return self.quantity * self.product.price
+
+
+class Order(models.Model):
+    orderId = models.AutoField(primary_key=True)
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seller_orders')
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='customer_orders')
+    products = models.ManyToManyField(Product, through='OrderItem')
+    shippingAddress = models.ForeignKey(Address, on_delete=models.CASCADE, null=True)
+
+    @property
+    def get_order_items(self):
+        return self.order_item.all()
+
+    @property
+    def order_summary(self):
+        total_count = 0
+        subtotal = 0
+        order_item = self.order_item.all()
+        for item in order_item:
+            total_count += item.quantity
+            subtotal += item.total_price
+        return {'total_count': total_count, 'subtotal': subtotal}
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_item')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
