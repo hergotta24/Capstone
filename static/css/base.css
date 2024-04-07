@@ -17,26 +17,42 @@ html, body {
     background-color: #161718;
 }
 
-#searchBtn {
+#searchBtn, #filterBtn {
     max-width: 50px;
+    color: #e3d7c9;
+    border-color: #e3d7c9;
     background: #212529;
-    border-color: #E8DCCD;;
 }
 
-#searchBtn:hover{
+#searchBtn:hover, #filterBtn:hover {
     background-color: #e3d7c9;
     color: #2C2C2C;
     border-color: #e3d7c9;
 }
 
+.check{
+    background-color: #e3d7c9;
+    border-color: #2C2C2C;
+}
+
+
+.check:checked {
+    background-color: #2C2C2C;
+}
+
+#filterBtn{
+    border-radius: 0;
+}
+
+
 #search {
-    color: #E8DCCD;
+    color: #e3d7c9;
     width: 70%;
     background: #212529;
 }
 
 #search::placeholder {
-    color: #E8DCCD;
+    color: #e3d7c9;
     opacity: 70%;
 }
 
@@ -46,7 +62,7 @@ html, body {
 
 
 .link {
-    color: #E8DCCD;
+    color: #e3d7c9;
     display: inline-block;
     width: 100%;
     height: 100%;
