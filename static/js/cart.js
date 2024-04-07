@@ -5,7 +5,7 @@ for (i = 0; i < coll.length; i++)
 {
     coll[i].addEventListener("click", function () {
         this.classList.toggle("active");
-        let content = this.nextElementSibling;
+        let content = this.nextElementSibling.firstElementChild;
         if (content.style.display === "table") {
             content.style.display = "none";
         } else {
@@ -19,11 +19,11 @@ document.getElementById('cartForm').addEventListener('submit', function (event) 
     event.preventDefault();
 
     // Collect form data
-    const formData = {
+    const cartData = {
         name: this.elements.name.value,
         card: this.elements.card.value,
         expiration: this.elements.expiration.value,
-        back: this.elements.back.value
+        back_number: this.elements.back_number.value,
     };
 
     // Send form data using fetch post request
@@ -33,7 +33,7 @@ document.getElementById('cartForm').addEventListener('submit', function (event) 
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken') // Function to get CSRF token
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(cartData)
     })
         .then(response => {
             if (response.ok) {
@@ -44,7 +44,6 @@ document.getElementById('cartForm').addEventListener('submit', function (event) 
             }
         })
         .then(data => {
-            makeToast(data.message, 200);
             setTimeout(function () {
                 window.location.href = "/";
             }, 4000); // 3000 milliseconds = 3 seconds
@@ -52,7 +51,6 @@ document.getElementById('cartForm').addEventListener('submit', function (event) 
         .catch(error => {
             console.error('Error:', error);
             let errorMessage = typeof error.message === 'object' ? Object.values(error.message).join(" ") : error.message;
-            makeToast(errorMessage, 400);
         });
 });
 
@@ -70,32 +68,4 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-}
-
-function makeToast(message, status) {
-    var toast = document.getElementById("toast");
-    var bgColor = "";
-    if (status == 200) {
-        bgColor = "bg-success";
-    } else if (status == 400) {
-        bgColor = "bg-danger";
-    }
-    toast.classList.add(bgColor)
-
-    var toastBody = toast.querySelector('.toast-body');
-
-    // Set the message
-    toastBody.textContent = message;
-
-    // Show the toast
-    var bootstrapToast = new bootstrap.Toast(toast);
-    bootstrapToast.show();
-
-    setTimeout(function () {
-        if (status == 200) {
-            bootstrapToast.hide();
-            toast.classList.remove(bgColor);
-            toastBody.textContent = "";
-        }
-    }, 4000);
 }

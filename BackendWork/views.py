@@ -6,9 +6,14 @@ from BackendWork.forms import *
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse, HttpResponseForbidden
-from BackendWork.models import User, Product, Category, Storefront, Invoice, LineItem
+from BackendWork.models import User, Product, Storefront, ProductReviews
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from paypal.standard.forms import PayPalPaymentsForm
 
 
 class UserLoginView(View):
@@ -98,60 +103,101 @@ class AccountCartView(View):
     @staticmethod
     @login_required(login_url='/login/')
     def get(request):
-        invoiceNumber = Invoice.objects.filter(customerId=request.user.id).order_by("customerId").first()
-        user_cart = LineItem.objects.filter(invoiceId=invoiceNumber)
-        subtotal = 0.00
-        for y in user_cart:
-            subtotal += float(y.productId.price)
-        tax = round(subtotal * 0.082, 2)
-        shipping = 20.00
-        discount = 1.00
-        total = subtotal + tax + shipping
-        return render(request, 'cart.html',
-                      {"cart": user_cart, "subtotal": format(subtotal, '0.2f'), "tax": format(tax, '0.2f')
-                       , "shipping": format(shipping, '0.2f'), "discount": format(discount, '0.2f'),
-                       "total": format(total, '0.2f')})
+        cart = request.user.cart
+        return render(request, 'cart.html', {'cartItems': cart.get_cart_items,
+                                             'cartCount': cart.cart_summary['total_count'],
+                                             'cartTotal': cart.cart_summary['subtotal']})
 
-    @staticmethod
-    @login_required(login_url='/login/')
-    def post(request):
-        data = json.loads(request.body)
-        name = data.get('name')
-        card = data.get('card')
-        expiration = data.get('expiration')
-        back = data.get('back')
 
-        form_data = {
-            'name': name,
-            'card': card,
-            'expiration': expiration,
-            'back': back,
-        }
-
-        form = CardCreationForm(form_data)
-        if form.is_valid():
-            return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
-        else:
-            return JsonResponse({'message': form.errors}, status=401)
+# @staticmethod
+# @login_required(login_url='/login/')
+# def post(request):
+#     data = json.loads(request.body)
+#     name = data.get('name')
+#     card = data.get('card')
+#     expiration = data.get('expiration')
+#     back = data.get('back_number')
+#
+#     form_data = {
+#         'name': name,
+#         'card_number': card,
+#         'expiration_date': expiration,
+#         'back_number': back,
+#     }
+#
+#     form = CardCreationForm(form_data)
+#     if form.is_valid():
+#         return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
+#     else:
+#         return JsonResponse({'message': form.errors}, status=401)
 
 
 def home(request):
     products = Product.objects.all()
-    return render(request, 'home.html', {'products': products})
+    categories = Product.CATEGORY_CHOICES.items()
+    return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
-def storefront(request):
-    user = request.user
-    store = Storefront.objects.filter(owner=user).first()
-    products = Product.objects.filter(soldByStoreId=store)
+def categoryFilter(request, category):
+    products = Product.objects.filter(category=category)
+    categories = Product.CATEGORY_CHOICES.items()
+    return render(request, 'home.html', {'products': products, 'categories': categories})
 
-    return render(request, 'storefront.html', {'storefront': store, 'products': products})
+
+def removeFavorite(request):
+    data = json.loads(request.body)
+    favorite_id = data['favorite_id']
+    product = get_object_or_404(Product, productId=favorite_id)
+    user = User.objects.get(username=request.user)
+    user.favorite.remove(product)
+    user.save()
+    print('Favorite product removed!')
+    return JsonResponse({'message': 'Favorite product removed!'}, status=200)
+
+
+def addFavorite(request):
+    data = json.loads(request.body)
+    favorite_id = data['favorite_id']
+    product = get_object_or_404(Product, productId=favorite_id)
+    user = User.objects.get(username=request.user)
+    user.favorite.add(product)
+    user.save()
+    print('Favorite product added!')
+    return JsonResponse({'message': 'Favorite product added!'}, status=200)
+
+
+class StorefrontView(View):
+    @staticmethod
+    def get(request):
+        user = request.user
+        store = Storefront.objects.filter(owner=user).first()
+        products = Product.objects.filter(soldByStoreId=store)
+        return render(request, 'storefront.html', {'store': store, 'products': products})
+
+    @staticmethod
+    def post(request):
+        user = request.user
+        store = Storefront.objects.filter(owner=user).first()
+        store_name = request.POST.get('storeName')
+        store_description = request.POST.get('storeDescription')
+        banner_input = request.FILES.get('bannerInput')
+        logo_input = request.FILES.get('logoInput')
+
+        store.name = store_name
+        store.description = store_description
+        store.bannerImage = banner_input
+        store.logoImage = logo_input
+        store.save()
+
+        return JsonResponse({'success': True, 'message': 'Changes confirmed successfully'})
+
 
 class VendorView(View):
     @staticmethod
     def get(request, store_id):
+        store = Storefront.objects.filter(storeId=store_id).first()
         products = Product.objects.filter(soldByStoreId_id=store_id)
-        return render(request, 'vendor.html', {'products': products})
+        return render(request, 'vendor.html', {'products': products, 'store': store})
 
 
 def createproduct(request):
@@ -167,7 +213,41 @@ class ProductDetailView(View):
     @staticmethod
     def get(request, product_id):
         product = get_object_or_404(Product, productId=product_id)
-        return render(request, 'product_detail.html', {'product': product})
+        reviews = ProductReviews.objects.filter(productId=product.productId)
+        favorite = User.objects.filter(id=request.user.id, favorite=product.productId).exists()
+        return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
+                                                       'favorite': favorite})
+
+    # @staticmethod
+    # @login_required(login_url='/login/')
+    # def post(request, product_id):
+    #     data = json.loads(request.body)
+    #     quantity = data.get('quantity')
+    #     cart = {} #Invoice.objects.get(customerId=request.user.id, orderStatus='C1')
+    #     product = get_object_or_404(Product, productId=product_id)
+    #
+    #     # try:
+    #     #     addingProduct = LineItem.objects.get(invoiceId=cart.invoiceId, productId=product.productId)
+    #     # except LineItem.DoesNotExist:
+    #     #     form_data = {
+    #     #         'invoiceId': cart.invoiceId,
+    #     #         'productId': product.productId,
+    #     #         'quantity': quantity,
+    #     #         'linePrice': 1,
+    #     #     }
+    #     #     form = LineItemCreationForm(form_data)
+    #
+    #         print("Form is created here")
+    #
+    #         if form.is_valid():
+    #             form.save();
+    #             return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
+    #         else:
+    #             return JsonResponse({'message': form.errors}, status=401)
+    #
+    #     addingProduct.quantity += int(quantity)
+    #     addingProduct.save()
+    #     return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
 
 
 class UpdateProductView(LoginRequiredMixin, View):
@@ -180,6 +260,7 @@ class UpdateProductView(LoginRequiredMixin, View):
             return render(request, 'edit_product.html', {'product': product})
         else:
             return HttpResponseForbidden("You are not authorized to access this page.")
+
     @staticmethod
     def post(request, product_id):
         product = get_object_or_404(Product, productId=product_id)
@@ -224,8 +305,7 @@ class AddProductView(View):
             'description': productData.get('description'),
             'price': productData.get('price'),
             'qoh': productData.get('qoh'),
-            'categoryId': productData.get('categoryId'),
-            'subcategoryId': productData.get('subCategoryId'),
+            'category': productData.get('category'),
             'weight': productData.get('weight'),
             'length': productData.get('length'),
             'width': productData.get('width'),
@@ -241,10 +321,12 @@ class AddProductView(View):
         else:
             return JsonResponse({'message': form.errors}, status=401)
 
+
 def deleteProduct(request, productid):
+    get_object_or_404(Product, id=productid)
     Product.objects.filter(productId=productid).delete()
-    # return redirect('storefront/')
-    # I assume it should redirect to the storefront, but my branch doesn't have that path
+    return redirect('storefront/')
+    # I assume it should redirect to the storefront, but I'm not entirely sure. Can just change this if it's wrong
 
 
 class ProductDeleteView(View):
@@ -253,3 +335,47 @@ class ProductDeleteView(View):
     # @login_required(login_url='/login/')
     def post(request, productid):
         Product.objects.filter(productId=productid).delete()
+
+
+class SavedProductView(View):
+    @staticmethod
+    @login_required(login_url='/login')
+    def get(request):
+        favorite = User.objects.get(id=request.user.id).favorite.all()
+        return render(request, 'favorite.html', {'favorites': favorite})
+
+
+@login_required(login_url='/login/')
+def checkout_view(request):
+    host = request.get_host()
+    cart = request.user.cart
+    paypal_dict = {
+        'business': settings.PAYPAL_RECEIVER_EMAIL,
+        'amount': cart.cart_summary['subtotal'],
+        'item_name': 'Order-Item-No-022',
+        'invoice': 'Invoice-No-022',
+        'currency_code': 'USD',
+        'notify_url': 'http://{}{}'.format(host, reverse('paypal-ipn')),
+        'return_url': 'http://{}{}'.format(host, reverse('payment-complete')),
+        'cancel_url': 'http://{}{}'.format(host, reverse('payment-failed')),
+    }
+
+    paypay_payment_button = CustomPayPalPaymentsForm(initial=paypal_dict)
+
+    return render(request, 'checkout.html', {'paypay_payment_button': paypay_payment_button,
+                                             'cartItems': cart.get_cart_items,
+                                             'cartCount': cart.cart_summary['total_count'],
+                                             'cartTotal': cart.cart_summary['subtotal'],
+                                             'state_choices': STATE_CHOICES})
+
+
+def payment_complete_view(request):
+    return render(request, 'payment-completed.html')
+
+
+def payment_failed_view(request):
+    return render(request, 'payment-failed.html')
+
+
+def update_favorite(request):
+    return render(request, 'product_card.html')

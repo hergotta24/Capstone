@@ -7,36 +7,11 @@
                 <div class="col-12 col-md-6 h-100">
                     <div class="pe-2 position-relative">
 
-                        <!-- Full-width images with number text -->
-                        <div class="mySlides">
-                            <div class="numbertext">1 / 6</div>
-                            <img src="{{ product.image.url }}" style="width:100%">
-                        </div>
-
-                        <div class="mySlides">
-                            <div class="numbertext">2 / 6</div>
-                            <img src="{{ product.image.url }}" style="width:100%">
-                        </div>
-
-                        <div class="mySlides">
-                            <div class="numbertext">3 / 6</div>
-                            <img src="{{ product.image.url }}" style="width:100%">
-                        </div>
-
-                        <div class="mySlides">
-                            <div class="numbertext">4 / 6</div>
-                            <img src="{{ product.image.url }}" style="width:100%">
-                        </div>
-
-                        <div class="mySlides">
-                            <div class="numbertext">5 / 6</div>
-                            <img src="{{ product.image.url }}" style="width:100%">
-                        </div>
-
-                        <div class="mySlides">
-                            <div class="numbertext">6 / 6</div>
-                            <img src="{{ product.image.url }}" style="width:100%">
-                        </div>
+                        {% for image in product.images %}
+                            <div class="mySlides">
+                                <img src="{{ image.image.url }}" style="width:100%">
+                            </div>
+                        {% endfor %}
 
                         <!-- Next and previous buttons -->
                         <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
@@ -49,30 +24,12 @@
 
                         <!-- Thumbnail images -->
                         <div class="row">
-                            <div class="column">
-                                <img class="demo cursor" src="{{ product.image.url }}" style="width:100%"
-                                     onclick="currentSlide(1)" alt="The Woods">
+                            {% for image in product.images %}
+                                <div class="column">
+                                <img class="demo cursor" src="{{ image.image.url }}" style="width:100%"
+                                     onclick="currentSlide(1)" alt="{{ image.name }}">
                             </div>
-                            <div class="column">
-                                <img class="demo cursor" src="{{ product.image.url }}" style="width:100%"
-                                     onclick="currentSlide(2)" alt="Cinque Terre">
-                            </div>
-                            <div class="column">
-                                <img class="demo cursor" src="{{ product.image.url }}" style="width:100%"
-                                     onclick="currentSlide(3)" alt="Mountains and fjords">
-                            </div>
-                            <div class="column">
-                                <img class="demo cursor" src="{{ product.image.url }}" style="width:100%"
-                                     onclick="currentSlide(4)" alt="Northern Lights">
-                            </div>
-                            <div class="column">
-                                <img class="demo cursor" src="{{ product.image.url }}" style="width:100%"
-                                     onclick="currentSlide(5)" alt="Nature and sunrise">
-                            </div>
-                            <div class="column">
-                                <img class="demo cursor" src="{{ product.image.url }}" style="width:100%" onclick="currentSlide(6)"
-                                     alt="Snowy Mountains">
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -88,16 +45,37 @@
                         <span class="fa fa-star fa-lg unchecked"></span>
                     </div>
                     <div class="col-12 my-2">
+                        {% include 'update_favorite.html' with product_id=product.productId %}
                         <p class="primary-color">
                             {{ product.description }}
                         </p>
                     </div>
                     <div class="col-12 d-flex pe-5">
                         <h3 class="col-5 primary-color"><span>Price:</span> ${{ product.price }}</h3>
-                        <input class="col-4 btn p-0 btn-primary" type="number" placeholder="Quantity"/>
+                        <input class="col-4 btn p-0 btn-primary" type="number" id='quantity' placeholder="Quantity"/>
                     </div>
                     <div class="col-12 d-flex mt-3">
-                        <button class="col-12 btn-primary btn"> Add To Cart</button>
+                        <button class="col-12 btn-primary btn" id="add_to_cart"
+                                value="{{ product.productId }}">Add To Cart</button>
+                    </div>
+                    <div>
+                    <table class="primary-color">
+                        <tr>
+                            <th>Name</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Date</th>
+                            {% for r in reviews %}
+                                <tr>
+                                    <td>{{ r.reviewerId }}</td>
+                                    <td>{{ r.rating }}</td>
+                                    <td>{{ r.comment }}</td>
+                                    <td>{{ r.reviewDate }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tr>
+                    </table>
+
                     </div>
                 </div>
 

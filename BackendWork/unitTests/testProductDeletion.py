@@ -41,3 +41,6 @@ class TestProductDeletion(TestCase):
                          Product.objects.filter(productId=product_id2).exists())
 
 
+    def testItemThatDoesNotExist(self):
+        resp = self.client.post("delete/68/", content_type="application/json")
+        self.assertTrue(resp.status_code == 404, "Item does not exist")

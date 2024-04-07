@@ -2,8 +2,22 @@
 {% block content %}
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
         <div class="d-grid m-auto h-100 w-100 align-content-start gap-3 p-3">
-            <div class="row d-flex overflow-x-auto flex-nowrap w-100 rounded-1">
-                <div class="d-flex ps-4" id="content">
+            <div class="row d-flex flex-wrap w-100 rounded-1 position-relative">
+                <div class="col-1 arrow-icon left-arrow btn btn-primary position-absolute" id="left-arrow">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </div>
+                <div class="d-flex mx-auto overflow-x-hidden col-11 py-2" id="categories-container">
+                    <div class="d-flex categories-wrapper">
+                        {% for key, value in categories %}
+                            <a class="btn btn-primary col-lg-2 mx-1"
+                               href="{% url 'categoryFilter' category=key %}">{{ value }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="arrow-icon right-arrow btn btn-primary position-absolute" id="right-arrow">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+                <div class="d-flex col-12 ps-4" id="content">
                     <div class="d-flex w-100 flex-wrap">
                         {% for product in products %}
                             {% include 'product_card.html' %}
@@ -13,4 +27,29 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoriesContainer = document.getElementById('categories-container');
+            const leftArrow = document.getElementById('left-arrow');
+            const rightArrow = document.getElementById('right-arrow');
+
+            leftArrow.addEventListener('click', function () {
+                categoriesContainer.scrollLeft -= 100; // Adjust scroll speed as needed
+            });
+
+            rightArrow.addEventListener('click', function () {
+                categoriesContainer.scrollLeft += 100; // Adjust scroll speed as needed
+            });
+
+            // Optionally, you can add keyboard support for arrow keys
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'ArrowLeft') {
+                    categoriesContainer.scrollLeft -= 100; // Adjust scroll speed as needed
+                } else if (event.key === 'ArrowRight') {
+                    categoriesContainer.scrollLeft += 100; // Adjust scroll speed as needed
+                }
+            });
+        });
+    </script>
 {% endblock %}
+

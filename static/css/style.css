@@ -7,6 +7,16 @@
 .primary-color {
     color: #e3d7c9;
 }
+.left-arrow{
+    left: 2%;
+    top: 1.4%;
+    width: fit-content;
+}
+.right-arrow{
+    right: 1%;
+    width: fit-content;
+    top: 1.4%;
+}
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -125,7 +135,7 @@ html, body {
 }
 
 #header {
-    z-index: 1;
+    z-index: 3;
     top: 0;
     max-height: 55px;
     background-color: #161718;
@@ -137,10 +147,6 @@ a {
     width: 100%;
     height: 100%;
     text-decoration: none;
-}
-
-.hover:hover, #searchBtn:hover {
-    background-color: #46494d;
 }
 
 li {
@@ -184,20 +190,10 @@ div.price
     opacity: 70%;
 }
 
-#logoutBtn, #loginBtn, #createBtn {
-    color: #E8DCCD;
-}
 
-hr {
-    height: 10px;
-    background-color: #161718;
-    border: none;
-    opacity: 0.75;
-}
 
-i {
-    color: #E8DCCD;
-}
+
+
 
 ----------------------------------
 * {

@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="col flex-column overflow-x-hidden h-100 w-100" id="content">
+        <div class="col-12 ps-md-4 my-5 d-flex flex-wrap">
+            <div class="col-12 justify-content-center d-flex mt-2 mb-5">
+                <h1 class="fa-3x primary-color text-decoration-underline">Checkout</h1>
+            </div>
+            <div class="col-12"><h2 class="primary-color">Shipping Details</h2></div>
+            <div class="col-12 col-lg-8 px-2">
+                <form id="addShippingDetails" class="d-flex flex-wrap mt-2" method="POST">
+                    <div class="col-12 d-flex flex-wrap form-outline mb-4 px-2">
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="email">Email</label>
+                        <input type="email" class="col-12 form-control form-control-lg login-input" id="email"
+                               name="email"
+                               value="{{ user.email }}">
+                    </div>
+                    <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="first_name">First
+                            Name*</label>
+                        <input type="text" class="col-12 form-control required form-control-lg login-input" id="first_name"
+                               name="first_name"
+                               placeholder="First Name" value="{{ user.first_name }}">
+                    </div>
+                    <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="Last Name">Last
+                            Name</label>
+                        <input type="text" class="col-12 form-control required form-control-lg login-input" id="last_name"
+                               name="first_name" value="{{ user.last_name }}">
+                    </div>
+                    <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-line-1">Address
+                            Line 1</label>
+                        <input type="text" class="col-12 form-control form-control-lg required login-input" id="address-line-1"
+                               name="address-line-1"
+                               placeholder="Address Line 1" value="{{ user.address.line1 }}">
+                    </div>
+                    <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-line-2">Address
+                            Line 2</label>
+                        {% if user.address.line2 %}
+                            <input type="text" class="col-12 form-control form-control-lg login-input" id="address-line-2"
+                               name="address-line-2" value="{{ user.address.line2 }}">
+                        {% else %}
+                            <input type="text" class="col-12 form-control form-control-lg login-input" id="address-line-2"
+                               name="address-line-2" value="">
+                        {% endif %}
+
+                    </div>
+                    <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="city">City/Town</label>
+                        <input type="text" class="col-12 form-control form-control-lg required login-input" id="city"
+                               name="city" value="{{ user.address.city }}">
+                    </div>
+                    <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="state">State</label>
+                        <select type="text" required class="col-12 form-control form-control-lg login-input" id="state"
+                                name="state">
+                            <option value="" selected>{{ user.address.state }}</option>
+                            {% for item in state_choices %}
+                                {% if user.address.state != item.0 %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-zipCode">Area Code*</label>
+                        <input type="text" required class="col-12 form-control form-control-lg login-input" id="address-zipCode"
+                               name="address-zipCode" value="{{ user.address.zipCode }}">
+                    </div>
+                    <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="phone_number">Phone
+                            Number</label>
+                        {% if user.phone_number %}
+                            <input type="tel" class="col-12 form-control form-control-lg login-input"
+                                   id="phone_number"
+                                   name="phone_number"
+                                   placeholder="Phone Number" value="{{ user.phone_number }}">
+                        {% else %}
+                            <input type="tel" class="col-12 form-control form-control-lg login-input"
+                                   id="phone_number"
+                                   name="phone_number"
+                                   placeholder="Phone Number">
+                        {% endif %}
+                    </div>
+                    <div class="col-12 justify-content-center d-flex flex-wrap form-outline mb-4 px-2">
+                        <button type="submit" class="col-12 w-25 btn btn-primary btn-block">Add Shipping Details</button>
+                    </div>
+                </form>
+
+            </div>
+            <div class="col-12 col-lg-4 px-2">
+                <div class="d-flex flex-wrap border rounded">
+                    {% if cartItems.count > 0 %}
+                        <div class="col-12 d-flex flex-wrap my-2 border-bottom">
+                            <h2 class="primary-color col-12 ps-2 text-left">Order Summary</h2>
+                            <div class="col-12 align-items-center pb-2 d-flex">
+                                <span class="primary-color ps-3 mb-1">({{ cartCount }} items)</span>
+                                <span class="primary-color ps-3 mb-1"><a href="/cart"
+                                                                         class="text-bg-success p-1 rounded">Edit Cart</a></span>
+                            </div>
+
+                        </div>
+                        {% for item in cartItems %}
+                            <div class="cart-item px-2 py-2 d-flex col-12 primary-color mb-0">
+                                <div class="align-items-center d-flex flex-wrap col-5">
+                                    <h6 class="m-0">{{ item.product.name }}</h6>
+                                </div>
+                                <div class="align-items-center justify-content-between col-7 px-1 px-lg-2 px-xl-5 d-flex">
+                                    <span class="primary-color">x{{ item.quantity }}</span>
+                                    <span class="primary-color">${{ item.product.price }}</span>
+                                    <span class="primary-color">${{ item.total_price }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="col-12 border-top mt-4 pt-2 ps-2 pe-4 d-flex justify-content-between">
+                            <h5 class="primary-color">Item Subtotal: </h5>
+                            <h5 class="primary-color">${{ cartTotal }}</h5>
+                        </div>
+                        <div class="col-12 ps-2 pe-4 d-flex justify-content-between">
+                            <h5 class="primary-color">Shipping: </h5>
+                            <h5 class="primary-color">$0.00</h5>
+                        </div>
+                        <div class="col-12 ps-2 pe-4 d-flex justify-content-between">
+                            <h5 class="primary-color">Tax: </h5>
+                            <h5 class="primary-color">$0.00</h5>
+                        </div>
+                        <div class="col-12 d-flex border-bottom pe-4 justify-content-between">
+                            <h3 class="primary-color ps-2 text-left">Order Total:</h3>
+                            <h3 class="primary-color ps-3 mb-1">${{ cartTotal }}</h3>
+                        </div>
+                        <div class="col-12 d-flex justify-content-center">
+                            {{ paypay_payment_button.render }}
+                        </div>
+                    {% else %}
+                        <h3 class="primary-color text-center">You Don't Have Any Items In Cart Return To
+                            Homepage... </h3>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/checkout.js' %}"></script>
+{% endblock %}

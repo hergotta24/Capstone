@@ -14,6 +14,7 @@ class User(AbstractUser):
                                         related_name="userBillingAddress", blank=True)
     payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, null=True,
                                 related_name="paymentMethod", blank=True)
+    favorite = models.ManyToManyField('Product', null=True, blank=True)
 
 
 class Payment(models.Model):
@@ -55,15 +56,8 @@ class Storefront(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=500, null=True)
     dateCreated = models.DateTimeField(auto_now_add=True)
-
-
-class CustomerReviews(models.Model):
-    reviewId = models.AutoField(primary_key=True)
-    customerId = models.ForeignKey(User, on_delete=models.CASCADE)
-    reviewerId = models.ForeignKey(Storefront, on_delete=models.SET_NULL, null=True)
-    rating = models.PositiveIntegerField()
-    comment = models.CharField(max_length=500)
-    reviewDate = models.DateTimeField(auto_now_add=True)
+    bannerImage = models.ImageField(upload_to='storefront_banners/', null=True, blank=True)
+    logoImage = models.ImageField(upload_to='storefront_logos/', null=True, blank=True)
 
 
 class StoreReviews(models.Model):
@@ -76,13 +70,14 @@ class StoreReviews(models.Model):
 
 
 class Invoice(models.Model):
+    ORDER_STATUS = [('C1', 'Cart'), ('C2', 'Completed')]
     invoiceId = models.AutoField(primary_key=True)
     customerId = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     storeId = models.ForeignKey(Storefront, on_delete=models.SET_NULL, null=True)
     subtotal = models.DecimalField(max_digits=8, decimal_places=2)
     discount = models.DecimalField(max_digits=8, decimal_places=2)
     tax = models.DecimalField(max_digits=8, decimal_places=2)
-    shipping = models.DecimalField(max_digits=8, decimal_places=2)
+    shipping = models.CharField(max_length=2, choices=ORDER_STATUS)
     orderStatus = models.CharField(max_length=20)
     invoiceDate = models.DateTimeField(auto_now_add=True)
 
@@ -91,57 +86,40 @@ class Product(models.Model):
     class Meta:
         unique_together = ['name', 'soldByStoreId']
 
+    CATEGORY_CHOICES = {'arts_crafts': 'Arts & Crafts Supplies', 'automotive': 'Automotive & Tools',
+                        'children': 'Baby & Kids', 'beauty': 'Beauty & Personal Care', 'books': 'Books & Stationery',
+                        'clothing': 'Clothing & Apparel', 'electronics': 'Electronics', 'fitness': 'Fitness & Exercise',
+                        'furniture_decor': 'Furniture & Decor', 'outdoors': 'Gardening & Outdoor Living',
+                        'health_wellness': 'Health & Wellness', 'jewelry': 'Jewelry & Accessories',
+                        'office': 'Office Supplies', 'pets': 'Pet Supplies', 'sports': 'Sports & Outdoors',
+                        'toys': 'Toys & Games', 'travel': 'Travel & Luggage'}
+
     productId = models.AutoField(primary_key=True)
     soldByStoreId = models.ForeignKey(Storefront, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=1000)
     price = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0.01)])
     qoh = models.PositiveIntegerField(default=0, verbose_name='Quantity on Hand')
-    categoryId = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
-    subCategoryId = models.ForeignKey('SubCategory', on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     weight = models.FloatField(validators=[MinValueValidator(0.01)])
     length = models.FloatField(validators=[MinValueValidator(0.01)])
     width = models.FloatField(validators=[MinValueValidator(0.01)])
     height = models.FloatField(validators=[MinValueValidator(0.01)])
     dateAdded = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='product_images/', null=True, blank=True)
+
+    @property
+    def images(self):
+        return self.product_image.all()
+
+    @property
+    def thumbnail(self):
+        return self.product_image.first()
 
 
-class Category(models.Model):
-    categoryId = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30)
-
-
-class SubCategory(models.Model):
-    subCategoryId = models.AutoField(primary_key=True)
-    categoryId = models.ForeignKey(Category, on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
-
-
-class ProductVideos(models.Model):
-    videoId = models.AutoField(primary_key=True)
-    productId = models.ForeignKey(Product, on_delete=models.CASCADE)
-    videoURL = models.URLField(max_length=100)
-    videoTitle = models.CharField(max_length=30)
-    videoDescription = models.CharField(max_length=500, null=True)
-
-
-class ProductImages(models.Model):
-    imageId = models.AutoField(primary_key=True)
-    productId = models.ForeignKey(Product, on_delete=models.CASCADE)
-    imageURL = models.URLField(max_length=100)
-    imageTitle = models.CharField(max_length=30)
-    imageDescription = models.CharField(max_length=500, null=True)
-
-
-class ProductQuestions(models.Model):
-    questionId = models.AutoField(primary_key=True)
-    askedById = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    productId = models.ForeignKey(Product, on_delete=models.CASCADE)
-    question = models.CharField(max_length=500)
-    dateAsked = models.DateTimeField(auto_now_add=True)
-    answer = models.CharField(max_length=500)
-    dateAnswered = models.DateTimeField(default=None)
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_image')
+    name = models.CharField(max_length=50)
+    image = models.ImageField(upload_to='product_images/')
 
 
 class ProductReviews(models.Model):
@@ -156,17 +134,35 @@ class ProductReviews(models.Model):
 class LineItem(models.Model):
     lineItemId = models.AutoField(primary_key=True)
     invoiceId = models.ForeignKey(Invoice, on_delete=models.CASCADE)
-    productId = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    productId = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     quantity = models.PositiveIntegerField()
     linePrice = models.DecimalField(max_digits=8, decimal_places=2)
 
 
-class DisputeTicket(models.Model):
-    initiatorId = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="initiatedTickets")
-    invoiceId = models.ForeignKey(Invoice, on_delete=models.CASCADE)
-    disputeDetails = models.CharField(max_length=1000)
-    disputeDate = models.DateTimeField(auto_now_add=True)
-    disputeStatus = models.CharField(max_length=20)
-    resolvedBy = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="resolvedTickets")
-    resolutionDetails = models.CharField(max_length=1000)
-    resolutionDate = models.DateTimeField()
+class Cart(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, through='CartItem')
+
+    @property
+    def get_cart_items(self):
+        return self.cart_item.all()
+
+    @property
+    def cart_summary(self):
+        total_count = 0
+        subtotal = 0
+        cart_items = self.get_cart_items
+        for item in cart_items:
+            total_count += item.quantity
+            subtotal += item.total_price
+        return {'total_count': total_count, 'subtotal': subtotal}
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_item')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    @property
+    def total_price(self):
+        return self.quantity * self.product.price

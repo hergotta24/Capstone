@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from BackendWork.views import *
 from django.conf import settings
 from django.conf.urls.static import static
@@ -26,13 +26,17 @@ urlpatterns = [
                   path('register/', UserRegisterView.as_view(), name='UserRegisterView'),
                   path('logout/', custom_logout, name='Logout'),
                   path('account/', AccountManagementView.as_view(), name='AccountManagementView'),
-                  path('storefront/', storefront, name='storefront'),
+                  path('storefront/', StorefrontView.as_view(), name='StorefrontView'),
+                  path('favorite/', SavedProductView.as_view(), name='SavedProductView'),
                   path('cart/', AccountCartView.as_view(), name='AccountCartView'),
                   path('storefront/<int:product_id>/', UpdateProductView.as_view(), name='EditProductView'),
                   path('createproduct/', createproduct, name='createproduct'),
+                  path('addFavorite/', addFavorite, name='addFavorite'),
+                  path('removeFavorite/', removeFavorite, name='removeFavorite'),
                   path('products/<int:product_id>/', ProductDetailView.as_view(), name='product_detail'),
                   path('shop/<int:store_id>/', VendorView.as_view(), name='vendor'),
                   path('addproduct/<int:store_id>/', AddProductView.as_view(), name='AddProductView'),
-                  path('delete/<int:productid>/', ProductDeleteView.as_view(), name='deleteProduct'),
-                  path('', home, name='home')
+                  path('delete/<int:productid>/', deleteProduct, name='deleteProduct'),
+                  path('', home, name='home'),
+                  path('filter/<str:category>/', categoryFilter, name='categoryFilter')
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
