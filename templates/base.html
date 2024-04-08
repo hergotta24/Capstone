@@ -13,6 +13,7 @@
     <meta charset="UTF-8">
     {% block head %}
     {% endblock %}
+    <link rel="icon" type="image/x-icon" href="{% static 'icons/favicon.ico' %}">
     <title>ShopSavvy</title>
 </head>
 <body class="d-grid w-100 overflow-x-hidden">
@@ -75,9 +76,9 @@
     </div>
 </div>
 <div class="row d-flex h-100 pt-5" id="main">
-    {% include 'sidebar.html' %}
-    {% block content %}
-    {% endblock %}
+        {% include 'sidebar.html' %}
+        {% block content %}
+        {% endblock %}
 </div>
 </body>
 </html>

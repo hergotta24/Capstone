@@ -1,15 +1,15 @@
-<div class="col-12 col-md-6 col-lg-6 col-xl-4 col-xxl-3 px-2 px-lg-5 py-4">
+<div class="card border-0" style="background: transparent">
 
     {% if product.thumbnail %}
-        <div class="image-container">
-            <img src="{{ product.thumbnail.image.url }}" alt="{{ product.name }}" class="card-img-top image">
+        <div class="image-container d-block overflow-hidden" style="height:200px">
+            <img src="{{ product.thumbnail.image.url }}" alt="{{ product.name }}" class="d-block card-img-top">
             <div class="middle">
                 <div class="text"><a href="{% url 'product_detail' product_id=product.productId %}">Product Detail</a></div>
             </div>
         </div>
 
     {% else %}
-        <div class="image-container">
+        <div class="image-container d-block overflow-hidden" style="height:200px">
             <div class="card-img-top justify-content-center d-flex align-items-center primary-color border">No Image</div>
             <div class="middle">
                 <div class="text"><a href="{% url 'product_detail' product_id=product.productId %}">Product Detail</a></div>
@@ -17,7 +17,7 @@
         </div>
 
     {% endif %}
-    <div class="">
+    <div class="card-body">
         <div>
             <span class="fa fa-star fa-lg checked"></span>
             <span class="fa fa-star fa-lg checked"></span>
@@ -30,8 +30,8 @@
         {% else %}
             <button class="btn"><i class="fa-regular fa-heart"></i></button>
         {% endif %}
-        <h4 class="primary-color">{{ product.name }}</h4>
-        <h5 class="primary-color">${{ product.price }}</h5>
+        <h5 class="primary-color">{{ product.name }}</h5>
+        <h6 class="primary-color">${{ product.price }}</h6>
         <a href="{% url 'vendor' store_id=product.soldByStoreId_id %}" class="primary-color">{{ product.soldByStoreId.name }}</a>
     </div>
 </div>

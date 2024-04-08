@@ -1,13 +1,15 @@
 
 .card-img-top {
     opacity: 1;
-    width: 100%;
-    height: 300px; /* Adjust the height of the image as needed */
-    object-fit: cover;
+    width:100%;
+    height:100%;
+    object-fit: scale-down;
     border-radius: 8px;
     transition: .5s ease;
     backface-visibility: hidden;
 }
+
+
 
 .checked {
     color: orange;

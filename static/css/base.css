@@ -8,6 +8,7 @@ html, body {
     background: #212529;
     margin: 0;
     left: 0;
+    right: 0;
 }
 
 #header {
@@ -57,6 +58,7 @@ html, body {
 }
 
 #sidebar {
+    max-width:250px;
     background-color: #161718;
 }
 
