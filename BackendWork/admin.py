@@ -2,8 +2,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .forms import UserCreationForm, UserChangeForm
-from .models import (User, Address, Storefront, StoreReviews, Product, ProductImage, ProductReviews, Invoice, LineItem,
+from .forms import UserCreationForm
+from .models import (User, Address, Storefront, StoreReviews, Product, ProductImage, ProductReviews,
                      Cart, CartItem)
 
 
@@ -11,7 +11,7 @@ class UserAdmin(UserAdmin):
     add_form = UserCreationForm
 
     model = User
-    list_display = ["email", "username", "password", "phone_number", "shipping_address", "billing_address"]
+    list_display = ["email", "username", "password", "phone_number"]
     fieldsets = (
         *UserAdmin.fieldsets,
         (
@@ -19,8 +19,6 @@ class UserAdmin(UserAdmin):
             {
                 'fields': (
                     'phone_number',
-                    'shipping_address',
-                    'billing_address',
                     'favorite',
                 )
             }
@@ -36,9 +34,5 @@ admin.site.register(StoreReviews)
 admin.site.register(Product)
 admin.site.register(Cart)
 admin.site.register(CartItem)
-# admin.site.register(Category)
-# admin.site.register(SubCategory)
 admin.site.register(ProductImage)
 admin.site.register(ProductReviews)
-admin.site.register(Invoice)
-admin.site.register(LineItem)
