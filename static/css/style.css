@@ -288,3 +288,6 @@ div.price
 .demo:hover {
     opacity: 1;
 }
+.fa-heart{
+    color: red;
+}

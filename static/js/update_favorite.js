@@ -1,30 +1,59 @@
-console.log('favorite id is: ' + $('#favorite').val() + '.')
-$('#favorite').change(function (e)
-{
-    if($('#favorite').is(':checked'))
-    {
-        e.preventDefault()
-        $.ajax({
-            method:"POST",
-            url:'/addFavorite/',
-            headers: {'X-CSRFToken': getCookie("csrftoken")},
-            data: JSON.stringify({'favorite_id': $('#favorite').val()})
+$(document).ready(function () {
+    $('.js-favorite').click(function (e) {
+        var favId = $(this).data('productid');
+        if ($(this).hasClass('fa-regular')) {
+            e.preventDefault()
+            fetch('/addFavorite/', {
+                method: 'POST',
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"), // Include CSRF token
+                },
+                body: JSON.stringify({'favorite_id': favId})
+            })
+                .then(response => {
+                    // Handle response
+                    if (response.ok) {
+                        console.log('Changes confirmed successfully');
+                        $(this).removeClass('fa-regular').addClass('fa-solid');
+                    } else {
+                        console.error('Error after successful return confirming changes:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error coming back from server', error);
+                    // Optionally, display an error message to the user
+                });
+
+        } else {
+            e.preventDefault()
+            fetch('/removeFavorite/', {
+                method: 'POST',
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"), // Include CSRF token
+                },
+                body: JSON.stringify({'favorite_id': favId})
+            })
+                .then(response => {
+                    // Handle response
+                    if (response.ok) {
+                        // Successful response
+                        console.log('Changes confirmed successfully');
+                        $(this).addClass('fa-regular').removeClass('fa-solid');
+
+                    } else {
+                        // Error handling
+                        console.error('Error confirming changes:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error confirming changes:', error);
+                });
+        }
     });
-    }
-    else
-    {
-        e.preventDefault()
-        $.ajax({
-            method:"POST",
-            url:'/removeFavorite/',
-            headers: {'X-CSRFToken': getCookie("csrftoken")},
-            data: JSON.stringify({'favorite_id': $('#favorite').val()})
-    });
-    }
 });
 
-function getCookie(name)
-    {
+
+function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -37,4 +66,4 @@ function getCookie(name)
         }
     }
     return cookieValue;
-    }
+}
