@@ -330,6 +330,31 @@ class AddProductView(View):
             return JsonResponse({'message': form.errors}, status=401)
 
 
+class ReviewProductView(View):
+    @staticmethod
+    @login_required(login_url='/login/')
+    def get(request, product_id):
+        product = get_object_or_404(Product, productId=product_id)
+        storefront = product.soldByStoreId.name
+        return render(request, 'review_product.html', {'product': product, 'username': request.user,
+                                                       'storefront': storefront})
+
+    @staticmethod
+    @login_required(login_url='/login/')
+    def post(request, product_id):
+        reviewData = json.loads(request.body)
+
+        product = get_object_or_404(Product, productId=product_id)
+        rating = reviewData.get('rating')
+        comment = reviewData.get('comment')
+
+        ProductReviews.objects.create(productId=product, reviewerId=request.user, rating=rating,
+                                      comment=comment)
+        # return redirect(f'/products/{product_id}')
+        # return redirect('/')
+        return ProductDetailView.get(request, product_id)
+
+
 def deleteProduct(request, productid):
     get_object_or_404(Product, id=productid)
     Product.objects.filter(productId=productid).delete()
