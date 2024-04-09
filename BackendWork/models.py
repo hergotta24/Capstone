@@ -122,10 +122,17 @@ class ProductImage(models.Model):
 
 
 class ProductReviews(models.Model):
+    def __str__(self):
+        return (f"Product: {self.productId.name} (ID {self.productId_id}), "
+                f"Reviewer: {self.reviewerId.username} (ID {self.reviewerId_id}), "
+                f"{self.rating}/5 Stars")
+
+    RATING_CHOICES = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5}
     reviewId = models.AutoField(primary_key=True)
     productId = models.ForeignKey(Product, on_delete=models.CASCADE)
     reviewerId = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    rating = models.PositiveIntegerField()
+    # rating = models.PositiveIntegerField()
+    rating = models.IntegerField(choices=RATING_CHOICES)
     comment = models.CharField(max_length=500)
     reviewDate = models.DateTimeField(auto_now_add=True)
 
