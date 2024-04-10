@@ -1,0 +1,28 @@
+#storeName, #storeDescription {
+    background-color: #46494d;
+}
+
+#storeName[readonly], #storeDescription[readonly] {
+    border: none;
+    cursor: default;
+    outline: none;
+    background-color: inherit;
+
+}
+
+#logoBtn, #bannerBtn {
+    background: transparent;
+}
+
+#logoBtn:hover, #bannerBtn:hover {
+    background: #212529;
+    opacity: 43.1%;
+}
+
+.modal-content {
+    background-color: #212529;
+    border-radius: 0;
+
+    color: #E8DCCD;
+
+}

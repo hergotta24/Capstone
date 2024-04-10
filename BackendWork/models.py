@@ -8,31 +8,7 @@ from django.utils import timezone
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
-
-    # Methods to support favoriting/unfavoriting products
-    def add_favorite(self, product):
-        Favorite.objects.get_or_create(user=self, product=product)
-
-    def remove_favorite(self, product):
-        Favorite.objects.filter(user=self, product=product).delete()
-
-    def has_favorite(self, product):
-        return Favorite.objects.filter(user=self, product=product).exists()
-
-    def get_favorites(self):
-        return Product.objects.filter(favorite__user=self)
-
-
-class Favorite(models.Model):
-    favoriteId = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('user', 'product')
-
-    def __str__(self):
-        return f"{self.user.username} (ID {self.user.id}), {self.product.name} (ID {self.product.productId})"
+    favorite = models.ManyToManyField('Product', blank=True)
 
 
 STATE_CHOICES = {('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'), ('AR', 'Arkansas'), ('CA', 'California'),

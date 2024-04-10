@@ -1,3 +1,5 @@
+from _ast import Store
+
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Sum
 from django.shortcuts import render, redirect
@@ -5,7 +7,7 @@ from django.views import View
 from BackendWork.forms import *
 from django.contrib.auth.decorators import login_required
 import json
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from BackendWork.models import *
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -144,19 +146,53 @@ def categoryFilter(request, category):
     return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
-def addFavorite(request, product_id):
-    product = get_object_or_404(Product, productId=product_id)
+
+def search(request):
+    filters = request.GET.getlist('filters')
+    query = request.GET.get('searchQuery')
+    searchWords = query.split()
+
+    products = Product.objects.all()
+    filteredProducts = []
+
+    for searchWord in searchWords:
+        for filter in filters:
+            if filter == 'store':
+                filteredProducts.extend(products.filter(soldByStoreId__name__contains=searchWord))
+            if filter == 'name':
+                filteredProducts.extend(products.filter(name__contains=searchWord))
+            if filter == 'category':
+                filteredProducts.extend(products.filter(category__contains=searchWord))
+
+
+    # Remove duplicates by converting filteredProducts to a set and then back to a list
+    filteredProducts = list(set(filteredProducts))
+
+    categories = Product.CATEGORY_CHOICES.items()
+    return render(request, 'home.html', {'products': filteredProducts, 'categories': categories})
+
+def removeFavorite(request):
+    data = json.loads(request.body)
+    favorite_id = data['favorite_id']
+    product = get_object_or_404(Product, productId=favorite_id)
     user = User.objects.get(username=request.user)
-    user.add_favorite(product)
+    user.favorite.remove(product)
+    user.save()
+    print('Favorite product removed!')
+    return JsonResponse({'message': 'Favorite product removed!'}, status=200)
+
+
+def addFavorite(request):
+    data = json.loads(request.body)
+    favorite_id = data['favorite_id']
+    product = get_object_or_404(Product, productId=favorite_id)
+    user = User.objects.get(username=request.user)
+    user.favorite.add(product)
+    user.save()
+    print('Favorite product added!')
     return JsonResponse({'message': 'Favorite product added!'}, status=200)
 
 
-def removeFavorite(request, product_id):
-    product = get_object_or_404(Product, productId=product_id)
-    user = User.objects.get(username=request.user)
-    user.remove_favorite(product)
-    return JsonResponse({'message': 'Favorite product removed!'}, status=200)
-    
 
 class StorefrontView(View):
     @staticmethod
@@ -207,7 +243,9 @@ class ProductDetailView(View):
     def get(request, product_id):
         product = get_object_or_404(Product, productId=product_id)
         reviews = ProductReviews.objects.filter(productId=product.productId)
-        return render(request, 'product_detail.html', {'product': product, 'reviews': reviews})
+        favorite = User.objects.filter(id=request.user.id, favorite=product.productId).exists()
+        return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
+                                                       'favorite': favorite})
 
     # @staticmethod
     # @login_required(login_url='/login/')
@@ -328,6 +366,14 @@ class ProductDeleteView(View):
         Product.objects.filter(productId=productid).delete()
 
 
+class SavedProductView(View):
+    @staticmethod
+    @login_required(login_url='/login')
+    def get(request):
+        favorite = User.objects.get(id=request.user.id).favorite.all()
+        return render(request, 'favorite.html', {'favorites': favorite})
+
+
 @login_required(login_url='/login/')
 def checkout_view(request):
     host = request.get_host()
@@ -385,3 +431,7 @@ def payment_complete_view(request, invoice_id):
 
 def payment_failed_view(request):
     return render(request, 'payment-failed.html')
+
+
+def update_favorite(request):
+    return render(request, 'product_card.html')
