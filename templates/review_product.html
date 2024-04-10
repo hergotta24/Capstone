@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
+        <div class="m-auto h-100 w-100 gap-3 p-3">
+            <div class="container mx-auto flex-wrap w-100 w-lg-75">
+                <div class="col-12 col-md-6 d-flex fit-content flex-wrap px-2">
+                    <div class="col-12 mb-2 pe-5">
+                        <label for="productId" class="col-12 col-lg-4 primary-color">Product Name:</label>
+                        <span class="primary-color">{{ product.name }}</span>
+                    </div>
+                    <div class="col-12 mb-2 pe-5">
+                        <label for="storefront" class="col-12 col-lg-4 primary-color">Sold By:</label>
+                        <span class="primary-color">{{ storefront }}</span>
+                    </div>
+                    <div class="col-12 pe-5 mb-2">
+                        <label for="reviewerId" class="col-12 col-lg-4 primary-color">Reviewer: </label>
+                        <span class="primary-color">{{ username }}</span>
+                    </div>
+                    <div class="col-12 pe-5 mb-2">
+                        <label for="rating" class="col-12 col-lg-4 primary-color">Your Rating: </label>
+                        <select id="rating" name="rating">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="col-12 d-flex flex-wrap my-2">
+                        <label for="comment" class="col-12 primary-color">Your review:</label>
+                        <div contenteditable="true" id="comment" class="col-12 p-2 fit-content primary-color border"></div>
+                    </div>
+
+                    <div class="col-12 d-flex mt-3">
+                        <button type="submit" id="review-product" class="col-12 btn-primary btn">Leave a review!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/product-review.js' %}"></script>
+{% endblock %}
+
