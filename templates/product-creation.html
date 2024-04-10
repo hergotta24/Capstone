@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/productdetail.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
+        <div class="m-auto h-100 w-100 gap-3 p-3">
+            <div class="container mx-auto flex-wrap w-100 w-lg-75">
+                <div class="col-12 col-md-6 h-100 px-3">
+                    <div class="d-flex flex-column position-relative w-100">
+
+                        <!-- Full-width images with number text -->
+                        <div class="row d-flex w-100 mx-0" id="slideContainer" style="max-height:400px">
+                            <div class="mySlides d-flex w-100 h-100" id="addSlide" style="max-height: 100%">
+                                <div class="numbertext"><span class="slideNum">1</span> / <span
+                                        class="slideSize">1</span></div>
+                                <button type="button"
+                                        class="hover btn btn-dark w-100 h-100 border-0 justify-content-center mx-0"
+                                        id="imageBtn" style="min-height:400px;"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#imageInputModal">
+                                    <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
+                                </button>
+                            </div>
+
+
+                            <!-- Next and previous buttons -->
+                            <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                            <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                        </div>
+                        <!-- Image text -->
+                        <div class="caption-container row">
+                            <p id="caption"></p>
+                        </div>
+
+                        <!-- Thumbnail images -->
+                        <div class="row flex-nowrap" id="demoContainer" style="max-height:80px;height:80px;">
+                            <div class="col-lg-2 column position-relative my-auto" id="addDemo"
+                                 style="min-width:16.6%;max-height: inherit">
+                                <div class="demo cursor" style="width:100%"
+                                     onclick="currentSlide(1)"><i class="fa fa-plus fa-lg px-2"></i></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 d-flex fit-content flex-wrap px-2">
+                    <form id="productCreationForm" method="POST" enctype="multipart/form-data">
+                        <div class="modal fade" id="imageInputModal" tabindex="-1"
+                             aria-labelledby="imageInputModalLabel"
+                             aria-hidden="true">
+                            <div class="modal-dialog" style="top:25%">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="imageInputModalLabel">Upload Image</h5>
+                                        <button type="button" class="btn-close hover" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <label for="imageInput">
+                                            <input type="file" id="imageInput" accept="image/png, image/jpeg">
+                                        </label>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn hover" data-bs-dismiss="modal"
+                                                onclick="close()">Close
+                                        </button>
+                                        <button type="button" class="btn hover" data-bs-dismiss="modal"
+                                                onclick="addImage()">Save changes
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-2 pe-5">
+                            <label for="product-name" class="col-12 col-lg-4 primary-color">Product Name:</label>
+                            <input id="product-name" type="text" class="col-12 col-lg-7 btn p-0 btn-primary"/>
+                        </div>
+                        <div class="col-12 pe-5 mb-2">
+                            <label for="product-price" class="col-12 col-lg-4 primary-color">Price: </label>
+                            <input id="product-price" class="col-12 col-lg-7 btn p-0 btn-primary" type="number"/>
+                        </div>
+                        <div class="col-12 pe-5 mb-2">
+                            <label for="product-qoh" class="col-12 col-lg-4 primary-color">Quantity On Hand: </label>
+                            <input id="product-qoh" class="col-12 col-lg-7 btn p-0 btn-primary" type="number"/>
+                        </div>
+                        <div class="col-12 d-flex flex-wrap my-2">
+                            <label for="product-description" class="col-12 primary-color">Product Description</label>
+                            <div contenteditable="true" id="product-description"
+                                 class="col-12 p-2 fit-content primary-color border"></div>
+                        </div>
+
+                        <div class="col-12 d-flex mt-3">
+                            <button type="submit" id="create-product" class="col-12 btn-primary btn">Create Product
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/product-create.js' %}"></script>
+{% endblock %}

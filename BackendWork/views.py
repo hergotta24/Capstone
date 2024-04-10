@@ -1,3 +1,5 @@
+from _ast import Store
+
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Sum
 from django.shortcuts import render, redirect
@@ -5,8 +7,10 @@ from django.views import View
 from BackendWork.forms import *
 from django.contrib.auth.decorators import login_required
 import json
-from django.http import JsonResponse, HttpResponseForbidden
-from BackendWork.models import User, Product, Storefront, ProductReviews
+
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
+from BackendWork.models import User, Product, Storefront, ProductReviews, STATE_CHOICES
+
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -144,6 +148,31 @@ def categoryFilter(request, category):
     return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
+
+def search(request):
+    filters = request.GET.getlist('filters')
+    query = request.GET.get('searchQuery')
+    searchWords = query.split()
+
+    products = Product.objects.all()
+    filteredProducts = []
+
+    for searchWord in searchWords:
+        for filter in filters:
+            if filter == 'store':
+                filteredProducts.extend(products.filter(soldByStoreId__name__contains=searchWord))
+            if filter == 'name':
+                filteredProducts.extend(products.filter(name__contains=searchWord))
+            if filter == 'category':
+                filteredProducts.extend(products.filter(category__contains=searchWord))
+
+
+    # Remove duplicates by converting filteredProducts to a set and then back to a list
+    filteredProducts = list(set(filteredProducts))
+
+    categories = Product.CATEGORY_CHOICES.items()
+    return render(request, 'home.html', {'products': filteredProducts, 'categories': categories})
+
 def removeFavorite(request):
     data = json.loads(request.body)
     favorite_id = data['favorite_id']
@@ -164,6 +193,7 @@ def addFavorite(request):
     user.save()
     print('Favorite product added!')
     return JsonResponse({'message': 'Favorite product added!'}, status=200)
+
 
 
 class StorefrontView(View):

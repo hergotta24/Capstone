@@ -1,0 +1,19 @@
+
+#sidebar {
+    background-color: #161718;
+}
+
+
+.link {
+    color: #E8DCCD;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+}
+
+.item{
+    font-size: 14px;
+    padding: 8px;
+    color: #f2f2f2;
+}

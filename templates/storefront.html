@@ -1,35 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/storefront.css' %}">
+{% endblock %}
 {% block content %}
-    <style>
-    #storeName, #storeDescription {
-        background-color: #46494d;
-    }
-
-        #storeName[readonly], #storeDescription[readonly] {
-            border: none;
-            cursor: default;
-            outline: none;
-            background-color: inherit;
-
-        }
-        #logoBtn, #bannerBtn {
-            background: transparent;
-        }
-
-        #logoBtn:hover, #bannerBtn:hover {
-            background: #212529;
-            opacity: 43.1%;
-        }
-
-        .modal-content {
-            background-color: #212529;
-            border-radius: 0;
-
-            color: #E8DCCD;
-
-        }
-    </style>
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
         <div class="row d-flex mx-auto w-100 position-relative" style="height: 300px;">
             <img id="bannerDisplay" src="{{ store.bannerImage.url }}" class="p-0 w-100 h-100" alt="Banner">
@@ -76,7 +50,7 @@
                 </button>
             </div>
             <div class="d-flex col-3 justify-content-end">
-                <a href="/createproduct" class="hover btn m-2 btn-primary"
+                <a href="{% url 'AddProductView' store_id=store.storeId %}" class="hover btn m-2 btn-primary"
                 style="max-width: 300px; max-height: 40px" id="createBtn"> Create Product</a>
             </div>
             <div class="col-lg-9">
