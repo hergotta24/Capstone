@@ -29,9 +29,9 @@
                         <div class="row">
                             {% for image in product.images %}
                                 <div class="column">
-                                <img class="demo cursor" src="{{ image.image.url }}" style="width:100%"
-                                     onclick="currentSlide(1)" alt="{{ image.name }}">
-                            </div>
+                                    <img class="demo cursor" src="{{ image.image.url }}" style="width:100%"
+                                         onclick="currentSlide(1)" alt="{{ image.name }}">
+                                </div>
                             {% endfor %}
                         </div>
                     </div>
@@ -48,11 +48,7 @@
                         <span class="fa fa-star fa-lg unchecked"></span>
                     </div>
                     <div class="col-12 my-2">
-                        {% if favorite == 1 %}
-                            <button class="btn"><i class="fa-solid fa-heart"></i></button>
-                        {% else %}
-                            <button class="btn"><i class="fa-regular fa-heart"></i></button>
-                        {% endif %}
+                        {% include 'update_favorite.html' %}
                         <p class="primary-color">
                             {{ product.description }}
                         </p>
@@ -63,25 +59,26 @@
                     </div>
                     <div class="col-12 d-flex mt-3">
                         <button class="col-12 btn-primary btn" id="add_to_cart"
-                                value="{{ product.productId }}">Add To Cart</button>
+                                value="{{ product.productId }}">Add To Cart
+                        </button>
                     </div>
                     <div>
-                    <table class="primary-color">
-                        <tr>
-                            <th>Name</th>
-                            <th>Rating</th>
-                            <th>Comment</th>
-                            <th>Date</th>
-                            {% for r in reviews %}
-                                <tr>
-                                    <td>{{ r.reviewerId }}</td>
-                                    <td>{{ r.rating }}</td>
-                                    <td>{{ r.comment }}</td>
-                                    <td>{{ r.reviewDate }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tr>
-                    </table>
+                        <table class="primary-color">
+                            <tr>
+                                <th>Name</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                                <th>Date</th>
+                                {% for r in reviews %}
+                                    <tr>
+                                        <td>{{ r.reviewerId }}</td>
+                                        <td>{{ r.rating }}</td>
+                                        <td>{{ r.comment }}</td>
+                                        <td>{{ r.reviewDate }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tr>
+                        </table>
 
                     </div>
                 </div>

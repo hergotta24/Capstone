@@ -1,18 +1,20 @@
 <div class="col-12 col-md-6 col-lg-6 col-xl-4 col-xxl-3 px-2 px-lg-5 py-4">
-
     {% if product.thumbnail %}
         <div class="image-container">
             <img src="{{ product.thumbnail.image.url }}" alt="{{ product.name }}" class="card-img-top image">
             <div class="middle">
-                <div class="text"><a href="{% url 'product_detail' product_id=product.productId %}">Product Detail</a></div>
+                <div class="text"><a href="{% url 'product_detail' product_id=product.productId %}">Product Detail</a>
+                </div>
             </div>
         </div>
 
     {% else %}
         <div class="image-container">
-            <div class="card-img-top justify-content-center d-flex align-items-center primary-color border">No Image</div>
+            <div class="card-img-top justify-content-center d-flex align-items-center primary-color border">No Image
+            </div>
             <div class="middle">
-                <div class="text"><a href="{% url 'product_detail' product_id=product.productId %}">Product Detail</a></div>
+                <div class="text"><a href="{% url 'product_detail' product_id=product.productId %}">Product Detail</a>
+                </div>
             </div>
         </div>
 
@@ -25,11 +27,8 @@
             <span class="fa fa-star fa-lg unchecked"></span>
             <span class="fa fa-star fa-lg unchecked"></span>
         </div>
-        {% if favorite == 1 %}
-            <button class="btn"><i class="fa-solid fa-heart"></i></button>
-        {% else %}
-            <button class="btn"><i class="fa-regular fa-heart"></i></button>
-        {% endif %}
+
+        {% include 'update_favorite.html' %}
         <h4 class="primary-color">{{ product.name }}</h4>
         <h5 class="primary-color">${{ product.price }}</h5>
         <a href="{% url 'vendor' store_id=product.soldByStoreId_id %}" class="primary-color">{{ product.soldByStoreId.name }}</a>
