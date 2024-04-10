@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from BackendWork.views import *
 from django.conf import settings
 from django.conf.urls.static import static
@@ -27,20 +27,20 @@ urlpatterns = [
                   path('logout/', custom_logout, name='Logout'),
                   path('account/', AccountManagementView.as_view(), name='AccountManagementView'),
                   path('storefront/', StorefrontView.as_view(), name='StorefrontView'),
-
+                  path('favorite/', SavedProductView.as_view(), name='SavedProductView'),
                   path('storefront/<int:product_id>/', UpdateProductView.as_view(), name='EditProductView'),
                   path('createproduct/', createproduct, name='createproduct'),
+                  path('addFavorite/', addFavorite, name='addFavorite'),
+                  path('removeFavorite/', removeFavorite, name='removeFavorite'),
                   path('products/<int:product_id>/', ProductDetailView.as_view(), name='product_detail'),
                   path('shop/<int:store_id>/', VendorView.as_view(), name='vendor'),
                   path('addproduct/<int:store_id>/', AddProductView.as_view(), name='AddProductView'),
                   path('delete/<int:productid>/', deleteProduct, name='deleteProduct'),
-                  path('addfavorite/<int:product_id>/', addFavorite, name='addFavorite'),
-                  path('unfavorite/<int:product_id>/', removeFavorite, name='removeFavorite'),
                   path('', home, name='home'),
                   path('filter/<str:category>/', categoryFilter, name='categoryFilter'),
                   path('cart/', AccountCartView.as_view(), name='AccountCartView'),
                   path('checkout/', checkout_view, name='checkout'),
                   path('paypal/', include('paypal.standard.ipn.urls')),
-                  path('payment-completed/', payment_complete_view, name='payment-complete'),
-                  path('payment-failed/', payment_failed_view, name='payment-failed'),
+                  path('payment-completed/<int:invoice_id>/', payment_complete_view, name='payment-complete'),
+                  path('payment-failed/<int:invoice_id>', payment_failed_view, name='payment-failed'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

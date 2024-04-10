@@ -8,31 +8,7 @@ from django.utils import timezone
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
-
-    # Methods to support favoriting/unfavoriting products
-    def add_favorite(self, product):
-        Favorite.objects.get_or_create(user=self, product=product)
-
-    def remove_favorite(self, product):
-        Favorite.objects.filter(user=self, product=product).delete()
-
-    def has_favorite(self, product):
-        return Favorite.objects.filter(user=self, product=product).exists()
-
-    def get_favorites(self):
-        return Product.objects.filter(favorite__user=self)
-
-
-class Favorite(models.Model):
-    favoriteId = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('user', 'product')
-
-    def __str__(self):
-        return f"{self.user.username} (ID {self.user.id}), {self.product.name} (ID {self.product.productId})"
+    favorite = models.ManyToManyField('Product', blank=True)
 
 
 STATE_CHOICES = {('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'), ('AR', 'Arkansas'), ('CA', 'California'),
@@ -148,9 +124,82 @@ class Cart(models.Model):
             subtotal += item.total_price
         return {'total_count': total_count, 'subtotal': subtotal}
 
+    def clear_cart(self):
+        self.cart_item.all().delete()
+
+    @property
+    def sellers_in_cart(self):
+        sellers = set()
+        cart_items = self.get_cart_items
+        for item in cart_items:
+            sellers.add(item.product.soldByStoreId.owner)
+        return list(sellers)
+
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_item')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    @property
+    def total_price(self):
+        return self.quantity * self.product.price
+
+
+class Invoice(models.Model):
+    invoiceId = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invoices')
+    products = models.ManyToManyField(Product, through='InvoiceItem')
+
+    @property
+    def get_invoice_items(self):
+        return self.invoice_item.all()
+
+    @property
+    def invoice_summary(self):
+        total_count = 0
+        subtotal = 0
+        cart_items = self.invoice_item.all()
+        for item in cart_items:
+            total_count += item.quantity
+            subtotal += item.total_price
+        return {'total_count': total_count, 'subtotal': subtotal}
+
+
+class InvoiceItem(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='invoice_item')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    @property
+    def total_price(self):
+        return self.quantity * self.product.price
+
+
+class Order(models.Model):
+    orderId = models.AutoField(primary_key=True)
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seller_orders')
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='customer_orders')
+    products = models.ManyToManyField(Product, through='OrderItem')
+    shippingAddress = models.ForeignKey(Address, on_delete=models.CASCADE, null=True)
+
+    @property
+    def get_order_items(self):
+        return self.order_item.all()
+
+    @property
+    def order_summary(self):
+        total_count = 0
+        subtotal = 0
+        order_item = self.order_item.all()
+        for item in order_item:
+            total_count += item.quantity
+            subtotal += item.total_price
+        return {'total_count': total_count, 'subtotal': subtotal}
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_item')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
