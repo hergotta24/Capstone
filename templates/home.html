@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/productcard.css' %}">
 {% endblock %}
 {% block content %}
-    <div class="col d-flex flex-column overflow-x-hidden w-100 h-100 pt-2" id="content">
+    <div class="col d-flex flex-column overflow-hidden w-100 h-100 pt-3" id="content">
         <div class="w-100 h-100">
             <div class="row d-flex flex-wrap w-100 rounded-1 align-content-center position-relative">
                 <div class="col-1 arrow-icon left-arrow btn btn-primary my-2 position-absolute" id="left-arrow">
@@ -22,7 +22,7 @@
                     <i class="fa-solid fa-arrow-right"></i>
                 </div>
             </div>
-            <div class="row w-100 mx-auto position-relative" style="background-color: red">
+            <div class="row w-100 mx-auto position-relative pt-2">
                 <div class="container d-grid w-100 flex-wrap"
                      style="grid-template-columns: repeat(6, 15%); grid-gap: 2%">
                     {% for product in products %}

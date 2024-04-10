@@ -8,7 +8,7 @@ from BackendWork.forms import *
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
-from BackendWork.models import User, Product, Storefront, ProductReviews, STATE_CHOICES
+from BackendWork.models import User, Product, Storefront, ProductReviews, STATE_CHOICES, PurchaseOrder
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -163,7 +163,6 @@ def search(request):
             if filter == 'category':
                 filteredProducts.extend(products.filter(category__contains=searchWord))
 
-
     # Remove duplicates by converting filteredProducts to a set and then back to a list
     filteredProducts = list(set(filteredProducts))
 
@@ -234,8 +233,9 @@ class ProductDetailView(View):
         product = get_object_or_404(Product, productId=product_id)
         reviews = ProductReviews.objects.filter(productId=product.productId)
         favorite = request.user.has_favorite(product)
+        ordered = PurchaseOrder.objects.filter(user=request.user, product=product).exists()
         return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
-                                                       'favorite': favorite})
+                                                       'favorite': favorite, 'ordered': ordered})
 
     # @staticmethod
     # @login_required(login_url='/login/')
@@ -311,7 +311,7 @@ class AddProductView(View):
     @staticmethod
     @login_required(login_url='/login/')
     def get(request, store_id):
-        return render(request, 'addproduct.html')
+        return render(request, 'product-creation.html', {'store_id': store_id})
 
     @staticmethod
     @login_required(login_url='/login/')
@@ -325,11 +325,10 @@ class AddProductView(View):
             'price': productData.get('price'),
             'qoh': productData.get('qoh'),
             'category': productData.get('category'),
-            'weight': productData.get('weight'),
-            'length': productData.get('length'),
-            'width': productData.get('width'),
-            'height': productData.get('height'),
-            'image': productData.get('image')
+            'weight': 1,
+            'length': 1,
+            'width': 1,
+            'height': 1,
         }
 
         form = AddProductForm(form_data)
@@ -386,3 +385,12 @@ def payment_complete_view(request):
 
 def payment_failed_view(request):
     return render(request, 'payment-failed.html')
+
+
+class OrderHistoryView(View):
+    @staticmethod
+    @login_required(login_url='/login/')
+    def get(request):
+        user = request.user
+        products = Product.objects.filter(purchaseorder__user=user)
+        return render(request, 'order_history.html', {'products': products})

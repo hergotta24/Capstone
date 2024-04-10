@@ -157,3 +157,11 @@ class CartItem(models.Model):
     @property
     def total_price(self):
         return self.quantity * self.product.price
+
+
+class PurchaseOrder(models.Model):
+    purchaseId = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    orderDate = models.DateTimeField(auto_now_add=True)
+

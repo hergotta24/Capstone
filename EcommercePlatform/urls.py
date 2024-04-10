@@ -20,6 +20,9 @@ from BackendWork.views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
+
+
+
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('login/', UserLoginView.as_view(), name='UserLoginView'),
@@ -27,6 +30,7 @@ urlpatterns = [
                   path('logout/', custom_logout, name='Logout'),
                   path('account/', AccountManagementView.as_view(), name='AccountManagementView'),
                   path('storefront/', StorefrontView.as_view(), name='StorefrontView'),
+                  path('orderhistory/', OrderHistoryView.as_view(), name='OrderHistoryView'),
 
                   path('storefront/<int:product_id>/', UpdateProductView.as_view(), name='EditProductView'),
                   path('createproduct/', createproduct, name='createproduct'),
@@ -38,6 +42,7 @@ urlpatterns = [
                   path('unfavorite/<int:product_id>/', removeFavorite, name='removeFavorite'),
                   path('', home, name='home'),
                   path('filter/<str:category>/', categoryFilter, name='categoryFilter'),
+                  path('search/', search, name='search'),
                   path('cart/', AccountCartView.as_view(), name='AccountCartView'),
                   path('checkout/', checkout_view, name='checkout'),
                   path('paypal/', include('paypal.standard.ipn.urls')),
