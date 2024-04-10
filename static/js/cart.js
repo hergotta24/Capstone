@@ -5,7 +5,7 @@ for (i = 0; i < coll.length; i++)
 {
     coll[i].addEventListener("click", function () {
         this.classList.toggle("active");
-        let content = this.nextElementSibling;
+        let content = this.nextElementSibling.firstElementChild;
         if (content.style.display === "table") {
             content.style.display = "none";
         } else {
@@ -19,7 +19,7 @@ document.getElementById('cartForm').addEventListener('submit', function (event) 
     event.preventDefault();
 
     // Collect form data
-    const formData = {
+    const cartData = {
         name: this.elements.name.value,
         card: this.elements.card.value,
         expiration: this.elements.expiration.value,
@@ -33,7 +33,7 @@ document.getElementById('cartForm').addEventListener('submit', function (event) 
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken') // Function to get CSRF token
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(cartData)
     })
         .then(response => {
             if (response.ok) {
