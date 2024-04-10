@@ -25,13 +25,10 @@
             <span class="fa fa-star fa-lg unchecked"></span>
             <span class="fa fa-star fa-lg unchecked"></span>
         </div>
-        {% if favorite == 1 %}
-            <button class="btn"><i class="fa-solid fa-heart"></i></button>
-        {% else %}
-            <button class="btn"><i class="fa-regular fa-heart"></i></button>
-        {% endif %}
-        <h5 class="primary-color">{{ product.name }}</h5>
-        <h6 class="primary-color">${{ product.price }}</h6>
+
+        {% include 'update_favorite.html' %}
+        <h4 class="primary-color">{{ product.name }}</h4>
+        <h5 class="primary-color">${{ product.price }}</h5>
         <a href="{% url 'vendor' store_id=product.soldByStoreId_id %}" class="primary-color">{{ product.soldByStoreId.name }}</a>
     </div>
 </div>

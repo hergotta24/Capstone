@@ -52,11 +52,7 @@
                         <span class="fa fa-star fa-lg unchecked"></span>
                     </div>
                     <div class="col-12 my-2">
-                        {% if favorite == 1 %}
-                            <button class="btn"><i class="fa-solid fa-heart"></i></button>
-                        {% else %}
-                            <button class="btn"><i class="fa-regular fa-heart"></i></button>
-                        {% endif %}
+                        {% include 'update_favorite.html' %}
                         <p class="primary-color">
                             {{ product.description }}
                         </p>
@@ -90,6 +86,7 @@
 
                     </div>
                 </div>
+
             </div>
             {% if ordered %}
                 <div class="row mx-auto w-100 my-5">
