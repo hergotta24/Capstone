@@ -25,13 +25,19 @@ $(document).ready(function() {
             },
         })
         .then(response => {
-            if (response.ok || response.redirected) {
-                // If the update was successful, you may want to redirect the user or show a success message
-                console.log("Thanks for your review!");
+            if (response.ok) {
+                console.log("Review created");
+                return response.json();
             } else {
-                // If there's an error, handle it accordingly
-                console.error("Failed to leave review");
+                return response.json().then(data => Promise.reject(data));
             }
+        })
+        .then(data => {
+            // console.log(data);
+            makeToast(data.message, 200);
+            setTimeout(function () {
+                window.location.href = `/products/${product_id}`;
+            }, 3000); // 3000 milliseconds = 3 seconds
         })
         .catch(error => {
             console.error("Error:", error);
@@ -53,4 +59,34 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+function makeToast(message, status) {
+    // console.log(message);
+    // console.log(status);
+    var toast = document.getElementById("toast");
+    var bgColor = "";
+    if (status == 200) {
+        bgColor = "bg-success";
+    } else if (status == 400) {
+        bgColor = "bg-danger";
+    }
+    toast.classList.add(bgColor)
+
+    var toastBody = toast.querySelector('.toast-body');
+
+    // Set the message
+    toastBody.textContent = message;
+
+    // Show the toast
+    var bootstrapToast = new bootstrap.Toast(toast);
+    bootstrapToast.show();
+
+    setTimeout(function () {
+        if (status == 200) {
+            bootstrapToast.hide();
+            toast.classList.remove(bgColor);
+            toastBody.textContent = "";
+        }
+    }, 4000);
 }
