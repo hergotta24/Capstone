@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from _ast import Store
 
 from django.contrib.auth import authenticate, login, logout
@@ -9,8 +7,6 @@ from django.views import View
 from BackendWork.forms import *
 from django.contrib.auth.decorators import login_required
 import json
-from django.http import JsonResponse, HttpResponseForbidden
-from BackendWork.models import User, Product, Storefront, ProductReviews, STATE_CHOICES, Cart, CartItem
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from BackendWork.models import *
 from django.shortcuts import render, get_object_or_404
@@ -389,8 +385,8 @@ class ReviewProductView(View):
                                       comment=comment)
         # return redirect(f'/products/{product_id}')
         # return redirect('/')
-        return ProductDetailView.get(request, product_id)
-
+        # return ProductDetailView.get(request, product_id)
+        return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
 
 def deleteProduct(request, productid):
     get_object_or_404(Product, id=productid)
