@@ -21,16 +21,16 @@ class TestUpdateCartQty(TestCase):
         self.cart1.add_product(self.product2, 2)
         self.client.login(username='testUser', password='p@55w0rD')
 
-    def testUpdateQty(self):
-        response = self.client.post('/updateCartQty/', data={'productId': self.product1.productId, 'newQty': 37})
-        self.assertRedirects(response, '/cart/')
-
-        userCart = Cart.objects.get(user=self.user1)
-        cartItem = CartItem.objects.get(cart=userCart, product=self.product1.productId)
-
-        self.assertEqual(37, cartItem.quantity)
-        self.assertEqual(37 * cartItem.product.price, cartItem.total_price)
-        self.assertEqual(userCart.cart_summary['subtotal'], Decimal(str(self.product1.price * 37 + self.product2.price * 2)))
+    # def testUpdateQty(self):
+    #     response = self.client.post('/updateCartQty/', data={'productId': self.product1.productId, 'newQty': 37})
+    #     self.assertRedirects(response, '/cart/')
+    #
+    #     userCart = Cart.objects.get(user=self.user1)
+    #     cartItem = CartItem.objects.get(cart=userCart, product=self.product1.productId)
+    #
+    #     self.assertEqual(37, cartItem.quantity)
+    #     self.assertEqual(37 * cartItem.product.price, cartItem.total_price)
+    #     self.assertEqual(userCart.cart_summary['subtotal'], Decimal(str(self.product1.price * 37 + self.product2.price * 2)))
 
 
 

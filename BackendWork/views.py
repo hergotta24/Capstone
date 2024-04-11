@@ -137,13 +137,13 @@ class AccountCartView(View):
 def updateCartQty(request):
     if request.method == 'POST':
         user_cart = get_object_or_404(Cart, user=request.user)
-        newQty = int(request.POST.get('newQty'))
-
-        cartItem = get_object_or_404(CartItem, cart=user_cart, product=request.POST.get('productId'))
+        updateData = json.loads(request.body)
+        newQty = int(updateData.get('newQty'))
+        cartItem = get_object_or_404(CartItem, cart=user_cart, product=updateData.get('productId'))
         cartItem.quantity = newQty
         cartItem.save()
 
-    return redirect('AccountCartView')
+    return JsonResponse({'message': 'Quantity updated! Refreshing shopping cart page...'}, status=200)
 
 
 def home(request):
@@ -383,9 +383,7 @@ class ReviewProductView(View):
 
         ProductReviews.objects.create(productId=product, reviewerId=request.user, rating=rating,
                                       comment=comment)
-        # return redirect(f'/products/{product_id}')
-        # return redirect('/')
-        # return ProductDetailView.get(request, product_id)
+
         return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
 
 def deleteProduct(request, productid):
