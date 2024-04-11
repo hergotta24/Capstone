@@ -1,10 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h1>Payment Worked!</h1>
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="col flex-column overflow-x-hidden h-100 w-100" id="content">
+        <div class="container mt-5 bg-secondary rounded p-4 d-flex">
+            <div class="col-12 px-2">
+                <div class="d-flex flex-wrap">
+                    {% if cartItems.count > 0 %}
+                        <div class="col-12 d-flex justify-content-between border-dark border-bottom flex-wrap mt-2 pb-3 mb-4">
+                            <h2 class="">ShopSavvy</h2>
+                            <h2 class="">INVOICE</h2>
+                        </div>
+                        <table class="table">
+                            <thead class="font-weight-bold">
+                            <tr>
+                                <th class="border border-dark">Product Name</th>
+                                <th class="border border-dark">Quantity</th>
+                                <th class="border border-dark">Item Price</th>
+                                <th class="border border-dark">Item Total</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in cartItems %}
+                                <tr class="product mb-3">
+                                    <td class="border border-dark">{{ item.product.name }}</td>
+                                    <td class="border border-dark">x{{ item.quantity }}</td>
+                                    <td class="border border-dark">${{ item.product.price }}</td>
+                                    <td class="border border-dark">${{ item.total_price }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                    <div class="col-12 border-top border-dark mt-4 pt-2 ps-2 pe-4 d-flex justify-content-between">
+                        <h5>Item Subtotal: </h5>
+                        <h5>${{ cartTotal }}</h5>
+                    </div>
+                    <div class="col-12 ps-2 pe-4 d-flex justify-content-between">
+                        <h5 class="">Shipping: </h5>
+                        <h5 class="">$0.00</h5>
+                    </div>
+                    <div class="col-12 ps-2 pe-4 d-flex justify-content-between">
+                        <h5 class="">Tax: </h5>
+                        <h5 class="">$0.00</h5>
+                    </div>
+                    <div class="col-12 d-flex border-dark border-bottom pe-4 justify-content-between">
+                        <h3 class="ps-2 text-left">Order Total:</h3>
+                        <h3 class="ps-3 mb-1">${{ cartTotal }}</h3>
+                    </div>
+                    <div class="d-flex col-12 pt-3 justify-content-center">Hey {{ user.first_name }}, Thanks for shopping at ShopSavvy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
