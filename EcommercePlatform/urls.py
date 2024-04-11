@@ -43,4 +43,5 @@ urlpatterns = [
                   path('paypal/', include('paypal.standard.ipn.urls')),
                   path('payment-completed/<int:invoice_id>/', payment_complete_view, name='payment-complete'),
                   path('payment-failed/<int:invoice_id>', payment_failed_view, name='payment-failed'),
+                  path('remove-from-cart/<int:product_id>/', removeFromCart, name='removeFromCart')
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
