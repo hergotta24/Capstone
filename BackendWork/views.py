@@ -256,8 +256,13 @@ class ProductDetailView(View):
         product = get_object_or_404(Product, productId=product_id)
         reviews = ProductReviews.objects.filter(productId=product.productId)
         favorite = User.objects.filter(id=request.user.id, favorite=product.productId).exists()
+
+        ordered = False
+        if product in Product.objects.filter(orderitem__order__customer=request.user):
+            ordered = True
+
         return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
-                                                       'favorite': favorite})
+                                                       'favorite': favorite, 'ordered': ordered})
 
     # @staticmethod
     # @login_required(login_url='/login/')
