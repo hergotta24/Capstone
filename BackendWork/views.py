@@ -437,7 +437,7 @@ class OrderHistoryView(View):
     @login_required(login_url='/login/')
     def get(request):
         user = request.user
-        products = Product.objects.filter(purchaseorder__user=user)
+        products = Product.objects.filter(orderitem__order__customer=user)
         return render(request, 'order_history.html', {'products': products})
 
 
