@@ -134,6 +134,18 @@ class AccountCartView(View):
 #         return JsonResponse({'message': form.errors}, status=401)
 
 
+def updateCartQty(request):
+    if request.method == 'POST':
+        user_cart = get_object_or_404(Cart, user=request.user)
+        updateData = json.loads(request.body)
+        newQty = int(updateData.get('newQty'))
+        cartItem = get_object_or_404(CartItem, cart=user_cart, product=updateData.get('productId'))
+        cartItem.quantity = newQty
+        cartItem.save()
+
+    return JsonResponse({'message': 'Quantity updated! Refreshing shopping cart page...'}, status=200)
+
+
 def home(request):
     products = Product.objects.all()
     categories = Product.CATEGORY_CHOICES.items()
@@ -244,8 +256,13 @@ class ProductDetailView(View):
         product = get_object_or_404(Product, productId=product_id)
         reviews = ProductReviews.objects.filter(productId=product.productId)
         favorite = User.objects.filter(id=request.user.id, favorite=product.productId).exists()
+
+        ordered = False
+        if product in Product.objects.filter(orderitem__order__customer=request.user):
+            ordered = True
+
         return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
-                                                       'favorite': favorite})
+                                                       'favorite': favorite, 'ordered': ordered})
 
     # @staticmethod
     # @login_required(login_url='/login/')
@@ -321,7 +338,7 @@ class AddProductView(View):
     @staticmethod
     @login_required(login_url='/login/')
     def get(request, store_id):
-        return render(request, 'addproduct.html')
+        return render(request, 'product-creation.html', {'store_id': store_id})
 
     @staticmethod
     @login_required(login_url='/login/')
@@ -335,11 +352,10 @@ class AddProductView(View):
             'price': productData.get('price'),
             'qoh': productData.get('qoh'),
             'category': productData.get('category'),
-            'weight': productData.get('weight'),
-            'length': productData.get('length'),
-            'width': productData.get('width'),
-            'height': productData.get('height'),
-            'image': productData.get('image')
+            'weight': 1,
+            'length': 1,
+            'width': 1,
+            'height': 1,
         }
 
         form = AddProductForm(form_data)
@@ -351,19 +367,34 @@ class AddProductView(View):
             return JsonResponse({'message': form.errors}, status=401)
 
 
+class ReviewProductView(View):
+    @staticmethod
+    @login_required(login_url='/login/')
+    def get(request, product_id):
+        product = get_object_or_404(Product, productId=product_id)
+        storefront = product.soldByStoreId.name
+        return render(request, 'review_product.html', {'product': product, 'username': request.user,
+                                                       'storefront': storefront})
+
+    @staticmethod
+    @login_required(login_url='/login/')
+    def post(request, product_id):
+        reviewData = json.loads(request.body)
+
+        product = get_object_or_404(Product, productId=product_id)
+        rating = reviewData.get('rating')
+        comment = reviewData.get('comment')
+
+        ProductReviews.objects.create(productId=product, reviewerId=request.user, rating=rating,
+                                      comment=comment)
+
+        return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
 
 def deleteProduct(request, productid):
-    get_object_or_404(Product, productId=productid)
+    get_object_or_404(Product, id=productid)
     Product.objects.filter(productId=productid).delete()
     return redirect('storefront/')
     # I assume it should redirect to the storefront, but I'm not entirely sure. Can just change this if it's wrong
-
-
-def removeFromCart(request, product_id):
-    cart = get_object_or_404(Cart, user=request.user)
-    product = get_object_or_404(Product, productId=product_id)
-    CartItem.objects.get(cart=cart, product=product).delete()
-    return redirect('/cart/')
 
 
 class ProductDeleteView(View):
@@ -439,6 +470,15 @@ def payment_complete_view(request, invoice_id):
 
 def payment_failed_view(request):
     return render(request, 'payment-failed.html')
+
+
+class OrderHistoryView(View):
+    @staticmethod
+    @login_required(login_url='/login/')
+    def get(request):
+        user = request.user
+        products = Product.objects.filter(orderitem__order__customer=user)
+        return render(request, 'order_history.html', {'products': products})
 
 
 def update_favorite(request):

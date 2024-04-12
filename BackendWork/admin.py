@@ -5,7 +5,7 @@ from BackendWork.models import *
 
 from .forms import UserCreationForm
 from .models import (User, Address, Storefront, StoreReviews, Product, ProductImage, ProductReviews,
-                     Cart, CartItem)
+                     Cart, CartItem, InvoiceItem, Invoice, Order, OrderItem)
 
 
 class UserAdmin(UserAdmin):
