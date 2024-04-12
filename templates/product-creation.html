@@ -11,13 +11,13 @@
                     <div class="d-flex flex-column position-relative w-100">
 
                         <!-- Full-width images with number text -->
-                        <div class="row d-flex w-100 mx-0" id="slideContainer" style="max-height:400px">
-                            <div class="mySlides d-flex w-100 h-100" id="addSlide" style="max-height: 100%">
+                        <div class="row d-flex w-100 mx-0" id="slideContainer" style="max-height:300px;">
+                            <div class="mySlides d-flex w-100 h-100" id="addSlide" style="max-height: inherit">
                                 <div class="numbertext"><span class="slideNum">1</span> / <span
                                         class="slideSize">1</span></div>
                                 <button type="button"
-                                        class="hover btn btn-dark w-100 h-100 border-0 justify-content-center mx-0"
-                                        id="imageBtn" style="min-height:400px;"
+                                        class="hover btn btn-dark w-75 h-100 border-0 mx-auto justify-content-center mx-0"
+                                        id="imageBtn" style="min-height:300px;"
                                         data-bs-toggle="modal"
                                         data-bs-target="#imageInputModal">
                                     <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
@@ -29,19 +29,18 @@
                             <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
                             <a class="next" onclick="plusSlides(1)">&#10095;</a>
                         </div>
-                        <!-- Image text -->
-                        <div class="caption-container row">
-                            <p id="caption"></p>
-                        </div>
+                        <div class="row d-flex">
+                            <!-- Image text -->
 
-                        <!-- Thumbnail images -->
-                        <div class="row flex-nowrap" id="demoContainer" style="max-height:80px;height:80px;">
-                            <div class="col-lg-2 column position-relative my-auto" id="addDemo"
-                                 style="min-width:16.6%;max-height: inherit">
-                                <div class="demo cursor" style="width:100%"
-                                     onclick="currentSlide(1)"><i class="fa fa-plus fa-lg px-2"></i></div>
+                            <!-- Thumbnail images -->
+                            <div class="row flex-nowrap" id="demoContainer" style="max-height:80px;height:80px;">
+                                <div class="col-lg-2 column position-relative my-auto" id="addDemo"
+                                     style="min-width:16.6%;max-height: inherit">
+                                    <div class="demo cursor" style="width:100%"
+                                         onclick="currentSlide(1)"><i class="fa fa-plus fa-lg px-2"
+                                                                      style="color:#e3d7c9"></i></div>
+                                </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
