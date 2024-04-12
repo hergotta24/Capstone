@@ -1,6 +1,18 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+    <style>
+        .btnContainer {
+            position: relative;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 28px;
+            left: 20px;
+            pointer-events: none; /* This allows the input to still be clickable */
+        }
+    </style>
     <div class="col flex-column overflow-x-hidden h-100 w-100" id="content">
         <div class="col-12 ps-md-4 my-5 d-flex flex-wrap">
             <div class="col-12 justify-content-center d-flex mt-2 mb-5">
@@ -39,9 +51,9 @@
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-line-2">Address
                             Line 2</label>
 
-                            <input type="text" class="col-12 form-control form-control-lg login-input"
-                                   id="address-line-2"
-                                   name="address-line-2">
+                        <input type="text" class="col-12 form-control form-control-lg login-input"
+                               id="address-line-2"
+                               name="address-line-2">
 
 
                     </div>
@@ -72,10 +84,10 @@
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="phone_number">Phone
                             Number</label>
-                            <input type="tel" class="col-12 form-control form-control-lg login-input"
-                                   id="phone_number"
-                                   name="phone_number"
-                                   placeholder="Phone Number">
+                        <input type="tel" class="col-12 form-control form-control-lg login-input"
+                               id="phone_number"
+                               name="phone_number"
+                               placeholder="Phone Number">
 
                     </div>
                     <div class="col-12 justify-content-center d-flex flex-wrap form-outline mb-4 px-2">

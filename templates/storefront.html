@@ -144,7 +144,11 @@
                                     <!-- Product List -->
                                     <div class="product border px-2 py-3 d-flex col-12 primary-color rounded mb-3">
                                         <div class="product-name col-12 col-md-2">{{ order.customer }}</div>
-                                        <div class="col-12 col-md-3">{{ order.shippingAddress }}</div>
+                                        <div class="col-12 col-md-3">
+                                            <div>{{ order.shippingAddress.line1 }}</div>
+                                            <div>{{ order.shippingAddress.city }}, {{ order.shippingAddress.zipCode }}</div>
+                                            <div>{{ order.shippingAddress.state }}</div>
+                                        </div>
                                         <div class="col-12 col-md-3">
                                             {% for item in order.get_order_items %}
                                                 <div>{{ item.product.name }} x{{ item.quantity }}</div>

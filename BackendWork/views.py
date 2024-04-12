@@ -62,6 +62,9 @@ class UserRegisterView(View):
         form = UserCreationForm(form_data)
         if form.is_valid():
             form.save()
+            user = User.objects.get(email=email)
+            Cart.objects.create(user=user)
+            Storefront.objects.create(owner=user)
             return JsonResponse({'message': 'Account Registered! Redirecting you to login to sign in...'}, status=200)
         else:
             return JsonResponse({'message': form.errors}, status=401)
@@ -111,6 +114,18 @@ class AccountCartView(View):
                                              'cartTotal': cart.cart_summary['subtotal']})
 
 
+def updateCartQty(request):
+    if request.method == 'POST':
+        user_cart = get_object_or_404(Cart, user=request.user)
+        updateData = json.loads(request.body)
+        newQty = int(updateData.get('newQty'))
+        cartItem = get_object_or_404(CartItem, cart=user_cart, product=updateData.get('productId'))
+        cartItem.quantity = newQty
+        cartItem.save()
+
+    return JsonResponse({'message': 'Quantity updated! Refreshing shopping cart page...'}, status=200)
+
+
 def home(request):
     products = Product.objects.all()
     categories = Product.CATEGORY_CHOICES.items()
@@ -121,7 +136,6 @@ def categoryFilter(request, category):
     products = Product.objects.filter(category=category)
     categories = Product.CATEGORY_CHOICES.items()
     return render(request, 'home.html', {'products': products, 'categories': categories})
-
 
 
 def search(request):
@@ -141,12 +155,12 @@ def search(request):
             if filter == 'category':
                 filteredProducts.extend(products.filter(category__contains=searchWord))
 
-
     # Remove duplicates by converting filteredProducts to a set and then back to a list
     filteredProducts = list(set(filteredProducts))
 
     categories = Product.CATEGORY_CHOICES.items()
     return render(request, 'home.html', {'products': filteredProducts, 'categories': categories})
+
 
 def removeFavorite(request):
     data = json.loads(request.body)
@@ -168,7 +182,6 @@ def addFavorite(request):
     user.save()
     print('Favorite product added!')
     return JsonResponse({'message': 'Favorite product added!'}, status=200)
-
 
 
 class StorefrontView(View):
@@ -227,7 +240,7 @@ class ProductDetailView(View):
             ordered = True
 
         return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
-                                                       'favorite': favorite})
+                                                       'favorite': favorite, 'ordered': ordered})
 
     @staticmethod
     @login_required(login_url='/login/')
@@ -342,6 +355,7 @@ class ReviewProductView(View):
 
         return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
 
+
 def deleteProduct(request, productid):
     get_object_or_404(Product, id=productid)
     Product.objects.filter(productId=productid).delete()
@@ -362,7 +376,7 @@ class SavedProductView(View):
     @login_required(login_url='/login')
     def get(request):
         favorite = User.objects.get(id=request.user.id).favorite.all()
-        return render(request, 'favorite.html', {'favorites': favorite})
+        return render(request, 'favorite.html', {'products': favorite})
 
 
 @login_required(login_url='/login/')
@@ -371,15 +385,14 @@ def checkout_view(request):
     Invoice.objects.get_or_create(user=request.user, invoice_status='PENDING')
     if cart.get_cart_items.count() > 0:
         return render(request, 'checkout.html',
-                          {'cartItems': cart.get_cart_items,
-                           'cartCount': cart.cart_summary['total_count'],
-                           'cartTotal': cart.cart_summary['subtotal'],
-                           'state_choices': STATE_CHOICES,
-                           })
+                      {'cartItems': cart.get_cart_items,
+                       'cartCount': cart.cart_summary['total_count'],
+                       'cartTotal': cart.cart_summary['subtotal'],
+                       'state_choices': STATE_CHOICES,
+                       })
     else:
         print('ERROR: No Items in Cart!!!!')
         return render(request, 'home.html')
-
 
 
 def payment_complete_view(request, invoice_id):
@@ -408,6 +421,10 @@ def payment_complete_view(request, invoice_id):
 
         invoice.invoice_status = 'COMPLETED'
         invoice.save()
+
+        if invoice.shippingAddress is not None:
+            order.shippingAddress = invoice.shippingAddress
+            order.save()
         cart.clear_cart()
 
         return render(request, 'payment-completed.html', {
@@ -419,20 +436,6 @@ def payment_complete_view(request, invoice_id):
         products = Product.objects.all()
         categories = Product.CATEGORY_CHOICES.items()
         return render(request, 'home.html', {'products': products, 'categories': categories})
-
-
-def generate_invoice(request, invoice_id):
-    invoice = Invoice.objects.get(pk=invoice_id, user=request.user)
-    # Generate invoice content (for example, render a template)
-    invoice_content = render_to_string('invoice.html', {
-        'cartItems': invoice.get_invoice_items,
-        'cartCount': invoice.invoice_summary['total_count'],
-        'cartTotal': invoice.invoice_summary['subtotal']})
-
-    # Create an HttpResponse with the content type of the file you're generating
-    response = HttpResponse(invoice_content, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
-    return response
 
 
 def payment_failed_view(request):
@@ -491,6 +494,7 @@ def add_shipping_details(request):
 
                 # Associate the shipping address with the invoice
                 invoice.shippingAddress = shipping_address
+                invoice.save()
 
                 paypal_dict = {
                     'business': settings.PAYPAL_RECEIVER_EMAIL,
@@ -513,3 +517,9 @@ def add_shipping_details(request):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def removeFromCart(request, product_id):
+    cart = get_object_or_404(Cart, user=request.user)
+    product = get_object_or_404(Product, productId=product_id)
+    CartItem.objects.get(cart=cart, product=product).delete()
+    return redirect('/cart/')
