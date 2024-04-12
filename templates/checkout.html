@@ -10,53 +10,51 @@
             <div class="col-12 col-lg-8 px-2">
                 <form id="addShippingDetails" class="d-flex flex-wrap mt-2" method="POST">
                     <div class="col-12 d-flex flex-wrap form-outline mb-4 px-2">
-                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="email">Email</label>
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="email">Email*</label>
                         <input type="email" class="col-12 form-control form-control-lg login-input" id="email"
-                               name="email"
-                               value="{{ user.email }}">
+                               name="email">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="first_name">First
                             Name*</label>
-                        <input type="text" class="col-12 form-control required form-control-lg login-input" id="first_name"
-                               name="first_name"
-                               placeholder="First Name" value="{{ user.first_name }}">
+                        <input type="text" class="col-12 form-control required form-control-lg login-input"
+                               id="first_name"
+                               name="first_name">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="Last Name">Last
-                            Name</label>
-                        <input type="text" class="col-12 form-control required form-control-lg login-input" id="last_name"
-                               name="first_name" value="{{ user.last_name }}">
+                            Name*</label>
+                        <input type="text" class="col-12 form-control required form-control-lg login-input"
+                               id="last_name"
+                               name="last_name">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-line-1">Address
-                            Line 1</label>
-                        <input type="text" class="col-12 form-control form-control-lg required login-input" id="address-line-1"
-                               name="address-line-1"
-                               placeholder="Address Line 1" value="{{ user.address.line1 }}">
+                            Line 1*</label>
+                        <input type="text" class="col-12 form-control form-control-lg required login-input"
+                               id="address-line-1"
+                               name="address-line-1">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-line-2">Address
                             Line 2</label>
-                        {% if user.address.line2 %}
-                            <input type="text" class="col-12 form-control form-control-lg login-input" id="address-line-2"
-                               name="address-line-2" value="{{ user.address.line2 }}">
-                        {% else %}
-                            <input type="text" class="col-12 form-control form-control-lg login-input" id="address-line-2"
-                               name="address-line-2" value="">
-                        {% endif %}
+
+                            <input type="text" class="col-12 form-control form-control-lg login-input"
+                                   id="address-line-2"
+                                   name="address-line-2">
+
 
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
-                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="city">City/Town</label>
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="city">City/Town*</label>
                         <input type="text" class="col-12 form-control form-control-lg required login-input" id="city"
-                               name="city" value="{{ user.address.city }}">
+                               name="city">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
-                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="state">State</label>
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="state">State*</label>
                         <select type="text" required class="col-12 form-control form-control-lg login-input" id="state"
                                 name="state">
-                            <option value="" selected>{{ user.address.state }}</option>
+                            <option value="" selected>Not selected</option>
                             {% for item in state_choices %}
                                 {% if user.address.state != item.0 %}
                                     <option value="{{ item.0 }}">{{ item.1 }}</option>
@@ -65,27 +63,24 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
-                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-zipCode">Area Code*</label>
-                        <input type="text" required class="col-12 form-control form-control-lg login-input" id="address-zipCode"
-                               name="address-zipCode" value="{{ user.address.zipCode }}">
+                        <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="address-zipCode">Area
+                            Code*</label>
+                        <input type="text" required class="col-12 form-control form-control-lg login-input"
+                               id="address-zipCode"
+                               name="address-zipCode" value="">
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-wrap form-outline mb-4 px-2">
                         <label class="col-12 form-label float-end primary-color ms-1 mb-0" for="phone_number">Phone
                             Number</label>
-                        {% if user.phone_number %}
-                            <input type="tel" class="col-12 form-control form-control-lg login-input"
-                                   id="phone_number"
-                                   name="phone_number"
-                                   placeholder="Phone Number" value="{{ user.phone_number }}">
-                        {% else %}
                             <input type="tel" class="col-12 form-control form-control-lg login-input"
                                    id="phone_number"
                                    name="phone_number"
                                    placeholder="Phone Number">
-                        {% endif %}
+
                     </div>
                     <div class="col-12 justify-content-center d-flex flex-wrap form-outline mb-4 px-2">
-                        <button type="submit" class="col-12 w-25 btn btn-primary btn-block">Add Shipping Details</button>
+                        <button type="submit" class="col-12 w-25 btn btn-primary btn-block">Add Shipping Details
+                        </button>
                     </div>
                 </form>
 
@@ -130,12 +125,9 @@
                             <h3 class="primary-color ps-2 text-left">Order Total:</h3>
                             <h3 class="primary-color ps-3 mb-1">${{ cartTotal }}</h3>
                         </div>
-                        <div class="col-12 d-flex justify-content-center">
-                            {{ paypay_payment_button.render }}
+                        <div id="buy-now" class="col-12 d-flex justify-content-center">
+                            <div class="text-danger m-3">*Please add the required(*) shipping details...</div>
                         </div>
-                    {% else %}
-                        <h3 class="primary-color text-center">You Don't Have Any Items In Cart Return To
-                            Homepage... </h3>
                     {% endif %}
                 </div>
             </div>

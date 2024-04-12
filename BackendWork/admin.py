@@ -3,8 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import UserCreationForm
-from .models import (User, Address, Storefront, StoreReviews, Product, ProductImage, ProductReviews,
-                     Cart, CartItem)
+from .models import *
 
 
 class UserAdmin(UserAdmin):

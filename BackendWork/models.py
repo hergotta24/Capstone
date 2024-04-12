@@ -28,7 +28,7 @@ STATE_CHOICES = {('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'), ('AR', 
 
 
 class Address(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ManyToManyField(User)
     addressId = models.AutoField(primary_key=True)
     line1 = models.CharField(max_length=50)
     line2 = models.CharField(max_length=50, blank=True, null=True)
@@ -146,10 +146,19 @@ class CartItem(models.Model):
         return self.quantity * self.product.price
 
 
+INVOICE_STATE_CHOICES = [
+    ("DEFAULT", "Default"),
+    ("PENDING", "Pending"),
+    ("COMPLETED", "Completed")
+]
+
+
 class Invoice(models.Model):
     invoiceId = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invoices')
     products = models.ManyToManyField(Product, through='InvoiceItem')
+    invoice_status = models.CharField(max_length=9, choices=INVOICE_STATE_CHOICES, default=INVOICE_STATE_CHOICES[0])
+    shippingAddress = models.ForeignKey(Address, on_delete=models.CASCADE, null=True, blank=True)
 
     @property
     def get_invoice_items(self):

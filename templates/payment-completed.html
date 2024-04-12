@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
     <div class="col flex-column overflow-x-hidden h-100 w-100" id="content">
-        <div class="container mt-5 bg-secondary rounded p-4 d-flex">
+        <div id="invoice" class="container mt-5 bg-secondary rounded p-4 d-flex">
             <div class="col-12 px-2">
                 <div class="d-flex flex-wrap">
                     {% if cartItems.count > 0 %}
@@ -51,5 +51,7 @@
                 </div>
             </div>
         </div>
+        <a href="{% url 'download_invoice' invoiceId %}" download>Download</a>
     </div>
+    <script src="{% static 'js/invoice.js' %}"></script>
 {% endblock %}

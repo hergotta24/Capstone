@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from BackendWork.views import *
 from django.conf import settings
 from django.conf.urls.static import static
@@ -43,4 +43,6 @@ urlpatterns = [
                   path('paypal/', include('paypal.standard.ipn.urls')),
                   path('payment-completed/<int:invoice_id>/', payment_complete_view, name='payment-complete'),
                   path('payment-failed/<int:invoice_id>', payment_failed_view, name='payment-failed'),
+                  path('download/invoice/<int:invoice_id>', generate_invoice, name='download_invoice'),
+                  path('add-shipping-details/', add_shipping_details, name='add_shipping_details')
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
