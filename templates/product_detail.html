@@ -68,9 +68,9 @@
                     </div>
                     <div>
                         <div class="d-flex mt-3">
-                            <button class="col-12 btn-primary btn" id="product_review"
-                                    value="{{ product.productId }}">Leave a review!
-                            </button>
+{#                            <button class="col-12 btn-primary btn" id="product_review"#}
+{#                                    value="{{ product.productId }}">Leave a review!#}
+{#                            </button>#}
                         </div>
                         <table class="primary-color">
                             <tr>
@@ -97,33 +97,53 @@
                 <div class="row mx-auto w-100 my-5">
                     <div class="col-6">
                         <h5 class="primary-color my-1">You've previously purchased this product</h5>
-                        <button id="toggle" class="btn btn-md btn-light my-1" onclick="toggleReview()">Write a Review</button>
-                        <div id="reviewDiv" class="position-relative w-100" style="display: none">
-                            <form id="reviewForm">
-                                <label for="subject" class="primary-color"></label>
-                                <input id="subject" type="text" placeholder="Subject"
-                                       class="w-100 p-1 btn-primary" style="border-radius: 5px"/>
-                                <br>
-                                <label for="review" class="primary-color"></label>
-                                <textarea id="review" type="text" rows="4" cols="50" placeholder="Write Review"
-                                          class="w-100 p-1 btn-primary"
-                                          style="border-radius: 5px"></textarea>
-                            </form>
-                        </div>
+                        <button class="col-6 btn-primary btn" id="product_review"
+                                    value="{{ product.productId }}">Leave a review!
+                        </button>
+{#                        <button id="toggle" class="btn btn-md btn-light my-1" onclick="toggleReview()">Write a Review</button>#}
+{#                        <div id="reviewDiv" class="position-relative w-100" style="display: none">#}
+{#                            <form id="reviewForm">#}
+{#                                <label for="subject" class="primary-color"></label>#}
+{#                                <input id="subject" type="text" placeholder="Subject"#}
+{#                                       class="w-100 p-1 btn-primary" style="border-radius: 5px"/>#}
+{#                                <br>#}
+{#                                <label for="review" class="primary-color"></label>#}
+{#                                <textarea id="review" type="text" rows="4" cols="50" placeholder="Write Review"#}
+{#                                          class="w-100 p-1 btn-primary"#}
+{#                                          style="border-radius: 5px"></textarea>#}
+{#                            </form>#}
+{#                            #}
+{#                        </div>#}
                     </div>
                 </div>
             {% endif %}
         </div>
     </div>
     <script>
-    function toggleReview() {
-            let reviewForm = document.getElementById('reviewDiv');
-            let leaveReviewBtn = document.getElementById('leaveReviewBtn');
+        function toggleReview() {
+                let reviewForm = document.getElementById('reviewDiv');
+                let leaveReviewBtn = document.getElementById('leaveReviewBtn');
 
-            reviewForm.style.display = reviewForm.style.display === 'none' ? 'block' : 'none';
-            reviewForm.disabled = !reviewForm.disabled;
-            leaveReviewBtn.innerHTML = leaveReviewBtn.innerHTML === 'Write a Review' ? 'Cancel' : 'Write a Review';
+                reviewForm.style.display = reviewForm.style.display === 'none' ? 'block' : 'none';
+                reviewForm.disabled = !reviewForm.disabled;
+                leaveReviewBtn.innerHTML = leaveReviewBtn.innerHTML === 'Write a Review' ? 'Cancel' : 'Write a Review';
+            }
+
+        // Define a function to handle the button click event
+        function redirectToReviewPage() {
+            // Get the product ID from the button's value attribute
+            var productId = document.getElementById('product_review').value;
+
+            // Construct the URL for redirection
+            var redirectUrl = '/review-product/' + productId;
+
+            // Redirect the browser to the constructed URL
+            window.location.href = redirectUrl;
         }
+
+        // Attach the redirectToReviewPage function to the button's click event
+        document.getElementById('product_review').addEventListener('click', redirectToReviewPage);
     </script>
+{#    <script src="{% static 'js/product-detail.js' %}"></script>#}
 {% endblock %}
 
