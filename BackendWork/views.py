@@ -390,11 +390,19 @@ class ReviewProductView(View):
 
         return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
 
+
 def deleteProduct(request, productid):
     get_object_or_404(Product, id=productid)
     Product.objects.filter(productId=productid).delete()
     return redirect('storefront/')
     # I assume it should redirect to the storefront, but I'm not entirely sure. Can just change this if it's wrong
+
+
+def removeFromCart(request, product_id):
+    cart = get_object_or_404(Cart, user=request.user)
+    product = get_object_or_404(Product, productId=product_id)
+    CartItem.objects.get(cart=cart, product=product).delete()
+    return redirect('/cart/')
 
 
 class ProductDeleteView(View):
