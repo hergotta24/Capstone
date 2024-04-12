@@ -5,6 +5,9 @@
         <div class="col-12 ps-4 pt-4 d-flex">
             <div class="container d-flex flex-wrap col-12">
                 {% if cartItems.count > 0 %}
+                    <div class="row toast w-100" id="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000">
+                        <div class="toast-body text-center text-white"></div>
+                    </div>
                     <div class="col-12 mt-5 mb-3">
                         <h1 class="primary-color text-left">Shopping Cart</h1>
                         <span class="primary-color">({{ cartCount }} items)</span>
@@ -23,8 +26,10 @@
                                 </div>
                             </div>
                             <div class="align-items-center col-12 col-md-1 d-flex">
-                                <input class="item-qty col-12 btn p-2 btn-primary" type="number"
-                                       value="{{ item.quantity }}"/>
+                                <input class="item-qty col-12 btn p-2 btn-primary quantity-input" type="number"
+                                       value="{{ item.quantity }}" min="1"/>
+                                <button type="submit" class="col-9 p-1 btn-primary btn update-btn" id="update-quantity"
+                                        data-product-id="{{ item.product.productId }}" style="display: none; margin-left:5px; z-index: 10; font-size: 0.75em;">Update Quantity</button>
                             </div>
                             <div class="col-12 col-md-3">
                                 <h6 class="col-12 text-center">Item Price</h6>
@@ -57,4 +62,5 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/cart.js' %}"></script>
+    <script src="{% static 'js/update-qty.js' %}"></script>
 {% endblock %}

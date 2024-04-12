@@ -14,7 +14,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.forms import PayPalPaymentsForm
 
@@ -52,6 +51,7 @@ class UserRegisterView(View):
         email = data.get('email')
         password1 = data.get('password1')
         password2 = data.get('password2')
+
         form_data = {
             'email': email,
             'username': username,
@@ -62,9 +62,6 @@ class UserRegisterView(View):
         form = UserCreationForm(form_data)
         if form.is_valid():
             form.save()
-            user = User.objects.get(email=email)
-            Cart.objects.create(user=user)
-            Storefront.objects.create(owner=user)
             return JsonResponse({'message': 'Account Registered! Redirecting you to login to sign in...'}, status=200)
         else:
             return JsonResponse({'message': form.errors}, status=401)
@@ -126,6 +123,7 @@ def categoryFilter(request, category):
     return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
+
 def search(request):
     filters = request.GET.getlist('filters')
     query = request.GET.get('searchQuery')
@@ -143,12 +141,12 @@ def search(request):
             if filter == 'category':
                 filteredProducts.extend(products.filter(category__contains=searchWord))
 
+
     # Remove duplicates by converting filteredProducts to a set and then back to a list
     filteredProducts = list(set(filteredProducts))
 
     categories = Product.CATEGORY_CHOICES.items()
     return render(request, 'home.html', {'products': filteredProducts, 'categories': categories})
-
 
 def removeFavorite(request):
     data = json.loads(request.body)
@@ -170,6 +168,7 @@ def addFavorite(request):
     user.save()
     print('Favorite product added!')
     return JsonResponse({'message': 'Favorite product added!'}, status=200)
+
 
 
 class StorefrontView(View):
@@ -222,6 +221,11 @@ class ProductDetailView(View):
         product = get_object_or_404(Product, productId=product_id)
         reviews = ProductReviews.objects.filter(productId=product.productId)
         favorite = User.objects.filter(id=request.user.id, favorite=product.productId).exists()
+
+        ordered = False
+        if product in Product.objects.filter(orderitem__order__customer=request.user):
+            ordered = True
+
         return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
                                                        'favorite': favorite})
 
@@ -286,7 +290,7 @@ class AddProductView(View):
     @staticmethod
     @login_required(login_url='/login/')
     def get(request, store_id):
-        return render(request, 'addproduct.html')
+        return render(request, 'product-creation.html', {'store_id': store_id})
 
     @staticmethod
     @login_required(login_url='/login/')
@@ -300,11 +304,10 @@ class AddProductView(View):
             'price': productData.get('price'),
             'qoh': productData.get('qoh'),
             'category': productData.get('category'),
-            'weight': productData.get('weight'),
-            'length': productData.get('length'),
-            'width': productData.get('width'),
-            'height': productData.get('height'),
-            'image': productData.get('image')
+            'weight': 1,
+            'length': 1,
+            'width': 1,
+            'height': 1,
         }
 
         form = AddProductForm(form_data)
@@ -315,6 +318,29 @@ class AddProductView(View):
         else:
             return JsonResponse({'message': form.errors}, status=401)
 
+
+class ReviewProductView(View):
+    @staticmethod
+    @login_required(login_url='/login/')
+    def get(request, product_id):
+        product = get_object_or_404(Product, productId=product_id)
+        storefront = product.soldByStoreId.name
+        return render(request, 'review_product.html', {'product': product, 'username': request.user,
+                                                       'storefront': storefront})
+
+    @staticmethod
+    @login_required(login_url='/login/')
+    def post(request, product_id):
+        reviewData = json.loads(request.body)
+
+        product = get_object_or_404(Product, productId=product_id)
+        rating = reviewData.get('rating')
+        comment = reviewData.get('comment')
+
+        ProductReviews.objects.create(productId=product, reviewerId=request.user, rating=rating,
+                                      comment=comment)
+
+        return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
 
 def deleteProduct(request, productid):
     get_object_or_404(Product, id=productid)
@@ -411,6 +437,15 @@ def generate_invoice(request, invoice_id):
 
 def payment_failed_view(request):
     return render(request, 'payment-failed.html')
+
+
+class OrderHistoryView(View):
+    @staticmethod
+    @login_required(login_url='/login/')
+    def get(request):
+        user = request.user
+        products = Product.objects.filter(orderitem__order__customer=user)
+        return render(request, 'order_history.html', {'products': products})
 
 
 def update_favorite(request):

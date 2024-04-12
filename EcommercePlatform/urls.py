@@ -20,6 +20,9 @@ from BackendWork.views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
+
+
+
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('login/', UserLoginView.as_view(), name='UserLoginView'),
@@ -27,17 +30,21 @@ urlpatterns = [
                   path('logout/', custom_logout, name='Logout'),
                   path('account/', AccountManagementView.as_view(), name='AccountManagementView'),
                   path('storefront/', StorefrontView.as_view(), name='StorefrontView'),
+                  path('updateCartQty/', updateCartQty, name='updateCartQty'),
+                  path('orderhistory/', OrderHistoryView.as_view(), name='OrderHistoryView'),
                   path('favorite/', SavedProductView.as_view(), name='SavedProductView'),
                   path('storefront/<int:product_id>/', UpdateProductView.as_view(), name='EditProductView'),
                   path('createproduct/', createproduct, name='createproduct'),
                   path('addFavorite/', addFavorite, name='addFavorite'),
                   path('removeFavorite/', removeFavorite, name='removeFavorite'),
                   path('products/<int:product_id>/', ProductDetailView.as_view(), name='product_detail'),
+                  path('review-product/<int:product_id>/', ReviewProductView.as_view(), name='review_product'),
                   path('shop/<int:store_id>/', VendorView.as_view(), name='vendor'),
                   path('addproduct/<int:store_id>/', AddProductView.as_view(), name='AddProductView'),
                   path('delete/<int:productid>/', deleteProduct, name='deleteProduct'),
                   path('', home, name='home'),
                   path('filter/<str:category>/', categoryFilter, name='categoryFilter'),
+                  path('search/', search, name='search'),
                   path('cart/', AccountCartView.as_view(), name='AccountCartView'),
                   path('checkout/', checkout_view, name='checkout'),
                   path('paypal/', include('paypal.standard.ipn.urls')),

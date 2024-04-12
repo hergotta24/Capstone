@@ -98,10 +98,17 @@ class ProductImage(models.Model):
 
 
 class ProductReviews(models.Model):
+    def __str__(self):
+        return (f"Product: {self.productId.name} (ID {self.productId_id}), "
+                f"Reviewer: {self.reviewerId.username} (ID {self.reviewerId_id}), "
+                f"{self.rating}/5 Stars")
+
+    RATING_CHOICES = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5}
     reviewId = models.AutoField(primary_key=True)
     productId = models.ForeignKey(Product, on_delete=models.CASCADE)
     reviewerId = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    rating = models.PositiveIntegerField()
+    # rating = models.PositiveIntegerField()
+    rating = models.IntegerField(choices=RATING_CHOICES)
     comment = models.CharField(max_length=500)
     reviewDate = models.DateTimeField(auto_now_add=True)
 
@@ -109,6 +116,17 @@ class ProductReviews(models.Model):
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, through='CartItem')
+
+    def add_product(self, product, quantity=1):
+        cart_item, created = CartItem.objects.get_or_create(cart=self, product=product)
+
+        # If the product is already in the cart, update the quantity
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+        else:
+            cart_item.quantity = quantity
+            cart_item.save()
 
     @property
     def get_cart_items(self):
