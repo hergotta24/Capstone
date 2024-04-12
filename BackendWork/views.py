@@ -62,6 +62,9 @@ class UserRegisterView(View):
         form = UserCreationForm(form_data)
         if form.is_valid():
             form.save()
+            user = User.objects.get(email=email)
+            Cart.objects.create(user=user)
+            Storefront.objects.create(owner=user)
             return JsonResponse({'message': 'Account Registered! Redirecting you to login to sign in...'}, status=200)
         else:
             return JsonResponse({'message': form.errors}, status=401)
@@ -111,29 +114,6 @@ class AccountCartView(View):
                                              'cartTotal': cart.cart_summary['subtotal']})
 
 
-# @staticmethod
-# @login_required(login_url='/login/')
-# def post(request):
-#     data = json.loads(request.body)
-#     name = data.get('name')
-#     card = data.get('card')
-#     expiration = data.get('expiration')
-#     back = data.get('back_number')
-#
-#     form_data = {
-#         'name': name,
-#         'card_number': card,
-#         'expiration_date': expiration,
-#         'back_number': back,
-#     }
-#
-#     form = CardCreationForm(form_data)
-#     if form.is_valid():
-#         return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
-#     else:
-#         return JsonResponse({'message': form.errors}, status=401)
-
-
 def updateCartQty(request):
     if request.method == 'POST':
         user_cart = get_object_or_404(Cart, user=request.user)
@@ -158,7 +138,6 @@ def categoryFilter(request, category):
     return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
-
 def search(request):
     filters = request.GET.getlist('filters')
     query = request.GET.get('searchQuery')
@@ -176,12 +155,12 @@ def search(request):
             if filter == 'category':
                 filteredProducts.extend(products.filter(category__contains=searchWord))
 
-
     # Remove duplicates by converting filteredProducts to a set and then back to a list
     filteredProducts = list(set(filteredProducts))
 
     categories = Product.CATEGORY_CHOICES.items()
     return render(request, 'home.html', {'products': filteredProducts, 'categories': categories})
+
 
 def removeFavorite(request):
     data = json.loads(request.body)
@@ -203,7 +182,6 @@ def addFavorite(request):
     user.save()
     print('Favorite product added!')
     return JsonResponse({'message': 'Favorite product added!'}, status=200)
-
 
 
 class StorefrontView(View):
@@ -264,36 +242,23 @@ class ProductDetailView(View):
         return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
                                                        'favorite': favorite, 'ordered': ordered})
 
-    # @staticmethod
-    # @login_required(login_url='/login/')
-    # def post(request, product_id):
-    #     data = json.loads(request.body)
-    #     quantity = data.get('quantity')
-    #     cart = {} #Invoice.objects.get(customerId=request.user.id, orderStatus='C1')
-    #     product = get_object_or_404(Product, productId=product_id)
-    #
-    #     # try:
-    #     #     addingProduct = LineItem.objects.get(invoiceId=cart.invoiceId, productId=product.productId)
-    #     # except LineItem.DoesNotExist:
-    #     #     form_data = {
-    #     #         'invoiceId': cart.invoiceId,
-    #     #         'productId': product.productId,
-    #     #         'quantity': quantity,
-    #     #         'linePrice': 1,
-    #     #     }
-    #     #     form = LineItemCreationForm(form_data)
-    #
-    #         print("Form is created here")
-    #
-    #         if form.is_valid():
-    #             form.save();
-    #             return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
-    #         else:
-    #             return JsonResponse({'message': form.errors}, status=401)
-    #
-    #     addingProduct.quantity += int(quantity)
-    #     addingProduct.save()
-    #     return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
+    @staticmethod
+    @login_required(login_url='/login/')
+    def post(request, product_id):
+        data = json.loads(request.body)
+        quantity = int(data.get('quantity'))
+        user_cart = Cart.objects.get(user=request.user)
+        product = get_object_or_404(Product, productId=product_id)
+        cart_item, cart_item_created = CartItem.objects.get_or_create(cart=user_cart, product=product)
+        if not cart_item_created:
+            # If the cart item already exists, update the quantity
+            cart_item.quantity += quantity
+            cart_item.save()
+        else:
+            # If the cart item is newly created, set the quantity
+            cart_item.quantity = quantity
+            cart_item.save()
+        return JsonResponse({'message': 'Added Product to Cart'}, status=200)
 
 
 class UpdateProductView(LoginRequiredMixin, View):
@@ -390,6 +355,7 @@ class ReviewProductView(View):
 
         return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
 
+
 def deleteProduct(request, productid):
     get_object_or_404(Product, id=productid)
     Product.objects.filter(productId=productid).delete()
@@ -410,42 +376,40 @@ class SavedProductView(View):
     @login_required(login_url='/login')
     def get(request):
         favorite = User.objects.get(id=request.user.id).favorite.all()
-        return render(request, 'favorite.html', {'favorites': favorite})
+        return render(request, 'favorite.html', {'products': favorite})
 
 
 @login_required(login_url='/login/')
 def checkout_view(request):
-    host = request.get_host()
     cart = request.user.cart
-
-    invoice = Invoice.objects.create(user=request.user)
-
-    paypal_dict = {
-        'business': settings.PAYPAL_RECEIVER_EMAIL,
-        'amount': cart.cart_summary['subtotal'],
-        'item_name': 'Order-Item-No-{}'.format(invoice.invoiceId),
-        'invoice': 'Invoice-No-{}'.format(invoice.invoiceId),
-        'currency_code': 'USD',
-        'notify_url': 'http://{}{}'.format(host, reverse('paypal-ipn')),
-        'return_url': 'http://{}{}'.format(host, '/payment-completed/{}'.format(invoice.invoiceId)),
-        'cancel_url': 'http://{}{}'.format(host, '/payment-failed/{}'.format(invoice.invoiceId)),
-    }
-
-    paypay_payment_button = CustomPayPalPaymentsForm(initial=paypal_dict)
-
-    return render(request, 'checkout.html', {'paypay_payment_button': paypay_payment_button,
-                                             'cartItems': cart.get_cart_items,
-                                             'cartCount': cart.cart_summary['total_count'],
-                                             'cartTotal': cart.cart_summary['subtotal'],
-                                             'state_choices': STATE_CHOICES})
+    Invoice.objects.get_or_create(user=request.user, invoice_status='PENDING')
+    if cart.get_cart_items.count() > 0:
+        return render(request, 'checkout.html',
+                      {'cartItems': cart.get_cart_items,
+                       'cartCount': cart.cart_summary['total_count'],
+                       'cartTotal': cart.cart_summary['subtotal'],
+                       'state_choices': STATE_CHOICES,
+                       })
+    else:
+        print('ERROR: No Items in Cart!!!!')
+        return render(request, 'home.html')
 
 
 def payment_complete_view(request, invoice_id):
     payer_id = request.GET.get('PayerID')
     cart = request.user.cart
-    invoice = Invoice.objects.get(pk=invoice_id)
+    invoice = Invoice.objects.get(pk=invoice_id, user=request.user)
+    print(invoice.invoice_status)
+    if invoice.invoice_status == 'COMPLETED':
+        return render(request, 'payment-completed.html', {
+            'cartItems': invoice.get_invoice_items,
+            'cartCount': invoice.invoice_summary['total_count'],
+            'cartTotal': invoice.invoice_summary['subtotal'],
+            'invoiceId': invoice_id})
 
-    if invoice.get_invoice_items.count() == 0:
+    # TODO Could also include the payer_id to make this more secure...
+    #  However to make it easier to debug I'm leaving it out
+    if invoice.invoice_status == "PENDING":
         for cart_item in cart.get_cart_items:
             InvoiceItem.objects.create(invoice=invoice, product=cart_item.product, quantity=cart_item.quantity)
             sellers = cart.sellers_in_cart
@@ -455,17 +419,23 @@ def payment_complete_view(request, invoice_id):
             for cart_item in cart.get_cart_items:
                 OrderItem.objects.create(order=order, product=cart_item.product, quantity=cart_item.quantity)
 
+        invoice.invoice_status = 'COMPLETED'
+        invoice.save()
+
+        if invoice.shippingAddress is not None:
+            order.shippingAddress = invoice.shippingAddress
+            order.save()
         cart.clear_cart()
 
         return render(request, 'payment-completed.html', {
-                                             'cartItems': invoice.get_invoice_items,
-                                             'cartCount': invoice.invoice_summary['total_count'],
-                                             'cartTotal': invoice.invoice_summary['subtotal']})
+            'cartItems': invoice.get_invoice_items,
+            'cartCount': invoice.invoice_summary['total_count'],
+            'cartTotal': invoice.invoice_summary['subtotal']})
     else:
-        return render(request, 'payment-completed.html', {
-            'cartItems': cart.get_cart_items,
-            'cartCount': cart.invoice_summary['total_count'],
-            'cartTotal': cart.invoice_summary['subtotal']})
+        print("Error: Invoice State isn't set")
+        products = Product.objects.all()
+        categories = Product.CATEGORY_CHOICES.items()
+        return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
 def payment_failed_view(request):
@@ -483,3 +453,73 @@ class OrderHistoryView(View):
 
 def update_favorite(request):
     return render(request, 'product_card.html')
+
+
+def add_shipping_details(request):
+    if request.method == 'POST':
+        try:
+            # Retrieve form data
+            host = request.get_host()
+            email = request.POST.get('email')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            address_line_1 = request.POST.get('address-line-1')
+            address_line_2 = request.POST.get('address-line-2')
+            city = request.POST.get('city')
+            state = request.POST.get('state')
+            address_zipCode = request.POST.get('address-zipCode')
+            phone_number = request.POST.get('phone_number')
+
+            # Check if all required fields are filled
+            if email and first_name and last_name and address_line_1 and city and state and address_zipCode:
+                user = request.user
+
+                # Check if there's an existing shipping address for the user
+                invoice = Invoice.objects.get(user=user, invoice_status='PENDING')
+                if invoice.shippingAddress:
+                    prevAddy = invoice.shippingAddress
+                    prevAddy.delete()
+
+                # Create Address object and save to database
+                shipping_address = Address.objects.create(
+                    line1=address_line_1,
+                    line2=address_line_2,
+                    city=city,
+                    state=state,
+                    zipCode=address_zipCode,
+                )
+
+                # Add the user to the address
+                shipping_address.user.add(user)
+
+                # Associate the shipping address with the invoice
+                invoice.shippingAddress = shipping_address
+                invoice.save()
+
+                paypal_dict = {
+                    'business': settings.PAYPAL_RECEIVER_EMAIL,
+                    'amount': user.cart.cart_summary['subtotal'],
+                    'item_name': 'Order-Item-No-{}'.format(invoice.invoiceId),
+                    'invoice': 'Invoice-No-{}'.format(invoice.invoiceId),
+                    'currency_code': 'USD',
+                    'notify_url': 'http://{}{}'.format(host, reverse('paypal-ipn')),
+                    'return_url': 'http://{}{}'.format(host, '/payment-completed/{}'.format(invoice.invoiceId)),
+                    'cancel_url': 'http://{}{}'.format(host, '/payment-failed/{}'.format(invoice.invoiceId)),
+                }
+
+                paypay_payment_button = CustomPayPalPaymentsForm(initial=paypal_dict)
+
+                return JsonResponse({'message': 'Shipping details added successfully',
+                                     'buyNowButton': paypay_payment_button.render()}, status=200)
+            else:
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def removeFromCart(request, product_id):
+    cart = get_object_or_404(Cart, user=request.user)
+    product = get_object_or_404(Product, productId=product_id)
+    CartItem.objects.get(cart=cart, product=product).delete()
+    return redirect('/cart/')
