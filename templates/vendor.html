@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/productcard.css' %}">
+{% endblock %}
 {% block content %}
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
         <div class="row d-flex mx-auto w-100 position-relative" style="height: 300px;" id="banner">
@@ -12,8 +15,9 @@
         <h1 class="primary-color">{{ store.name }}</h1>
         <p class="primary-color ps-3 mb-0">{{ store.description }}</p>
         <div class="m-auto h-100 w-100 gap-3">
-            <div class="d-flex" id="content">
-                <div class="d-flex w-100 flex-wrap">
+            <div class="row w-100 mx-auto position-relative">
+                <div class="container d-grid w-100 flex-wrap"
+                     style="grid-template-columns: repeat(6, 15%); grid-gap: 2%">
                     {% for product in products %}
                         {% include 'product_card.html' %}
                     {% endfor %}

@@ -3,13 +3,11 @@
 }
 .left-arrow{
     left: 2%;
-    top: 1.4%;
     width: fit-content;
 }
 .right-arrow{
     right: 1%;
     width: fit-content;
-    top: 1.4%;
 }
 
 input:-webkit-autofill,

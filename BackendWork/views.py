@@ -333,7 +333,7 @@ class AddProductView(View):
     @staticmethod
     @login_required(login_url='/login/')
     def get(request, store_id):
-        return render(request, 'addproduct.html')
+        return render(request, 'product-creation.html', {'store_id': store_id})
 
     @staticmethod
     @login_required(login_url='/login/')
@@ -347,11 +347,10 @@ class AddProductView(View):
             'price': productData.get('price'),
             'qoh': productData.get('qoh'),
             'category': productData.get('category'),
-            'weight': productData.get('weight'),
-            'length': productData.get('length'),
-            'width': productData.get('width'),
-            'height': productData.get('height'),
-            'image': productData.get('image')
+            'weight': 1,
+            'length': 1,
+            'width': 1,
+            'height': 1,
         }
 
         form = AddProductForm(form_data)
@@ -466,6 +465,15 @@ def payment_complete_view(request, invoice_id):
 
 def payment_failed_view(request):
     return render(request, 'payment-failed.html')
+
+
+class OrderHistoryView(View):
+    @staticmethod
+    @login_required(login_url='/login/')
+    def get(request):
+        user = request.user
+        products = Product.objects.filter(orderitem__order__customer=user)
+        return render(request, 'order_history.html', {'products': products})
 
 
 def update_favorite(request):
