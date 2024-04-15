@@ -348,12 +348,14 @@ class ReviewProductView(View):
 
         product = get_object_or_404(Product, productId=product_id)
         rating = reviewData.get('rating')
-        comment = reviewData.get('comment')
+        comment = reviewData.get('comment').strip()
 
-        ProductReviews.objects.create(productId=product, reviewerId=request.user, rating=rating,
-                                      comment=comment)
-
-        return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
+        # reject blank reviews
+        if comment == '':
+            return JsonResponse({'message': 'Review cannot be blank!'}, status=401)
+        else:
+            ProductReviews.objects.create(productId=product, reviewerId=request.user, rating=rating, comment=comment)
+            return JsonResponse({'message': 'Thanks for your review! Redirecting to product detail page...'}, status=200)
 
 
 def deleteProduct(request, productid):

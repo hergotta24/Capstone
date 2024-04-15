@@ -6,6 +6,8 @@ $(document).ready(function() {
         // Retrieve form data
         const rating = $('#rating').val();
         const comment = $('#comment').text();
+        // console.log("rating = " + rating);
+        // console.log("comment = " + comment);
 
         const formData = {
             rating: rating,
@@ -13,7 +15,7 @@ $(document).ready(function() {
         }
         // console.log(formData);
 
-        let url = window.location.pathname
+        let url = window.location.pathname;
 
         // Send form data using fetch post request
         fetch(url, {
@@ -40,7 +42,8 @@ $(document).ready(function() {
             }, 3000); // 3000 milliseconds = 3 seconds
         })
         .catch(error => {
-            console.error("Error:", error);
+            console.error("Error:", error.message);
+            makeToast(error.message, 400);
         });
     });
 });
@@ -68,8 +71,10 @@ function makeToast(message, status) {
     var bgColor = "";
     if (status == 200) {
         bgColor = "bg-success";
+        toast.classList.remove("bg-danger");
     } else if (status == 400) {
         bgColor = "bg-danger";
+        toast.classList.remove("bg-success");
     }
     toast.classList.add(bgColor)
 
