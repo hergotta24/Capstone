@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Avg
 from django.utils import timezone
 
 
@@ -90,6 +91,9 @@ class Product(models.Model):
     def thumbnail(self):
         return self.product_image.first()
 
+    def get_rating_average(self):
+        return ProductReviews.objects.filter(productId_id=self.productId).aggregate(avg_rating=Avg('rating'))['avg_rating']
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_image')
@@ -102,6 +106,10 @@ class ProductReviews(models.Model):
         return (f"Product: {self.productId.name} (ID {self.productId_id}), "
                 f"Reviewer: {self.reviewerId.username} (ID {self.reviewerId_id}), "
                 f"{self.rating}/5 Stars")
+
+    def get_time(self):
+        return self.reviewDate.strftime("%B %d, %Y")
+
 
     RATING_CHOICES = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5}
     reviewId = models.AutoField(primary_key=True)

@@ -158,7 +158,6 @@ def categoryFilter(request, category):
     return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
-
 def search(request):
     filters = request.GET.getlist('filters')
     query = request.GET.get('searchQuery')
@@ -176,12 +175,12 @@ def search(request):
             if filter == 'category':
                 filteredProducts.extend(products.filter(category__contains=searchWord))
 
-
     # Remove duplicates by converting filteredProducts to a set and then back to a list
     filteredProducts = list(set(filteredProducts))
 
     categories = Product.CATEGORY_CHOICES.items()
     return render(request, 'home.html', {'products': filteredProducts, 'categories': categories})
+
 
 def removeFavorite(request):
     data = json.loads(request.body)
@@ -203,7 +202,6 @@ def addFavorite(request):
     user.save()
     print('Favorite product added!')
     return JsonResponse({'message': 'Favorite product added!'}, status=200)
-
 
 
 class StorefrontView(View):
@@ -257,12 +255,16 @@ class ProductDetailView(View):
         reviews = ProductReviews.objects.filter(productId=product.productId)
         favorite = User.objects.filter(id=request.user.id, favorite=product.productId).exists()
 
-        ordered = False
-        if product in Product.objects.filter(orderitem__order__customer=request.user):
-            ordered = True
+        if not request.user.is_anonymous:
+            ordered = Product.objects.filter(productId=product_id, orderitem__order__customer=request.user).exists()
+            reviewed = ProductReviews.objects.filter(productId=product_id, reviewerId=request.user).first()
+            # reviews = reviews.exclude(reviewerId=request.user)
 
-        return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
-                                                       'favorite': favorite, 'ordered': ordered})
+            return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
+                                                           'favorite': favorite, 'ordered': ordered,
+                                                           'reviewed': reviewed})
+        else:
+            return render(request, 'product_detail.html', {'product': product, 'reviews': reviews})
 
     # @staticmethod
     # @login_required(login_url='/login/')
@@ -384,11 +386,16 @@ class ReviewProductView(View):
         product = get_object_or_404(Product, productId=product_id)
         rating = reviewData.get('rating')
         comment = reviewData.get('comment')
+        if rating == 0:
+            return JsonResponse({'message': 'Rating required'}, status=400)
+        if comment == '':
+            return JsonResponse({'message': 'Comment required'}, status=400)
 
         ProductReviews.objects.create(productId=product, reviewerId=request.user, rating=rating,
                                       comment=comment)
 
         return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
+
 
 def deleteProduct(request, productid):
     get_object_or_404(Product, id=productid)
@@ -458,9 +465,9 @@ def payment_complete_view(request, invoice_id):
         cart.clear_cart()
 
         return render(request, 'payment-completed.html', {
-                                             'cartItems': invoice.get_invoice_items,
-                                             'cartCount': invoice.invoice_summary['total_count'],
-                                             'cartTotal': invoice.invoice_summary['subtotal']})
+            'cartItems': invoice.get_invoice_items,
+            'cartCount': invoice.invoice_summary['total_count'],
+            'cartTotal': invoice.invoice_summary['subtotal']})
     else:
         return render(request, 'payment-completed.html', {
             'cartItems': cart.get_cart_items,
