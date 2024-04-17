@@ -13,9 +13,12 @@ class CustomPayPalPaymentsForm(PayPalPaymentsForm):
             f'<input type="hidden" name="{field.name}" value="{field.value()}" id="{field.auto_id}">'
             for field in self
         ])
-        submit_button = '<input type="submit" name="submit" alt="Buy it Now" value="Buy Now" class="bg-success my-2 primary-color py-2 rounded w-100">'
+        container_open = "<div class='btnContainer'>"
+        submit_button = '<input type="submit" name="submit" alt="Buy it Now" value="Buy Now" class="my-2 primary-color py-2 rounded w-100" style="background-color:#0070e0; border: unset;">'
+        paypal_logo = '<i class="fa-brands fa-cc-paypal overlay fa-2xl" aria-hidden="true" style="color:#001435"></i>'
+        container_close = '</div>'
         form_close = '</form>'
-        return format_html(f"{form_open}{hidden_fields}{submit_button}{form_close}")
+        return format_html(f"{form_open}{hidden_fields}{container_open}{submit_button}{paypal_logo}{container_close}{form_close}")
 
 
 class UserCreationForm(UserCreationForm):
@@ -38,20 +41,6 @@ class UserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
-
-
-#
-# class CardCreationForm(forms.ModelForm):
-#     class Meta:
-#         model = Payment
-#         fields = ("name", "card_number", "expiration_date", "back_number")
-#
-#
-# class LineItemCreationForm(forms.ModelForm):
-#     class Meta:
-#         model = LineItem
-#         fields = ("invoiceId", "productId", "quantity", "linePrice")
-
 
 class StorefrontForm(forms.ModelForm):
     class Meta:

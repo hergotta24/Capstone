@@ -4,21 +4,14 @@
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
         <div class="d-grid m-auto h-100 w-100 align-content-start gap-3 p-3">
             <div class="row d-flex flex-wrap w-100 rounded-1 position-relative">
-                <div class="col-1 arrow-icon left-arrow btn btn-primary position-absolute" id="left-arrow">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </div>
-                <div class="d-flex col-12 ps-4" id="content">
-                    <div class="d-flex w-100 flex-wrap">
-                        {% for product in favorites %}
+                <div class="row w-100 mx-auto position-relative pt-2" id="content">
+                    <div class="container d-grid w-100 flex-wrap" style="grid-template-columns: repeat(6, 15%); grid-gap: 2%">
+                        {% for product in products %}
                             {% include 'product_card.html' %}
                         {% endfor %}
                     </div>
                 </div>
-                <div class="arrow-icon right-arrow btn btn-primary position-absolute" id="right-arrow">
-                    <i class="fa-solid fa-arrow-right"></i>
-                </div>
-
-            </div>
+s            </div>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
