@@ -10,6 +10,13 @@
     width: fit-content;
 }
 
+.input{
+    background-color: transparent !important;
+        color: #e3d7c9 !important;
+        border: solid 1px #e3d7c9;
+        border-radius: 7px;
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
