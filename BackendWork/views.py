@@ -1,6 +1,11 @@
 from _ast import Store
 
 from django.contrib.auth import authenticate, login, logout
+from reportlab.lib import colors
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, TopPadder
+from verify_email.email_handler import send_verification_email
+from django.core.mail import send_mail
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.views import View
@@ -14,6 +19,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.conf import settings
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.forms import PayPalPaymentsForm
 
@@ -61,9 +68,11 @@ class UserRegisterView(View):
 
         form = UserCreationForm(form_data)
         if form.is_valid():
-            form.save()
+            inactive_user = send_verification_email(request, form)
+            Cart.objects.create(user=inactive_user)
+            Storefront.objects.create(owner=inactive_user, name=username + '\'s Store', description='')
             user = User.objects.get(email=email)
-            Cart.objects.create(user=user)
+            # Cart.objects.create(user=user)
             Storefront.objects.create(owner=user)
             return JsonResponse({'message': 'Account Registered! Redirecting you to login to sign in...'}, status=200)
         else:
@@ -235,12 +244,16 @@ class ProductDetailView(View):
         reviews = ProductReviews.objects.filter(productId=product.productId)
         favorite = User.objects.filter(id=request.user.id, favorite=product.productId).exists()
 
-        ordered = False
-        if product in Product.objects.filter(orderitem__order__customer=request.user):
-            ordered = True
+        if not request.user.is_anonymous:
+            ordered = Product.objects.filter(productId=product_id, orderitem__order__customer=request.user).exists()
+            reviewed = ProductReviews.objects.filter(productId=product_id, reviewerId=request.user).first()
+            # reviews = reviews.exclude(reviewerId=request.user)
 
-        return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
-                                                       'favorite': favorite, 'ordered': ordered})
+            return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
+                                                           'favorite': favorite, 'ordered': ordered,
+                                                           'reviewed': reviewed})
+        else:
+            return render(request, 'product_detail.html', {'product': product, 'reviews': reviews})
 
     @staticmethod
     @login_required(login_url='/login/')
@@ -345,12 +358,15 @@ class ReviewProductView(View):
     @login_required(login_url='/login/')
     def post(request, product_id):
         reviewData = json.loads(request.body)
-
         product = get_object_or_404(Product, productId=product_id)
         rating = reviewData.get('rating')
         comment = reviewData.get('comment')
-
-        ProductReviews.objects.create(productId=product, reviewerId=request.user, rating=rating,
+        if rating == 0:
+            return JsonResponse({'message': 'Rating required'}, status=400)
+        if comment == '':
+            return JsonResponse({'message': 'Comment required'}, status=400)
+        reviewer = User.objects.get(username=request.user)
+        ProductReviews.objects.create(productId=product, reviewerId=reviewer, rating=rating,
                                       comment=comment)
 
         return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
@@ -447,12 +463,117 @@ class OrderHistoryView(View):
     @login_required(login_url='/login/')
     def get(request):
         user = request.user
-        products = Product.objects.filter(orderitem__order__customer=user)
-        return render(request, 'order_history.html', {'products': products})
+        invoices = Invoice.objects.filter(user=user, invoice_status="COMPLETED")
+        return render(request, 'order_history.html', {'invoices': invoices})
 
 
 def update_favorite(request):
     return render(request, 'product_card.html')
+
+
+def generate_invoice_pdf(request, invoice_id):
+    # Retrieve order details (Sold To, Shipped To, Item Details, etc.) based on order_id
+    invoice = Invoice.objects.filter(invoiceId=invoice_id).first()
+    sold_to = str(invoice.user)
+    shipped_to = invoice.shippingAddress
+    address_lines = shipped_to.line1
+    if shipped_to.line2:
+        address_lines.append(" " + shipped_to.line2)
+    if shipped_to.aptNum:
+        address_lines.append(" " + shipped_to.aptNum)
+    items = invoice.get_invoice_items
+    subtotal = invoice.invoice_summary['subtotal']
+
+    # Generate PDF document
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=invoice_{invoice_id}.pdf'
+
+    # Create PDF document using SimpleDocTemplate
+    pdf = SimpleDocTemplate(response, pagesize=letter)
+
+    # Define sample data (replace with actual data)
+    invoice_id = invoice_id
+    invoice_date = invoice.get_date
+
+    # Define content elements
+    content = []
+    styles = getSampleStyleSheet()
+    bold_style = ParagraphStyle(
+        name='Bold',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+    )
+
+    # Define a custom style for right-aligned content
+    right_aligned_style = ParagraphStyle(
+        "right_aligned",
+        parent=styles["Normal"],
+        alignment=2,  # 0=Left, 1=Center, 2=Right
+    )
+
+    right_aligned_title = ParagraphStyle(
+        "right_title",
+        parent=styles["Title"],
+        alignment=2,
+    )
+
+    left_aligned_title = ParagraphStyle(
+        "left_title",
+        parent=styles["Title"],
+        alignment=0,
+    )
+
+    content.append(Paragraph("ShopSavvy", left_aligned_title))
+    content.append(Spacer(1, -20))
+    content.append(Paragraph("INVOICE", right_aligned_title))
+
+    content.append(Spacer(1, 40))  # Spacer for vertical space
+
+    # Right-aligned content for Invoice ID and Invoice Date
+    content.append(Paragraph(f'Invoice ID: {invoice_id}', right_aligned_style))
+    content.append(Paragraph(f'Invoice Date: {invoice_date}', right_aligned_style))
+
+    content.append(Spacer(1, -20))  # Spacer for vertical space
+
+    content.append(Paragraph("Sold To:", bold_style))
+    content.append(Paragraph(sold_to, styles['Normal']))
+
+    content.append(Spacer(1, 20))  # Spacer for vertical space
+
+    content.append(Paragraph("Shipped To:", bold_style))
+    content.append(Paragraph(address_lines, styles['Normal']))
+    content.append(Paragraph(f'{shipped_to.city}, {shipped_to.state} {shipped_to.zipCode}', styles['Normal']))
+
+    content.append(Spacer(1, 40))  # Spacer for vertical space
+
+    content.append(Paragraph("Item Details:", bold_style))
+    # Add more content for item details if needed
+
+    # Build PDF document with the content elements
+    data = [["PRODUCT", "SELLER", "QUANTITY", "UNIT PRICE", "AMOUNT"]]
+    for item in items:
+        data.append(
+            [f'{item.product.name}', f'{item.product.soldByStoreId.owner}', f'{item.quantity}', f'{item.product.price}',
+             f'${item.total_price}'])
+    data.append(['', '', '', '', ''])
+    data.append(['', '', '', 'SUBTOTAL', f'${subtotal}'])
+    table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Background color for header row
+        ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black),  # Bottom border for header row
+        ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Bottom border for header row
+        ('LINEBELOW', (0, 1), (-1, -1), 0, colors.white),  # Remove inner borders
+        ('BOX', (0, 0), (-1, -1), 1, colors.black),  # Outer border for the entire table
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center alignment for all cells
+        # ('SPAN', (-1, 0), (-1, 2)),
+        ('VALIGN', (-1, 0), (-1, -1), 'BOTTOM'),
+    ])
+
+
+    table = Table(data, colWidths=[140, 100, 80, 90, 90], style=table_style)
+    content.append(table)
+    pdf.build(content)
+    # pdf.save()
+    return response
 
 
 def add_shipping_details(request):
@@ -517,6 +638,7 @@ def add_shipping_details(request):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 
 def removeFromCart(request, product_id):
     cart = get_object_or_404(Cart, user=request.user)

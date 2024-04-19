@@ -57,13 +57,18 @@ function getCookie(name) {
 }
 
 function makeToast(message, status) {
+    // console.log("message = " + message);
+    // console.log("status = " + status);
     var toast = document.getElementById("toast");
     var bgColor = "";
     if (status == 200) {
         bgColor = "bg-success";
+        toast.classList.remove("bg-danger");
     } else if (status == 400) {
         bgColor = "bg-danger";
+        toast.classList.remove("bg-success");
     }
+    // console.log("bgcolor = " + bgColor);
     toast.classList.add(bgColor)
 
     var toastBody = toast.querySelector('.toast-body');

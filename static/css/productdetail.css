@@ -91,3 +91,11 @@
 .demo:hover {
     opacity: 1;
 }
+
+.comment {
+    display:inline-block;
+    word-break: break-word;
+    overflow: auto;
+    text-overflow: ellipsis;
+
+}

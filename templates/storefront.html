@@ -5,25 +5,25 @@
 {% endblock %}
 {% block content %}
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
-        <div class="row d-flex mx-auto w-100 position-relative">
+        <div class="row d-flex mx-auto w-100 position-relative" style="height: 300px;">
             {% if store.bannerImage %}
                 <img id="bannerDisplay" src="{{ store.bannerImage.url }}" class="p-0 w-100 h-100" alt="Banner">
             {% else %}
                 <img id="bannerDisplay" src="https://via.placeholder.com/1920x400/cccccc/ffffff?text=Banner"
                      class="p-0 w-100 h-100" alt="Banner">
             {% endif %}
-            <div class="d-block justify-content-center align-items-center position-absolute p-0 z-1" id="logo"
-                 style="left:10px;top:10px;width: 200px;">
+            <div class="d-block justify-content-center align-items-center position-absolute p-0 z-1"
+                 style="height:150px; width: 150px; left:10px; top:10px;" id="logo">
                 {% if store.logoImage %}
-                    <img id="logoDisplay" src="{{ store.logoImage.url }}" alt="Logo" class="">
+                    <img id="logoDisplay" src="{{ store.logoImage.url }}" alt="Logo" class="w-100 h-100">
                 {% else %}
                     <img id="logoDisplay" src="https://via.placeholder.com/400x400/5f6467/ffffff?text=Logo" alt="Logo"
-                         class="">
+                         class="w-100 h-100">
 
                 {% endif %}
                 <div id="editLogoBtnContainer"
                      class="d-none justify-content-center align-items-center position-absolute z-1"
-                     style="height:200px; width: 200px; left:0px; top:0px;" id="logo">
+                     style="height:150px; width: 150px; left:0px; top:0px;" id="logo">
                     <button type="button"
                             class="d-block w-100 h-100 border-0 justify-content-center edit invisible disabled"
                             id="logoBtn" data-bs-toggle="modal"
@@ -49,16 +49,16 @@
             </div>
         </div>
         <div class="d-flex flex-wrap col-12 mt-2">
-            <h1 class="col-12 order-1 col-lg-6">
+            <h1 class="col-4">
                 {% if store.bannerImage %}
-                    <input type="text" class="px-1 col-12 primary-color" id="storeName" style="max-width: 800px"
+                    <input type="text" class="px-1 primary-color" id="storeName"
                            value="{{ store.name }}" readonly>
                 {% else %}
-                    <input type="text" class="px-1 col-12 primary-color" id="storeName" style="max-width: 800px"
+                    <input type="text" class="px-1 primary-color" id="storeName"
                            value="Your Store's Name" readonly>
                 {% endif %}
             </h1>
-            <div class="col-12 col-lg-4 d-flex justify-content-end order-4 order-lg-2">
+            <div class="col-lg-5">
                 <button type="submit" id="confirm" class="hover m-2 btn btn-primary"
                         disabled hidden>Confirm Changes
                 </button>
@@ -67,15 +67,14 @@
                     Cancel
                 </button>
             </div>
-            <div class="d-flex col-12 col-lg-2 order-5 order-lg-3 justify-content-end">
+            <div class="d-flex col-3 justify-content-end">
                 <a href="{% url 'AddProductView' store_id=store.storeId %}" class="hover btn m-2 btn-primary"
                    style="max-width: 300px; max-height: 40px" id="createBtn"> Create Product</a>
             </div>
-            <div class="col-12 col-lg-12 order-2 order-lg-4">
+            <div class="col-lg-9">
                 <p class="ps-3">
                     {% if store.description %}
                         <div contenteditable="true" type="text" class="px-1 primary-color w-100" id="storeDescription"
-                             style="max-width: 1000px;"
                              readonly>{{ store.description }}
                         </div>
                     {% else %}
@@ -120,7 +119,7 @@
                                         </div>
                                         <div class="col-12 col-lg-2 rating d-flex flex-wrap">
                                             <div class="d-block d-lg-none col-6">Rating</div>
-                                            <div class="col-6 col-lg-12">⭐⭐⭐⭐</div>
+                                            <div class="col-6 col-lg-12">{% include 'rating_average.html' %}</div>
                                         </div>
                                         <div class="col-12 col-lg-2 d-flex flex-wrap p-0">
                                             <div class="col-6 px-auto">
@@ -148,42 +147,29 @@
                     <div class="row col-12">
                         {% if orders and orders.count > 0 %}
                             <h3 class="col-12 primary-color">Orders</h3>
-                            <div class="col-12 primary-color flex-wrap d-flex">
-                                <div class="row mx-auto d-none d-lg-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
+                            <div class="col-12 primary-color">
+                                <!-- Header Row -->
+                                <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
                                     <div class="col-12 col-md-2 p-0">Customer</div>
                                     <div class="col-12 col-md-3 p-0">Shipping Address</div>
                                     <div class="col-12 col-md-3 p-0">Products Bought</div>
                                     <div class="col-12 col-md-2 p-0">Order Total</div>
                                 </div>
                                 {% for order in orders %}
-                                    <div class="product border px-2 py-3 d-flex flex-wrap col-12 primary-color rounded mb-3">
-                                        <div class="product-name col-12 col-lg-2 d-flex flex-wrap">
-                                            <div class="d-block d-lg-none col-6">Customer Name</div>
-                                            <div class="col-6 col-lg-12">{{ order.customer }}</div>
+                                    <!-- Product List -->
+                                    <div class="product border px-2 py-3 d-flex col-12 primary-color rounded mb-3">
+                                        <div class="product-name col-12 col-md-2">{{ order.customer }}</div>
+                                        <div class="col-12 col-md-3">
+                                            <div>{{ order.shippingAddress.line1 }}</div>
+                                            <div>{{ order.shippingAddress.city }}, {{ order.shippingAddress.zipCode }}</div>
+                                            <div>{{ order.shippingAddress.state }}</div>
                                         </div>
-                                        <div class="col-12 col-lg-3 d-flex flex-wrap">
-                                            <div class="d-block d-lg-none col-6">Address</div>
-                                            <div clas="col-6 col-lg-12">
-                                                <div class="col-12">{{ order.shippingAddress.line1 }}</div>
-                                                <div class="col-12">{{ order.shippingAddress.city }}, {{ order.shippingAddress.zipCode }}</div>
-                                                <div class="col-12">{{ order.shippingAddress.state }}</div>
-
-                                            </div>
+                                        <div class="col-12 col-md-3">
+                                            {% for item in order.get_order_items %}
+                                                <div>{{ item.product.name }} x{{ item.quantity }}</div>
+                                            {% endfor %}
                                         </div>
-                                        <div class="col-12 col-lg-3 d-flex flex-wrap">
-                                            <div class="d-block d-lg-none col-6">Products Brought</div>
-                                            <div class="col-6 col-lg-12">
-                                                {% for item in order.get_order_items %}
-                                                    <div class="col-12">{{ item.product.name }}
-                                                        x{{ item.quantity }}</div>
-                                                {% endfor %}
-                                            </div>
-
-                                        </div>
-                                        <div class="col-12 col-lg-2">
-                                            <div class="d-block d-lg-none col-6">Order Total</div>
-                                            <div class="col-6 col-lg-12">${{ order.order_summary.subtotal }}</div>
-                                        </div>
+                                        <div class="col-12 col-md-2">${{ order.order_summary.subtotal }}</div>
                                     </div>
 
                                 {% endfor %}

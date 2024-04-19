@@ -11,6 +11,7 @@
     <script src="{% static 'js/update_favorite.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <script src="{% static 'js/search.js' %}"></script>
+    <script src="{% static 'js/rating.js' %}"></script>
     <meta charset="UTF-8">
     {% block head %}
     {% endblock %}
@@ -25,7 +26,7 @@
             <i class="fa fa-bars  fa-md"></i>
         </button>
     </div>
-    <div class="col-5 col-md-3 col-lg-2 justify-content-left ms-2 primary-color">ShopSavvy</div>
+    <div class="col-5 col-md-3 col-lg-2 justify-content-left ms-2 primary-color"><a href="/" class="link"><img style="max-width: 25px;padding-bottom: 3px"  src="{% static 'icons/favicon.ico' %}"> <span>ShopSavvy</span> </a></div>
     <div class="d-none d-md-block col-md-5 col-lg-6">
         <form id="searchForm">
             <div class="input-group mx-auto w-100 border-solid border-1" id="searchbar" style="border-color:#E8DCCD">
