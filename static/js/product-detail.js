@@ -46,8 +46,7 @@ function redirectToReviewPage() {
     window.location.href = redirectUrl;
 }
 
-// Attach the redirectToReviewPage function to the button's click event
-document.getElementById('product_review').addEventListener('click', redirectToReviewPage);
+$('#product_review').on('click', redirectToReviewPage);
 
 
 function getCookie(name) {
@@ -65,38 +64,46 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function toggleReview() {
+    let reviewForm = document.getElementById('reviewDiv');
+    let leaveReviewBtn = document.getElementById('leaveReviewBtn');
+
+    reviewForm.style.display = reviewForm.style.display === 'none' ? 'block' : 'none';
+    reviewForm.disabled = !reviewForm.disabled;
+    leaveReviewBtn.innerHTML = leaveReviewBtn.innerHTML === 'Write a Review' ? 'Cancel' : 'Write a Review';
+}
 
 $(document).ready(function () {
-     $('#add_to_cart').on('click', function(event) {
+    $('#add_to_cart').on('click', function(event) {
 
-        // Gather data from elements
-        var formData = {'quantity': document.getElementById('quantity').value}
+        var formData = {'quantity': $('#quantity').val()};
 
-        // Send form data using fetch post request
-        fetch('/products/' + document.getElementById('add_to_cart').value + '/', {
+        fetch('/products/' + $(this).val() + '/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken') // Function to get CSRF token
+                'X-CSRFToken': getCookie('csrftoken')
             },
             body: JSON.stringify(formData)
         })
-            .then(response => {
-                if (response.ok) {
-                    console.log("Card input success");
-                    return response.json();
-                } else {
-                    return response.json().then(data => Promise.reject(data));
-                }
-            })
-            .then(data => {
-                setTimeout(function () {
-                    window.location.href = "/";
-                }, 4000); // 3000 milliseconds = 3 seconds
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                let errorMessage = typeof error.message === 'object' ? Object.values(error.message).join(" ") : error.message;
-            });
+        .then(response => {
+            if (response.ok) {
+                console.log("Card input success");
+                return response.json();
+            } else {
+                return response.json().then(data => Promise.reject(data));
+            }
+        })
+        .then(data => {
+            console.log("Response data:", data);
+            setTimeout(function () {
+
+            }, 4000); // 4000 milliseconds = 4 seconds
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            let errorMessage = typeof error.message === 'object' ? Object.values(error.message).join(" ") : error.message;
+            console.error('Error Message:', errorMessage);
+        });
     });
 });

@@ -31,7 +31,6 @@ urlpatterns = [
                   path('orderhistory/', OrderHistoryView.as_view(), name='OrderHistoryView'),
                   path('favorite/', SavedProductView.as_view(), name='SavedProductView'),
                   path('storefront/<int:product_id>/', UpdateProductView.as_view(), name='EditProductView'),
-                  path('createproduct/', createproduct, name='createproduct'),
                   path('addFavorite/', addFavorite, name='addFavorite'),
                   path('removeFavorite/', removeFavorite, name='removeFavorite'),
                   path('products/<int:product_id>/', ProductDetailView.as_view(), name='product_detail'),

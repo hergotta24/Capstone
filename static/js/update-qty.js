@@ -23,7 +23,7 @@ $(document).ready(function() {
         const productId = $(this).data('product-id');
 
         // Find the corresponding quantity input for the clicked button
-        const newQty = $(this).siblings('.quantity-input').val();
+        const newQty = $(this).parent().parent().find('.quantity-input').val()
 
         const formData = {
             productId: productId,
@@ -61,15 +61,13 @@ $(document).ready(function() {
         });
     });
 
-    // Use a class selector for the quantity inputs and attach onchange event handler
     $('.quantity-input').on('change', function() {
         var initialQuantity = this.defaultValue;
-        var updateBtn = $(this).siblings('.update-btn')[0]; // Select the corresponding update button
-
+        var updateBtn = $(this).parent().parent().find('#update-quantity');
         if (this.value !== initialQuantity) {
-            updateBtn.style.display = 'inline-block';
+            $(updateBtn).addClass('d-block').removeClass('d-none');
         } else {
-            updateBtn.style.display = 'none';
+            $(updateBtn).addClass('d-none').removeClass('d-block');
         }
     });
 });
