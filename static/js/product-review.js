@@ -120,8 +120,10 @@ function makeToast(message, status) {
     var bgColor = "";
     if (status == 200) {
         bgColor = "bg-success";
+        toast.classList.remove("bg-danger");
     } else if (status == 400) {
         bgColor = "bg-danger";
+        toast.classList.remove("bg-success");
     }
     toast.classList.add(bgColor)
 

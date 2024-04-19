@@ -72,7 +72,7 @@ class UserRegisterView(View):
             Cart.objects.create(user=inactive_user)
             Storefront.objects.create(owner=inactive_user, name=username + '\'s Store', description='')
             user = User.objects.get(email=email)
-            Cart.objects.create(user=user)
+            # Cart.objects.create(user=user)
             Storefront.objects.create(owner=user)
             return JsonResponse({'message': 'Account Registered! Redirecting you to login to sign in...'}, status=200)
         else:
