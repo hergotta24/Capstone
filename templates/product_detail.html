@@ -9,22 +9,30 @@
             <div class="container mx-auto flex-wrap w-100 w-lg-75">
                 <div class="col-12 col-lg-6 d-flex h-100 justify-content-center">
                     <div class="col-12 position-relative" id="slideContainer">
-                        {% for image in product.images %}
+                        {% if product.images.count > 0 %}
+
+                            {% for image in product.images %}
+                                <div class="mySlides"
+                                     style="max-height: inherit">
+                                    <img src="{{ image.image.url }}"
+                                         style="width:100%;object-fit: cover;aspect-ratio: 1/1;max-height: 500px;min-height: 300px;">
+                                </div>
+                            {% endfor %}
+                            <!-- Next and previous buttons -->
+                            <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                            <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                        {% else %}
                             <div class="mySlides"
                                  style="max-height: inherit">
-                                <img src="{{ image.image.url }}"
+                                <img src="https://via.placeholder.com/400x400/5f6467/ffffff?text=Logo"
                                      style="width:100%;object-fit: cover;aspect-ratio: 1/1;max-height: 500px;min-height: 300px;">
                             </div>
-                        {% endfor %}
-
-                        <!-- Next and previous buttons -->
-                        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-                        <a class="next" onclick="plusSlides(1)">&#10095;</a>
-
+                        {% endif %}
                         <div class="col-12">
                             {% for image in product.images %}
                                 <div class="column">
-                                    <img class="demo cursor" src="{{ image.image.url }}" style="width:100%; aspect-ratio: 1/1; object-fit: cover;"
+                                    <img class="demo cursor" src="{{ image.image.url }}"
+                                         style="width:100%; aspect-ratio: 1/1; object-fit: cover;"
                                          onclick="currentSlide(1)" alt="{{ image.name }}">
                                 </div>
                             {% endfor %}
@@ -97,13 +105,13 @@
                                     <span style="font-weight:bold">{{ r.reviewerId }}</span><br>
                                     <div class="position-relative">
                                         <div class="position-absolute top-0 left-0 z-1">
-                                            <i class="{{ r.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                            <i class="{{ r.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                            <i class="{{ r.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                            <i class="{{ r.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                            <i class="{{ r.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="{{ r.reviewId }} fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="{{ r.reviewId }} fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="{{ r.reviewId }} fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="{{ r.reviewId }} fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="{{ r.reviewId }} fa fa-star fa-lg fa-regular unchecked"></i>
                                         </div>
-                                        <script>setStars({{ r.reviewId }} + "2", {{ r.rating }})</script>
+                                        <script>setStars({{ r.reviewId }}, {{ r.rating }})</script>
                                         <div class="position-relative z-0 top-0 left-0">
                                             <i class="fa fa-star fa-lg fa-regular unchecked"></i>
                                             <i class="fa fa-star fa-lg fa-regular unchecked"></i>
