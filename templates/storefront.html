@@ -119,7 +119,7 @@
                                         </div>
                                         <div class="col-12 col-lg-2 rating d-flex flex-wrap">
                                             <div class="d-block d-lg-none col-6">Rating</div>
-                                            <div class="col-6 col-lg-12">{% include 'rating_average.html' %}</div>
+{#                                            <div class="col-6 col-lg-12">{% include 'rating_average.html' %}</div>#}
                                         </div>
                                         <div class="col-12 col-lg-2 d-flex flex-wrap p-0">
                                             <div class="col-6 px-auto">
@@ -129,10 +129,10 @@
                                                 </a>
                                             </div>
                                             <div class="col-6 px-auto">
-                                                <a href="{% url 'EditProductView' product_id=product.productId %}"
-                                                   class="col-10 float-end">
-                                                    <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
-                                                </a>
+                                                <button class="js-remove col-6 bg-danger"
+                                                        data-productId="{{ product.productId }}">
+                                                    Remove
+                                                </button>
                                             </div>
 
                                         </div>

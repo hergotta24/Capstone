@@ -91,60 +91,87 @@ $(document).ready(function () {
     });
 
     $('#confirm').click(function (e) {
-    e.preventDefault(); // Prevent default form submission
+        e.preventDefault(); // Prevent default form submission
 
-    // Gather data from elements
-    var storeName = $('#storeName').val();
-    var storeDescription = $('#storeDescription').text(); // Use .text() for contenteditable div
-    var bannerInput = $('#bannerInput')[0].files[0];
-    var logoInput = $('#logoInput')[0].files[0];
+        // Gather data from elements
+        var storeName = $('#storeName').val();
+        var storeDescription = $('#storeDescription').text(); // Use .text() for contenteditable div
+        var bannerInput = $('#bannerInput')[0].files[0];
+        var logoInput = $('#logoInput')[0].files[0];
 
-    // Create FormData object to send files along with other data
-    var formData = new FormData();
-    formData.append('storeName', storeName);
-    formData.append('storeDescription', storeDescription);
-    formData.append('bannerInput', bannerInput);
-    formData.append('logoInput', logoInput);
+        // Create FormData object to send files along with other data
+        var formData = new FormData();
+        formData.append('storeName', storeName);
+        formData.append('storeDescription', storeDescription);
+        formData.append('bannerInput', bannerInput);
+        formData.append('logoInput', logoInput);
 
-    // Make POST request using Fetch API
-    fetch('/storefront/', {
-        method: 'POST',
-        headers: {
-            "X-CSRFToken": getCookie("csrftoken"), // Include CSRF token
-        },
-        body: formData
-    })
-    .then(response => {
-        // Handle response
-        if (response.ok) {
-            // Successful response
-            console.log('Changes confirmed successfully');
-            // Optionally, redirect or show a success message
-        } else {
-            // Error handling
-            console.error('Error confirming changes:', response.statusText);
-            // Optionally, display an error message to the user
-        }
-    })
-    .catch(error => {
-        console.error('Error confirming changes:', error);
-        // Optionally, display an error message to the user
+        // Make POST request using Fetch API
+        fetch('/storefront/', {
+            method: 'POST',
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"), // Include CSRF token
+            },
+            body: formData
+        })
+            .then(response => {
+                // Handle response
+                if (response.ok) {
+                    // Successful response
+                    console.log('Changes confirmed successfully');
+                    // Optionally, redirect or show a success message
+                } else {
+                    // Error handling
+                    console.error('Error confirming changes:', response.statusText);
+                    // Optionally, display an error message to the user
+                }
+            })
+            .catch(error => {
+                console.error('Error confirming changes:', error);
+                // Optionally, display an error message to the user
+            });
     });
-});
-    function getCookie(name)
-    {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+
+    $('.js-remove').click(function (e) {
+        const removeId = $(this).data('productid');
+
+        e.preventDefault()
+        fetch('/removeProduct/', {
+            method: 'POST',
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"), // Include CSRF token
+            },
+            body: JSON.stringify({'remove_id': removeId})
+        })
+            .then(response => {
+                // Handle response
+                if (response.ok) {
+                    location.reload();
+                    console.log('Changes confirmed successfully');
+                } else {
+                    console.error('Error after successful return confirming changes:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error coming back from server', error);
+                // Optionally, display an error message to the user
+            });
+    });
+
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
-    }
-    return cookieValue;
+        return cookieValue;
     }
 
 });

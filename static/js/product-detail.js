@@ -31,7 +31,6 @@ function showSlides(n) {
     }
     slides[slideIndex - 1].style.display = "block";
     dots[slideIndex - 1].className += " active";
-    captionText.innerHTML = dots[slideIndex - 1].alt;
 }
 
 // Define a function to handle the button click event
@@ -107,3 +106,24 @@ $(document).ready(function () {
         });
     });
 });
+
+function toggleReview() {
+            let reviewForm = document.getElementById('reviewDiv');
+            let leaveReviewBtn = document.getElementById('leaveReviewBtn');
+
+            reviewForm.style.display = reviewForm.style.display === 'none' ? 'block' : 'none';
+            reviewForm.disabled = !reviewForm.disabled;
+            leaveReviewBtn.innerHTML = leaveReviewBtn.innerHTML === 'Write a Review' ? 'Cancel' : 'Write a Review';
+        }
+
+        // Define a function to handle the button click event
+        function redirectToReviewPage() {
+            // Get the product ID from the button's value attribute
+            var productId = document.getElementById('product_review').value;
+
+            // Construct the URL for redirection
+            var redirectUrl = '/review-product/' + productId;
+
+            // Redirect the browser to the constructed URL
+            window.location.href = redirectUrl;
+        }
