@@ -20,9 +20,6 @@ from BackendWork.views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
-
-
-
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('login/', UserLoginView.as_view(), name='UserLoginView'),
@@ -50,5 +47,9 @@ urlpatterns = [
                   path('paypal/', include('paypal.standard.ipn.urls')),
                   path('payment-completed/<int:invoice_id>/', payment_complete_view, name='payment-complete'),
                   path('payment-failed/<int:invoice_id>', payment_failed_view, name='payment-failed'),
-                  path('remove-from-cart/<int:product_id>/', removeFromCart, name='removeFromCart')
+                  # path('download/invoice/<int:invoice_id>', generate_invoice, name='download_invoice'),
+                  path('add-shipping-details/', add_shipping_details, name='add_shipping_details'),
+                  path('remove-from-cart/<int:product_id>/', removeFromCart, name='removeFromCart'),
+                  path('verification/', include('verify_email.urls')),
+                  path('invoice/<int:invoice_id>/generate_invoice_pdf/', generate_invoice_pdf, name='generate_invoice_pdf'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

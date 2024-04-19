@@ -1,32 +1,56 @@
-$(document).ready(function() {
-    var form = $('#addShippingDetails');
-    var button = form.find('button[type="submit"]');
-    var inputs = form.find('input[type="text"], input[type="email"], select');
+$(document).ready(function () {
+    $('#addShippingDetails').submit(function (event) {
+        event.preventDefault();
 
-    function checkForShippingInformation() {
-        var filled = true;
-        inputs.each(function() {
-            if ($(this).prop('required') && !$(this).val().trim()) {
-                filled = false;
-                return false; // exit loop early
-            }
-        });
-        return filled;
-    }
+        // Collect form data
+        const formData = $(this).serialize();
 
-    function updateButtonText() {
-        if (checkForShippingInformation()) {
-            button.text('Shipping Details Added').removeClass('js-add-shipping-details');
-        } else {
-            button.text('Add Shipping Details').addClass('js-add-shipping-details');
-        }
-    }
-
-    // Check on page load
-    updateButtonText();
-
-    // Check again on input change
-    form.on('input', function() {
-        updateButtonText();
+        // Send data to server
+        fetch('/add-shipping-details/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded', // Changed content type
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData // Sending form data directly
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle response from server
+                if (data.error) {
+                    console.error('Error:', data.error);
+                } else {
+                    console.log('Success:', data.message);
+                    if (data.buyNowButton){
+                        var buttonContainer = $('#buy-now');
+                        var buyNowButtonHtml = data.buyNowButton;
+                        $(buttonContainer).html(buyNowButtonHtml);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error.message);
+            });
     });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 });
+

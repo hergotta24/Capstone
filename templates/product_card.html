@@ -10,6 +10,7 @@
 
     {% else %}
         <div class="image-container d-block overflow-hidden" style="height:200px">
+            <img src="https://via.placeholder.com/400x400/5f6467/ffffff?text=Logo" alt="idk" class="d-block card-img-top">
             <div class="card-img-top justify-content-center d-flex align-items-center primary-color border">No Image</div>
             <div class="middle">
                 <div class="text"><a href="{% url 'product_detail' product_id=product.productId %}">Product Detail</a></div>
@@ -19,11 +20,7 @@
     {% endif %}
     <div class="card-body">
         <div>
-            <span class="fa fa-star fa-lg checked"></span>
-            <span class="fa fa-star fa-lg checked"></span>
-            <span class="fa fa-star fa-lg checked"></span>
-            <span class="fa fa-star fa-lg unchecked"></span>
-            <span class="fa fa-star fa-lg unchecked"></span>
+            {% include 'rating_average.html' %}
         </div>
 
         {% include 'update_favorite.html' %}

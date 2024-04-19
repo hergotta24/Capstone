@@ -1,6 +1,11 @@
 from _ast import Store
 
 from django.contrib.auth import authenticate, login, logout
+from reportlab.lib import colors
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, TopPadder
+from verify_email.email_handler import send_verification_email
+from django.core.mail import send_mail
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.views import View
@@ -14,6 +19,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.conf import settings
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.forms import PayPalPaymentsForm
 
@@ -61,7 +68,12 @@ class UserRegisterView(View):
 
         form = UserCreationForm(form_data)
         if form.is_valid():
-            form.save()
+            inactive_user = send_verification_email(request, form)
+            Cart.objects.create(user=inactive_user)
+            Storefront.objects.create(owner=inactive_user, name=username + '\'s Store', description='')
+            user = User.objects.get(email=email)
+            # Cart.objects.create(user=user)
+            Storefront.objects.create(owner=user)
             return JsonResponse({'message': 'Account Registered! Redirecting you to login to sign in...'}, status=200)
         else:
             return JsonResponse({'message': form.errors}, status=401)
@@ -111,29 +123,6 @@ class AccountCartView(View):
                                              'cartTotal': cart.cart_summary['subtotal']})
 
 
-# @staticmethod
-# @login_required(login_url='/login/')
-# def post(request):
-#     data = json.loads(request.body)
-#     name = data.get('name')
-#     card = data.get('card')
-#     expiration = data.get('expiration')
-#     back = data.get('back_number')
-#
-#     form_data = {
-#         'name': name,
-#         'card_number': card,
-#         'expiration_date': expiration,
-#         'back_number': back,
-#     }
-#
-#     form = CardCreationForm(form_data)
-#     if form.is_valid():
-#         return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
-#     else:
-#         return JsonResponse({'message': form.errors}, status=401)
-
-
 def updateCartQty(request):
     if request.method == 'POST':
         user_cart = get_object_or_404(Cart, user=request.user)
@@ -158,7 +147,6 @@ def categoryFilter(request, category):
     return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
-
 def search(request):
     filters = request.GET.getlist('filters')
     query = request.GET.get('searchQuery')
@@ -176,12 +164,12 @@ def search(request):
             if filter == 'category':
                 filteredProducts.extend(products.filter(category__contains=searchWord))
 
-
     # Remove duplicates by converting filteredProducts to a set and then back to a list
     filteredProducts = list(set(filteredProducts))
 
     categories = Product.CATEGORY_CHOICES.items()
     return render(request, 'home.html', {'products': filteredProducts, 'categories': categories})
+
 
 def removeFavorite(request):
     data = json.loads(request.body)
@@ -203,7 +191,6 @@ def addFavorite(request):
     user.save()
     print('Favorite product added!')
     return JsonResponse({'message': 'Favorite product added!'}, status=200)
-
 
 
 class StorefrontView(View):
@@ -257,43 +244,34 @@ class ProductDetailView(View):
         reviews = ProductReviews.objects.filter(productId=product.productId)
         favorite = User.objects.filter(id=request.user.id, favorite=product.productId).exists()
 
-        ordered = False
-        if product in Product.objects.filter(orderitem__order__customer=request.user):
-            ordered = True
+        if not request.user.is_anonymous:
+            ordered = Product.objects.filter(productId=product_id, orderitem__order__customer=request.user).exists()
+            reviewed = ProductReviews.objects.filter(productId=product_id, reviewerId=request.user).first()
+            # reviews = reviews.exclude(reviewerId=request.user)
 
-        return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
-                                                       'favorite': favorite, 'ordered': ordered})
+            return render(request, 'product_detail.html', {'product': product, 'reviews': reviews,
+                                                           'favorite': favorite, 'ordered': ordered,
+                                                           'reviewed': reviewed})
+        else:
+            return render(request, 'product_detail.html', {'product': product, 'reviews': reviews})
 
-    # @staticmethod
-    # @login_required(login_url='/login/')
-    # def post(request, product_id):
-    #     data = json.loads(request.body)
-    #     quantity = data.get('quantity')
-    #     cart = {} #Invoice.objects.get(customerId=request.user.id, orderStatus='C1')
-    #     product = get_object_or_404(Product, productId=product_id)
-    #
-    #     # try:
-    #     #     addingProduct = LineItem.objects.get(invoiceId=cart.invoiceId, productId=product.productId)
-    #     # except LineItem.DoesNotExist:
-    #     #     form_data = {
-    #     #         'invoiceId': cart.invoiceId,
-    #     #         'productId': product.productId,
-    #     #         'quantity': quantity,
-    #     #         'linePrice': 1,
-    #     #     }
-    #     #     form = LineItemCreationForm(form_data)
-    #
-    #         print("Form is created here")
-    #
-    #         if form.is_valid():
-    #             form.save();
-    #             return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
-    #         else:
-    #             return JsonResponse({'message': form.errors}, status=401)
-    #
-    #     addingProduct.quantity += int(quantity)
-    #     addingProduct.save()
-    #     return JsonResponse({'message': 'Card success! Redirecting you to home page...'}, status=200)
+    @staticmethod
+    @login_required(login_url='/login/')
+    def post(request, product_id):
+        data = json.loads(request.body)
+        quantity = int(data.get('quantity'))
+        user_cart = Cart.objects.get(user=request.user)
+        product = get_object_or_404(Product, productId=product_id)
+        cart_item, cart_item_created = CartItem.objects.get_or_create(cart=user_cart, product=product)
+        if not cart_item_created:
+            # If the cart item already exists, update the quantity
+            cart_item.quantity += quantity
+            cart_item.save()
+        else:
+            # If the cart item is newly created, set the quantity
+            cart_item.quantity = quantity
+            cart_item.save()
+        return JsonResponse({'message': 'Added Product to Cart'}, status=200)
 
 
 class UpdateProductView(LoginRequiredMixin, View):
@@ -380,12 +358,15 @@ class ReviewProductView(View):
     @login_required(login_url='/login/')
     def post(request, product_id):
         reviewData = json.loads(request.body)
-
         product = get_object_or_404(Product, productId=product_id)
         rating = reviewData.get('rating')
         comment = reviewData.get('comment')
-
-        ProductReviews.objects.create(productId=product, reviewerId=request.user, rating=rating,
+        if rating == 0:
+            return JsonResponse({'message': 'Rating required'}, status=400)
+        if comment == '':
+            return JsonResponse({'message': 'Comment required'}, status=400)
+        reviewer = User.objects.get(username=request.user)
+        ProductReviews.objects.create(productId=product, reviewerId=reviewer, rating=rating,
                                       comment=comment)
 
         return JsonResponse({'message': 'Review created! Redirecting to product detail page...'}, status=200)
@@ -418,42 +399,40 @@ class SavedProductView(View):
     @login_required(login_url='/login')
     def get(request):
         favorite = User.objects.get(id=request.user.id).favorite.all()
-        return render(request, 'favorite.html', {'favorites': favorite})
+        return render(request, 'favorite.html', {'products': favorite})
 
 
 @login_required(login_url='/login/')
 def checkout_view(request):
-    host = request.get_host()
     cart = request.user.cart
-
-    invoice = Invoice.objects.create(user=request.user)
-
-    paypal_dict = {
-        'business': settings.PAYPAL_RECEIVER_EMAIL,
-        'amount': cart.cart_summary['subtotal'],
-        'item_name': 'Order-Item-No-{}'.format(invoice.invoiceId),
-        'invoice': 'Invoice-No-{}'.format(invoice.invoiceId),
-        'currency_code': 'USD',
-        'notify_url': 'http://{}{}'.format(host, reverse('paypal-ipn')),
-        'return_url': 'http://{}{}'.format(host, '/payment-completed/{}'.format(invoice.invoiceId)),
-        'cancel_url': 'http://{}{}'.format(host, '/payment-failed/{}'.format(invoice.invoiceId)),
-    }
-
-    paypay_payment_button = CustomPayPalPaymentsForm(initial=paypal_dict)
-
-    return render(request, 'checkout.html', {'paypay_payment_button': paypay_payment_button,
-                                             'cartItems': cart.get_cart_items,
-                                             'cartCount': cart.cart_summary['total_count'],
-                                             'cartTotal': cart.cart_summary['subtotal'],
-                                             'state_choices': STATE_CHOICES})
+    Invoice.objects.get_or_create(user=request.user, invoice_status='PENDING')
+    if cart.get_cart_items.count() > 0:
+        return render(request, 'checkout.html',
+                      {'cartItems': cart.get_cart_items,
+                       'cartCount': cart.cart_summary['total_count'],
+                       'cartTotal': cart.cart_summary['subtotal'],
+                       'state_choices': STATE_CHOICES,
+                       })
+    else:
+        print('ERROR: No Items in Cart!!!!')
+        return render(request, 'home.html')
 
 
 def payment_complete_view(request, invoice_id):
     payer_id = request.GET.get('PayerID')
     cart = request.user.cart
-    invoice = Invoice.objects.get(pk=invoice_id)
+    invoice = Invoice.objects.get(pk=invoice_id, user=request.user)
+    print(invoice.invoice_status)
+    if invoice.invoice_status == 'COMPLETED':
+        return render(request, 'payment-completed.html', {
+            'cartItems': invoice.get_invoice_items,
+            'cartCount': invoice.invoice_summary['total_count'],
+            'cartTotal': invoice.invoice_summary['subtotal'],
+            'invoiceId': invoice_id})
 
-    if invoice.get_invoice_items.count() == 0:
+    # TODO Could also include the payer_id to make this more secure...
+    #  However to make it easier to debug I'm leaving it out
+    if invoice.invoice_status == "PENDING":
         for cart_item in cart.get_cart_items:
             InvoiceItem.objects.create(invoice=invoice, product=cart_item.product, quantity=cart_item.quantity)
             sellers = cart.sellers_in_cart
@@ -463,17 +442,23 @@ def payment_complete_view(request, invoice_id):
             for cart_item in cart.get_cart_items:
                 OrderItem.objects.create(order=order, product=cart_item.product, quantity=cart_item.quantity)
 
+        invoice.invoice_status = 'COMPLETED'
+        invoice.save()
+
+        if invoice.shippingAddress is not None:
+            order.shippingAddress = invoice.shippingAddress
+            order.save()
         cart.clear_cart()
 
         return render(request, 'payment-completed.html', {
-                                             'cartItems': invoice.get_invoice_items,
-                                             'cartCount': invoice.invoice_summary['total_count'],
-                                             'cartTotal': invoice.invoice_summary['subtotal']})
+            'cartItems': invoice.get_invoice_items,
+            'cartCount': invoice.invoice_summary['total_count'],
+            'cartTotal': invoice.invoice_summary['subtotal']})
     else:
-        return render(request, 'payment-completed.html', {
-            'cartItems': cart.get_cart_items,
-            'cartCount': cart.invoice_summary['total_count'],
-            'cartTotal': cart.invoice_summary['subtotal']})
+        print("Error: Invoice State isn't set")
+        products = Product.objects.all()
+        categories = Product.CATEGORY_CHOICES.items()
+        return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
 def payment_failed_view(request):
@@ -485,9 +470,185 @@ class OrderHistoryView(View):
     @login_required(login_url='/login/')
     def get(request):
         user = request.user
-        products = Product.objects.filter(orderitem__order__customer=user)
-        return render(request, 'order_history.html', {'products': products})
+        invoices = Invoice.objects.filter(user=user, invoice_status="COMPLETED")
+        return render(request, 'order_history.html', {'invoices': invoices})
 
 
 def update_favorite(request):
     return render(request, 'product_card.html')
+
+
+def generate_invoice_pdf(request, invoice_id):
+    # Retrieve order details (Sold To, Shipped To, Item Details, etc.) based on order_id
+    invoice = Invoice.objects.filter(invoiceId=invoice_id).first()
+    sold_to = str(invoice.user)
+    shipped_to = invoice.shippingAddress
+    address_lines = shipped_to.line1
+    if shipped_to.line2:
+        address_lines.append(" " + shipped_to.line2)
+    if shipped_to.aptNum:
+        address_lines.append(" " + shipped_to.aptNum)
+    items = invoice.get_invoice_items
+    subtotal = invoice.invoice_summary['subtotal']
+
+    # Generate PDF document
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=invoice_{invoice_id}.pdf'
+
+    # Create PDF document using SimpleDocTemplate
+    pdf = SimpleDocTemplate(response, pagesize=letter)
+
+    # Define sample data (replace with actual data)
+    invoice_id = invoice_id
+    invoice_date = invoice.get_date
+
+    # Define content elements
+    content = []
+    styles = getSampleStyleSheet()
+    bold_style = ParagraphStyle(
+        name='Bold',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+    )
+
+    # Define a custom style for right-aligned content
+    right_aligned_style = ParagraphStyle(
+        "right_aligned",
+        parent=styles["Normal"],
+        alignment=2,  # 0=Left, 1=Center, 2=Right
+    )
+
+    right_aligned_title = ParagraphStyle(
+        "right_title",
+        parent=styles["Title"],
+        alignment=2,
+    )
+
+    left_aligned_title = ParagraphStyle(
+        "left_title",
+        parent=styles["Title"],
+        alignment=0,
+    )
+
+    content.append(Paragraph("ShopSavvy", left_aligned_title))
+    content.append(Spacer(1, -20))
+    content.append(Paragraph("INVOICE", right_aligned_title))
+
+    content.append(Spacer(1, 40))  # Spacer for vertical space
+
+    # Right-aligned content for Invoice ID and Invoice Date
+    content.append(Paragraph(f'Invoice ID: {invoice_id}', right_aligned_style))
+    content.append(Paragraph(f'Invoice Date: {invoice_date}', right_aligned_style))
+
+    content.append(Spacer(1, -20))  # Spacer for vertical space
+
+    content.append(Paragraph("Sold To:", bold_style))
+    content.append(Paragraph(sold_to, styles['Normal']))
+
+    content.append(Spacer(1, 20))  # Spacer for vertical space
+
+    content.append(Paragraph("Shipped To:", bold_style))
+    content.append(Paragraph(address_lines, styles['Normal']))
+    content.append(Paragraph(f'{shipped_to.city}, {shipped_to.state} {shipped_to.zipCode}', styles['Normal']))
+
+    content.append(Spacer(1, 40))  # Spacer for vertical space
+
+    content.append(Paragraph("Item Details:", bold_style))
+    # Add more content for item details if needed
+
+    # Build PDF document with the content elements
+    data = [["PRODUCT", "SELLER", "QUANTITY", "UNIT PRICE", "AMOUNT"]]
+    for item in items:
+        data.append(
+            [f'{item.product.name}', f'{item.product.soldByStoreId.owner}', f'{item.quantity}', f'{item.product.price}',
+             f'${item.total_price}'])
+    data.append(['', '', '', '', ''])
+    data.append(['', '', '', 'SUBTOTAL', f'${subtotal}'])
+    table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Background color for header row
+        ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black),  # Bottom border for header row
+        ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Bottom border for header row
+        ('LINEBELOW', (0, 1), (-1, -1), 0, colors.white),  # Remove inner borders
+        ('BOX', (0, 0), (-1, -1), 1, colors.black),  # Outer border for the entire table
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center alignment for all cells
+        # ('SPAN', (-1, 0), (-1, 2)),
+        ('VALIGN', (-1, 0), (-1, -1), 'BOTTOM'),
+    ])
+
+
+    table = Table(data, colWidths=[140, 100, 80, 90, 90], style=table_style)
+    content.append(table)
+    pdf.build(content)
+    # pdf.save()
+    return response
+
+
+def add_shipping_details(request):
+    if request.method == 'POST':
+        try:
+            # Retrieve form data
+            host = request.get_host()
+            email = request.POST.get('email')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            address_line_1 = request.POST.get('address-line-1')
+            address_line_2 = request.POST.get('address-line-2')
+            city = request.POST.get('city')
+            state = request.POST.get('state')
+            address_zipCode = request.POST.get('address-zipCode')
+            phone_number = request.POST.get('phone_number')
+
+            # Check if all required fields are filled
+            if email and first_name and last_name and address_line_1 and city and state and address_zipCode:
+                user = request.user
+
+                # Check if there's an existing shipping address for the user
+                invoice = Invoice.objects.get(user=user, invoice_status='PENDING')
+                if invoice.shippingAddress:
+                    prevAddy = invoice.shippingAddress
+                    prevAddy.delete()
+
+                # Create Address object and save to database
+                shipping_address = Address.objects.create(
+                    line1=address_line_1,
+                    line2=address_line_2,
+                    city=city,
+                    state=state,
+                    zipCode=address_zipCode,
+                )
+
+                # Add the user to the address
+                shipping_address.user.add(user)
+
+                # Associate the shipping address with the invoice
+                invoice.shippingAddress = shipping_address
+                invoice.save()
+
+                paypal_dict = {
+                    'business': settings.PAYPAL_RECEIVER_EMAIL,
+                    'amount': user.cart.cart_summary['subtotal'],
+                    'item_name': 'Order-Item-No-{}'.format(invoice.invoiceId),
+                    'invoice': 'Invoice-No-{}'.format(invoice.invoiceId),
+                    'currency_code': 'USD',
+                    'notify_url': 'http://{}{}'.format(host, reverse('paypal-ipn')),
+                    'return_url': 'http://{}{}'.format(host, '/payment-completed/{}'.format(invoice.invoiceId)),
+                    'cancel_url': 'http://{}{}'.format(host, '/payment-failed/{}'.format(invoice.invoiceId)),
+                }
+
+                paypay_payment_button = CustomPayPalPaymentsForm(initial=paypal_dict)
+
+                return JsonResponse({'message': 'Shipping details added successfully',
+                                     'buyNowButton': paypay_payment_button.render()}, status=200)
+            else:
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def removeFromCart(request, product_id):
+    cart = get_object_or_404(Cart, user=request.user)
+    product = get_object_or_404(Product, productId=product_id)
+    CartItem.objects.get(cart=cart, product=product).delete()
+    return redirect('/cart/')

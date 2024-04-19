@@ -1,11 +1,8 @@
 # accounts/admin.py
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from BackendWork.models import *
-
-from .forms import UserCreationForm
-from .models import (User, Address, Storefront, StoreReviews, Product, ProductImage, ProductReviews,
-                     Cart, CartItem, InvoiceItem, Invoice, Order, OrderItem)
+from .forms import UserCreationForm as UserCreationForm
+from .models import *
 
 
 class UserAdmin(UserAdmin):

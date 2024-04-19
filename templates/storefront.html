@@ -6,10 +6,21 @@
 {% block content %}
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
         <div class="row d-flex mx-auto w-100 position-relative" style="height: 300px;">
-            <img id="bannerDisplay" src="{{ store.bannerImage.url }}" class="p-0 w-100 h-100" alt="Banner">
+            {% if store.bannerImage %}
+                <img id="bannerDisplay" src="{{ store.bannerImage.url }}" class="p-0 w-100 h-100" alt="Banner">
+            {% else %}
+                <img id="bannerDisplay" src="https://via.placeholder.com/1920x400/cccccc/ffffff?text=Banner"
+                     class="p-0 w-100 h-100" alt="Banner">
+            {% endif %}
             <div class="d-block justify-content-center align-items-center position-absolute p-0 z-1"
                  style="height:150px; width: 150px; left:10px; top:10px;" id="logo">
-                <img id="logoDisplay" src="{{ store.logoImage.url }}" alt="Logo" class="w-100 h-100">
+                {% if store.logoImage %}
+                    <img id="logoDisplay" src="{{ store.logoImage.url }}" alt="Logo" class="w-100 h-100">
+                {% else %}
+                    <img id="logoDisplay" src="https://via.placeholder.com/400x400/5f6467/ffffff?text=Logo" alt="Logo"
+                         class="w-100 h-100">
+
+                {% endif %}
                 <div id="editLogoBtnContainer"
                      class="d-none justify-content-center align-items-center position-absolute z-1"
                      style="height:150px; width: 150px; left:0px; top:0px;" id="logo">
@@ -38,31 +49,50 @@
             </div>
         </div>
         <div class="d-flex flex-wrap col-12 mt-2">
-            <h1 class="col-4"><input type="text" class="px-1 primary-color" id="storeName"
-                       value="{{ store.name }}" readonly></h1>
+            <h1 class="col-4">
+                {% if store.bannerImage %}
+                    <input type="text" class="px-1 primary-color" id="storeName"
+                           value="{{ store.name }}" readonly>
+                {% else %}
+                    <input type="text" class="px-1 primary-color" id="storeName"
+                           value="Your Store's Name" readonly>
+                {% endif %}
+            </h1>
             <div class="col-lg-5">
                 <button type="submit" id="confirm" class="hover m-2 btn btn-primary"
-                         disabled hidden>Confirm Changes
+                        disabled hidden>Confirm Changes
                 </button>
                 <button type="button" id="cancel" class="hover m-2 btn btn-primary"
-                         onclick="cancelEditable()" disabled hidden>
+                        onclick="cancelEditable()" disabled hidden>
                     Cancel
                 </button>
             </div>
             <div class="d-flex col-3 justify-content-end">
                 <a href="{% url 'AddProductView' store_id=store.storeId %}" class="hover btn m-2 btn-primary"
-                style="max-width: 300px; max-height: 40px" id="createBtn"> Create Product</a>
+                   style="max-width: 300px; max-height: 40px" id="createBtn"> Create Product</a>
             </div>
             <div class="col-lg-9">
-                <p class="ps-3"><div contenteditable="true" type="text" class="px-1 primary-color w-100" id="storeDescription" readonly>{{ store.description }}" </div></p>
+                <p class="ps-3">
+                    {% if store.description %}
+                        <div contenteditable="true" type="text" class="px-1 primary-color w-100" id="storeDescription"
+                             readonly>{{ store.description }}
+                        </div>
+                    {% else %}
+                        <div contenteditable="true" type="text" class="px-1 primary-color w-100" id="storeDescription"
+                             readonly>Your Store's Description! Click the pencil in the top left and tell us all about
+                            your store!
+                        </div>
+                    {% endif %}
+                </p>
             </div>
         </div>
         <div class="row d-flex flex-grow-1 my-2 w-100 h-100 m-0 position-relative">
             <div class="col d-flex flex-wrap w-100 m-0 p-0 position-relative">
                 <div class="container col-12">
                     <div class="row col-12">
-                        <h3 class="col-12 primary-color">Products</h3>
                         {% if products.count > 0 %}
+                            <h3 class="col-12 primary-color">Products</h3>
+
                             <div class="col-12">
                             <!-- Header Row -->
                             <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
@@ -78,10 +108,10 @@
                                     <div class="product-name col-12 col-md-2">{{ product.name }}</div>
                                     <div class="col-12 col-md-2">{{ product.qoh }}</div>
                                     <div class="col-12 col-md-2">{{ product.price }}</div>
-                                    <div class="col-12 col-md-3 rating">⭐⭐⭐⭐</div>
+                                    <div class="col-12 col-md-3 rating">{% include 'rating_average.html' %}</div>
                                     <div class="col-12 col-md-3 d-flex p-0">
-                                        <button class="col-6 bg-danger" data-productId="{{ product.productId }}">
-                                            Remove
+                                        <button class="col-6 bg-danger " data-productId="{{ product.productId }}">
+                                            <i class="fa fa-trash"> </i>
                                         </button>
                                         <div class="col-6 px-auto">
                                             <a href="{% url 'EditProductView' product_id=product.productId %}"
@@ -90,12 +120,11 @@
                                             </a>
                                         </div>
 
+                                        </div>
                                     </div>
-                                </div>
 
-                            {% endfor %}
-                        {% else %}
-                            <h3 class="primary-color text-center">You don't have any products.... Add some by clicking the Create Product Button</h3>
+                                {% endfor %}
+                            </div>
                         {% endif %}
 
                         </div>
@@ -103,35 +132,36 @@
                 </div>
                 <div class="container col-12">
                     <div class="row col-12">
-                        <h3 class="col-12 primary-color">Orders</h3>
-                        {% if products.count > 0 %}
+                        {% if orders and orders.count > 0 %}
+                            <h3 class="col-12 primary-color">Orders</h3>
                             <div class="col-12 primary-color">
-                            <!-- Header Row -->
-                            <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
-                                <div class="col-12 col-md-2 p-0">Customer</div>
-                                <div class="col-12 col-md-3 p-0">Shipping Address</div>
-                                <div class="col-12 col-md-3 p-0">Products Bought</div>
-                                <div class="col-12 col-md-2 p-0">Order Total</div>
-                            </div>
-                            {% for order in orders %}
-                                <!-- Product List -->
-                                <div class="product border px-2 py-3 d-flex col-12 primary-color rounded mb-3">
-                                    <div class="product-name col-12 col-md-2">{{ order.customer }}</div>
-                                    <div class="col-12 col-md-3">{{ order.shippingAddress }}</div>
-                                    <div class="col-12 col-md-3">
-                                        {% for item in order.get_order_items %}
-                                            <div>{{ item.product.name }}                x{{ item.quantity }}</div>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="col-12 col-md-2">${{ order.order_summary.subtotal }}</div>
+                                <!-- Header Row -->
+                                <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
+                                    <div class="col-12 col-md-2 p-0">Customer</div>
+                                    <div class="col-12 col-md-3 p-0">Shipping Address</div>
+                                    <div class="col-12 col-md-3 p-0">Products Bought</div>
+                                    <div class="col-12 col-md-2 p-0">Order Total</div>
                                 </div>
+                                {% for order in orders %}
+                                    <!-- Product List -->
+                                    <div class="product border px-2 py-3 d-flex col-12 primary-color rounded mb-3">
+                                        <div class="product-name col-12 col-md-2">{{ order.customer }}</div>
+                                        <div class="col-12 col-md-3">
+                                            <div>{{ order.shippingAddress.line1 }}</div>
+                                            <div>{{ order.shippingAddress.city }}, {{ order.shippingAddress.zipCode }}</div>
+                                            <div>{{ order.shippingAddress.state }}</div>
+                                        </div>
+                                        <div class="col-12 col-md-3">
+                                            {% for item in order.get_order_items %}
+                                                <div>{{ item.product.name }} x{{ item.quantity }}</div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="col-12 col-md-2">${{ order.order_summary.subtotal }}</div>
+                                    </div>
 
-                            {% endfor %}
-                        {% else %}
-                            <h3 class="primary-color text-center">You don't have any products.... Add some by clicking the Create Product Button</h3>
+                                {% endfor %}
+                            </div>
                         {% endif %}
-
-                        </div>
                     </div>
                 </div>
             </div>  <!-- No content outside this div -->
@@ -151,10 +181,11 @@
                         </label>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn hover" data-bs-dismiss="modal"
+                        <button type="button" class="btn btn-primary hover" data-bs-dismiss="modal"
                                 onclick="document.getElementById('logoInput').value=''">Close
                         </button>
-                        <button type="button" class="btn hover" data-bs-dismiss="modal">Save changes</button>
+                        <button type="button" class="btn btn-primary hover" data-bs-dismiss="modal">Save changes
+                        </button>
                     </div>
                 </div>
             </div>
@@ -174,10 +205,11 @@
                         </label>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn hover" data-bs-dismiss="modal"
+                        <button type="button" class="btn btn-primary hover" data-bs-dismiss="modal"
                                 onclick="document.getElementById('bannerInput').value=''">Close
                         </button>
-                        <button type="button" class="btn hover" data-bs-dismiss="modal">Save changes</button>
+                        <button type="button" class="btn btn-primary hover" data-bs-dismiss="modal">Save changes
+                        </button>
                     </div>
                 </div>
             </div>
