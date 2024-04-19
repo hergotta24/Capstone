@@ -1,7 +1,7 @@
-<div class="card border-0" style="background: transparent">
+<div class="col-12 col-sm-6 col-md-4 col-xl-2 my-3 d-flex px-3 px-sm-5 px-md-3 flex-wrap border-0" style="background: transparent">
 
     {% if product.thumbnail %}
-        <div class="image-container d-block overflow-hidden" style="height:200px">
+        <div class="col-12 mb-1 image-container d-block">
             <img src="{{ product.thumbnail.image.url }}" alt="{{ product.name }}" class="d-block card-img-top">
             <div class="middle">
                 <div class="text"><a href="{% url 'product_detail' product_id=product.productId %}">Product Detail</a></div>
@@ -9,17 +9,16 @@
         </div>
 
     {% else %}
-        <div class="image-container d-block overflow-hidden" style="height:200px">
+        <div class="col-12 mb-1 image-container d-block">
             <img src="https://via.placeholder.com/400x400/5f6467/ffffff?text=Logo" alt="idk" class="d-block card-img-top">
-            <div class="card-img-top justify-content-center d-flex align-items-center primary-color border">No Image</div>
             <div class="middle">
                 <div class="text"><a href="{% url 'product_detail' product_id=product.productId %}">Product Detail</a></div>
             </div>
         </div>
 
     {% endif %}
-    <div class="card-body">
-        <div>
+    <div class="col-12 d-flex flex-wrap">
+        <div class="col-12">
             <span class="fa fa-star fa-lg checked"></span>
             <span class="fa fa-star fa-lg checked"></span>
             <span class="fa fa-star fa-lg checked"></span>
@@ -28,8 +27,8 @@
         </div>
 
         {% include 'update_favorite.html' %}
-        <h4 class="primary-color">{{ product.name }}</h4>
-        <h5 class="primary-color">${{ product.price }}</h5>
-        <a href="{% url 'vendor' store_id=product.soldByStoreId_id %}" class="primary-color">{{ product.soldByStoreId.name }}</a>
+        <h4 class="col-12 primary-color">{{ product.name }}</h4>
+        <h5 class="col-12 primary-color">${{ product.price }}</h5>
+        <a href="{% url 'vendor' store_id=product.soldByStoreId_id %}" class="col-12 primary-color">{{ product.soldByStoreId.name }}</a>
     </div>
 </div>

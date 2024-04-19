@@ -87,9 +87,9 @@ function addImage() {
     let newImage = document.getElementById('imageInput').files[0];
     imagesArray.push(newImage);
     let imageURL = URL.createObjectURL(newImage);
-    let img = $('<img src="" alt="image" style="object-fit: scale-down; max-width: inherit">');
+    let img = $('<img src="" class="col-12" alt="image" style="object-fit: cover; aspect-ratio: 1/1; max-height: 500px;">');
     img.attr('src', imageURL);
-    let newSlide = $('<div class="mySlides d-flex w-100 h-100 justify-content-center align-content-center" style="min-height: 300px; max-height: inherit"></div>');
+    let newSlide = $('<div class="mySlides d-flex col-12 justify-content-center align-content-center"></div>');
     let div = $('<div class="numbertext" style="left:0"><span class="slideNum"></span> / <span class="slideSize"></span></div>')
     div.children('.slideNum').text(imgNum)
     div.children('.slideSize').text(imagesArray.length + max)
@@ -103,8 +103,8 @@ function addImage() {
     })
     slideIndex = 1;
 
-    let newDemo = $('<div class="col-auto position-relative my-auto" style="max-height: inherit;min-width: 16.6%;max-width: 16.6%">\n' +
-        '                                <img class="demo cursor" src="" style="max-height: inherit; width:100%; object-fit: scale-down"\n' +
+    let newDemo = $('<div class="col-2 d-flex" style="aspect-ratio: 1/1;object-fit: cover;">\n' +
+        '                                <img class="demo cursor" src="" style="max-height: 500px; width:100%; object-fit: cover;"\n' +
         '                                     onclick="currentSlide(1)" alt="image">\n' +
         '                            </div>')
     newDemo.children(".demo").attr('src', imageURL)

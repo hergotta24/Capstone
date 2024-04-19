@@ -4,15 +4,13 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/productcard.css' %}">
 {% endblock %}
 {% block content %}
-    <div class="col d-flex flex-column overflow-hidden w-100 h-100 pt-5" id="content">
-        <div class="w-100 h-100">
-            <div class="row w-100 mx-auto position-relative">
-                <div class="container d-grid w-100 flex-wrap"
-                     style="grid-template-columns: repeat(6, 15%); grid-gap: 2%">
-                    {% for product in products %}
-                        {% include 'product_card.html' %}
-                    {% endfor %}
-                </div>
+    <div class="col d-flex flex-column overflow-hidden w-100 h-100 pt-3" id="content">
+        <div class="row w-100 mx-auto position-relative pt-2">
+            <h3 class="col-12 primary-color">Order History</h3>
+            <div class="w-100 d-flex flex-wrap">
+                {% for product in products %}
+                    {% include 'product_card.html' %}
+                {% endfor %}
             </div>
         </div>
     </div>

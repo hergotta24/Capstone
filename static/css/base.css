@@ -10,7 +10,15 @@ html, body {
     left: 0;
     right: 0;
 }
+#main {
+    transition: margin-left 0.2s ease;
+}
 
+@media screen and (min-width: 768px) {
+    #sidebar.show + #main {
+        margin-left: 200px;
+    }
+}
 #header {
     z-index: 3;
     top: 0;
@@ -19,7 +27,6 @@ html, body {
 }
 
 #searchBtn, #filterBtn {
-    max-width: 50px;
     color: #e3d7c9;
     border-color: #e3d7c9;
     background: #212529;
@@ -48,7 +55,6 @@ html, body {
 
 #search {
     color: #e3d7c9;
-    width: 70%;
     background: #212529;
 }
 
