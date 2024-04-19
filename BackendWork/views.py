@@ -193,6 +193,15 @@ def addFavorite(request):
     return JsonResponse({'message': 'Favorite product added!'}, status=200)
 
 
+def removeProduct(request):
+    data = json.loads(request.body)
+    remove_id = data['remove_id']
+    product = get_object_or_404(Product, productId=remove_id)
+    Product.objects.get(productId=remove_id).delete()
+    print('Storefront product removed!')
+    return JsonResponse({'message': 'Homepage product removed!'}, status=200)
+
+
 class StorefrontView(View):
     @staticmethod
     def get(request):

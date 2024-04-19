@@ -33,6 +33,7 @@ urlpatterns = [
                   path('storefront/<int:product_id>/', UpdateProductView.as_view(), name='EditProductView'),
                   path('createproduct/', createproduct, name='createproduct'),
                   path('addFavorite/', addFavorite, name='addFavorite'),
+                  path('removeProduct/', removeProduct, name='removeProduct'),
                   path('removeFavorite/', removeFavorite, name='removeFavorite'),
                   path('products/<int:product_id>/', ProductDetailView.as_view(), name='product_detail'),
                   path('review-product/<int:product_id>/', ReviewProductView.as_view(), name='review_product'),

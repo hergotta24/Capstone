@@ -190,7 +190,7 @@ INVOICE_STATE_CHOICES = [
 
 class Invoice(models.Model):
     invoiceId = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invoices')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invoices', null=True, blank=True)
     products = models.ManyToManyField(Product, through='InvoiceItem')
     invoice_status = models.CharField(max_length=9, choices=INVOICE_STATE_CHOICES, default=INVOICE_STATE_CHOICES[0])
     shippingAddress = models.ForeignKey(Address, on_delete=models.CASCADE, null=True, blank=True)

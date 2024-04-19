@@ -94,32 +94,31 @@
                             <h3 class="col-12 primary-color">Products</h3>
 
                             <div class="col-12">
-                            <!-- Header Row -->
-                            <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
-                                <div class="col-12 col-md-2 p-0">Product Name</div>
-                                <div class="col-12 col-md-2 p-0">Quantity On Hand</div>
-                                <div class="col-12 col-md-2 p-0">Price</div>
-                                <div class="col-12 col-md-3 p-0">Star Rating</div>
-                                <div class="col-12 col-md-3 p-0"></div>
-                            </div>
-                            {% for product in products %}
-                                <!-- Product List -->
-                                <div class="product border px-2 py-3 d-flex col-12 primary-color rounded mb-3">
-                                    <div class="product-name col-12 col-md-2">{{ product.name }}</div>
-                                    <div class="col-12 col-md-2">{{ product.qoh }}</div>
-                                    <div class="col-12 col-md-2">{{ product.price }}</div>
-                                    <div class="col-12 col-md-3 rating">{% include 'rating_average.html' %}</div>
-                                    <div class="col-12 col-md-3 d-flex p-0">
-                                        <button class="col-6 bg-danger " data-productId="{{ product.productId }}">
-                                            <i class="fa fa-trash"> </i>
-                                        </button>
-                                        <div class="col-6 px-auto">
-                                            <a href="{% url 'EditProductView' product_id=product.productId %}"
-                                               class="col-10 float-end">
-                                                <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
-                                            </a>
-                                        </div>
-
+                                <!-- Header Row -->
+                                <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
+                                    <div class="col-12 col-md-2 p-0">Product Name</div>
+                                    <div class="col-12 col-md-2 p-0">Quantity On Hand</div>
+                                    <div class="col-12 col-md-2 p-0">Price</div>
+                                    <div class="col-12 col-md-3 p-0">Star Rating</div>
+                                    <div class="col-12 col-md-3 p-0"></div>
+                                </div>
+                                {% for product in products %}
+                                    <!-- Product List -->
+                                    <div class="product border px-2 py-3 d-flex col-12 primary-color rounded mb-3">
+                                        <div class="product-name col-12 col-md-2">{{ product.name }}</div>
+                                        <div class="col-12 col-md-2">{{ product.qoh }}</div>
+                                        <div class="col-12 col-md-2">{{ product.price }}</div>
+                                        <div class="col-12 col-md-3 rating">⭐⭐⭐⭐</div>
+                                        <div class="col-12 col-md-3 d-flex p-0">
+                                            <button class="js-remove col-6 bg-danger" data-productId="{{ product.productId }}">
+                                                Remove
+                                            </button>
+                                            <div class="col-6 px-auto">
+                                                <a href="{% url 'EditProductView' product_id=product.productId %}"
+                                                   class="col-10 float-end">
+                                                    <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
 
