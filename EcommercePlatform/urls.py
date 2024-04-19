@@ -50,7 +50,5 @@ urlpatterns = [
                   path('payment-failed/<int:invoice_id>', payment_failed_view, name='payment-failed'),
                   # path('download/invoice/<int:invoice_id>', generate_invoice, name='download_invoice'),
                   path('add-shipping-details/', add_shipping_details, name='add_shipping_details'),
-                  path('remove-from-cart/<int:product_id>/', removeFromCart, name='removeFromCart'),
-                  path('verification/', include('verify_email.urls')),
-                  path('invoice/<int:invoice_id>/generate_invoice_pdf/', generate_invoice_pdf, name='generate_invoice_pdf'),
+                  path('remove-from-cart/<int:product_id>/', removeFromCart, name='removeFromCart')
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,8 +1,6 @@
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Avg
 from django.utils import timezone
 
 
@@ -39,14 +37,6 @@ class Address(models.Model):
     state = models.CharField(max_length=2, choices=STATE_CHOICES)
     zipCode = models.CharField(max_length=5)
 
-    def __str__(self):
-        address_lines = [self.line1]
-        if self.line2:
-            address_lines.append(self.line2)
-        if self.aptNum:
-            address_lines.append(self.aptNum)
-        address_lines.append(f"{self.city}, {self.state} {self.zipCode}")
-        return "\n".join(address_lines)
 
 class Storefront(models.Model):
     storeId = models.AutoField(primary_key=True)
@@ -100,9 +90,6 @@ class Product(models.Model):
     def thumbnail(self):
         return self.product_image.first()
 
-    def get_rating_average(self):
-        return ProductReviews.objects.filter(productId_id=self.productId).aggregate(avg_rating=Avg('rating'))['avg_rating']
-
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_image')
@@ -115,10 +102,6 @@ class ProductReviews(models.Model):
         return (f"Product: {self.productId.name} (ID {self.productId_id}), "
                 f"Reviewer: {self.reviewerId.username} (ID {self.reviewerId_id}), "
                 f"{self.rating}/5 Stars")
-
-    def get_time(self):
-        return self.reviewDate.strftime("%B %d, %Y")
-
 
     RATING_CHOICES = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5}
     reviewId = models.AutoField(primary_key=True)
@@ -194,7 +177,6 @@ class Invoice(models.Model):
     products = models.ManyToManyField(Product, through='InvoiceItem')
     invoice_status = models.CharField(max_length=9, choices=INVOICE_STATE_CHOICES, default=INVOICE_STATE_CHOICES[0])
     shippingAddress = models.ForeignKey(Address, on_delete=models.CASCADE, null=True, blank=True)
-    invoiceDate = models.DateField(auto_now_add=True)
 
     @property
     def get_invoice_items(self):
@@ -209,10 +191,6 @@ class Invoice(models.Model):
             total_count += item.quantity
             subtotal += item.total_price
         return {'total_count': total_count, 'subtotal': subtotal}
-
-    @property
-    def get_date(self):
-        return self.invoiceDate.strftime("%B %d, %Y")
 
 
 class InvoiceItem(models.Model):
@@ -231,14 +209,10 @@ class Order(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='customer_orders')
     products = models.ManyToManyField(Product, through='OrderItem')
     shippingAddress = models.ForeignKey(Address, on_delete=models.CASCADE, null=True)
-    orderDate = models.DateTimeField(auto_now_add=True)
 
     @property
     def get_order_items(self):
         return self.order_item.all()
-
-    def get_date(self):
-        return self.orderDate.strftime("%B %d, %Y")
 
     @property
     def order_summary(self):

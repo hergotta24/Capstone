@@ -11,7 +11,6 @@
     <script src="{% static 'js/update_favorite.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <script src="{% static 'js/search.js' %}"></script>
-    <script src="{% static 'js/rating.js' %}"></script>
     <meta charset="UTF-8">
     {% block head %}
     {% endblock %}
@@ -21,16 +20,13 @@
 <body class="d-grid w-100 overflow-x-hidden">
 <div class="row d-flex flex-nowrap align-items-center align-content-center py-3 ps-0 mx-auto w-100 position-fixed"
      id="header">
-    <div class=" col-auto justify-content-left ps-2">
+    <div class=" col-lg-1 col-sm-1 justify-content-left ps-2">
         <button type="button" data-bs-toggle="collapse" data-bs-target="#sidebarContent" aria-expanded="false"
                 aria-controls="sidebarContent" class="btn primary-color">
             <i class="fa fa-bars  fa-md"></i>
         </button>
     </div>
-    <div class="col-lg-2 col-sm-1">
-        <a href="/" class="link"><img style="max-width: 25px;padding-bottom: 3px"  src="{% static 'icons/favicon.ico' %}"> <span>ShopSavvy</span> </a>
-    </div>
-
+    <div class="col-lg-1"></div>
     <div class="col-lg-6 offset-lg-1 col-sm-2">
         <form id="searchForm">
             <div class="input-group mx-auto w-100 border-solid border-1" id="searchbar" style="border-color:#E8DCCD">
@@ -66,7 +62,7 @@
             </div>
         </form>
     </div>
-    <div class="col-lg-1 col-sm-1 offset-lg-2 d-flex ms-auto me-2">
+    <div class="col-lg-1 col-sm-1 offset-lg-2 d-flex justify-content-end">
         <div class="col">
             {% if user.is_authenticated %}
                 <a href="/logout" class="hover btn btn-dark btn-sm d-inline" id="loginBtn">Logout</a>
@@ -81,9 +77,9 @@
     </div>
 </div>
 <div class="row d-flex h-100 pt-5 align-items-stretch" id="main">
-    {% include 'sidebar.html' %}
-    {% block content %}
-    {% endblock %}
+        {% include 'sidebar.html' %}
+        {% block content %}
+        {% endblock %}
 </div>
 </body>
 </html>

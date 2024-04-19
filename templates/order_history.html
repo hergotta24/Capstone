@@ -6,73 +6,15 @@
 {% block content %}
     <div class="col d-flex flex-column overflow-hidden w-100 h-100 pt-5" id="content">
         <div class="w-100 h-100">
-            <h4 class="primary-color">Your Orders</h4>
             <div class="row w-100 mx-auto position-relative">
-                <div class="container col-12 d-grid table-dark">
-                    {% if invoices %}
-                        <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
-                            <div class="col-12 col-md-2 p-0">Order Date</div>
-                            <div class="col-12 col-md-2 p-0">Order ID</div>
-                            <div class="col-12 col-md-2 p-0">Shipping Address</div>
-                            <div class="col-12 col-md-2 p-0">Order Items</div>
-                            <div class="col-12 col-md-2 p-0">Order Total</div>
-                        </div>
-                    {% endif %}
-                    <div class="accordion" id="accordionOrders">
-                        {% for invoice in invoices %}
-                            <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3 accordion-item">
-                                <div class="row col-12 accordion-header align-items-center" id="heading{{ invoice.pk }}">
-                                    <div class="col-12 col-md-2 p-0">{{ invoice.get_date }}</div>
-                                    <div class="col-12 col-md-2 p-0">{{ invoice.invoiceId }}</div>
-                                    <div class="col-12 col-md-2 p-0">{{ invoice.shippingAddress }}</div>
-                                    <div class="col-12 col-md-2 p-0">{{ invoice.invoice_summary.total_count }}</div>
-                                    <div class="col-12 col-md-2 p-0">${{ invoice.invoice_summary.subtotal }}</div>
-                                    <div class="col-12 col-md-2 p-0 ms-auto">
-                                        <button class="btn primary-color px-auto" type="button"
-                                                data-bs-toggle="collapse"
-                                                data-bs-target="#collapse{{ invoice.pk }}" aria-expanded="true"
-                                                aria-controls="collapse{{ invoice.pk }}"
-                                                onclick="toggleArrow({{ invoice.pk }})">
-                                            Details
-                                            <i class="fas fa-caret-down primary-color" id="{{ invoice.pk }}arrow"></i>
-                                        </button>
-                                        <a href="{% url 'generate_invoice_pdf' invoice_id=invoice.invoiceId %}" download="invoice.pdf" class="primary-color">Download Invoice</a>
-                                    </div>
-                                </div>
-                                <div class="row col-12 accordion-collapse collapse" id="collapse{{ invoice.pk }}"
-                                     aria-labelledby="heading{{ invoice.pk }}" data-bs-parent="#accordionOrders">
-                                    <div class="accordion-body">
-                                        {% for item in invoice.get_invoice_items %}
-                                            <div class="row mx-auto d-flex p-2 col-12 bg-dark primary-color font-weight-bold py-2 mb-3">
-                                                <div class="col-12 col-md-2 p-0">Product</div>
-                                                <div class="col-12 col-md-2 p-0">Seller</div>
-                                                <div class="col-12 col-md-2 p-0">Quantity</div>
-                                                <div class="col-12 col-md-2 p-0">Item Price</div>
-                                                <div class="col-12 col-md-2 p-0">Purchase Price</div>
-                                            </div>
-                                            <div class="row col-12">
-                                                <div class="col-12 col-md-2 p-0">{{ item.product.name }}</div>
-                                                <div class="col-12 col-md-2 p-0">{{ item.product.soldByStoreId.name }}</div>
-                                                <div class="col-12 col-md-2 p-0">{{ item.quantity }}</div>
-                                                <div class="col-12 col-md-2 p-0">${{ item.product.price }}</div>
-                                                <div class="col-12 col-md-2 p-0">${{ item.total_price }}</div>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
+                <div class="container d-grid w-100 flex-wrap"
+                     style="grid-template-columns: repeat(6, 15%); grid-gap: 2%">
+                    {% for product in products %}
+                        {% include 'product_card.html' %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        function toggleArrow(id) {
-            let arrow = document.getElementById(id + 'arrow')
-            arrow.classList.toggle('fa-caret-down')
-            arrow.classList.toggle('fa-caret-up')
-        }
-    </script>
 {% endblock %}
 

@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-import environ
 import os
 from pathlib import Path
 
@@ -37,7 +36,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "BackendWork",
-    "verify_email.apps.VerifyEmailConfig",
 
     # PayPal Integration
     "paypal.standard.ipn"
@@ -134,19 +132,3 @@ AUTH_USER_MODEL = "BackendWork.User"
 
 PAYPAL_RECEIVER_EMAIL = 'sb-3t7qf30370056@business.example.com'
 PAYPAL_TEST = True
-
-env = environ.Env()
-environ.Env.read_env()
-
-# Previous settings ...
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-
-# Custom setting. To email
-RECIPIENT_ADDRESS = env('RECIPIENT_ADDRESS')
-
-LOGIN_URL = 'UserLoginView'
