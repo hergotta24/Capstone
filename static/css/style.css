@@ -1,14 +1,10 @@
 .primary-color {
     color: #e3d7c9;
 }
-
-.left-arrow {
-    left: 2%;
+.left-arrow{
     width: fit-content;
 }
-
-.right-arrow {
-    right: 1%;
+.right-arrow{
     width: fit-content;
 }
 

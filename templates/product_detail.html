@@ -2,159 +2,135 @@
 {% load static %}
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/productdetail.css' %}">
-    <script src="{% static 'js/product-detail.js' %}"></script>
 {% endblock %}
 {% block content %}
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
-    <div class="m-auto h-100 w-100 gap-3 p-3">
-    <div class="row container mx-auto flex-wrap w-100 w-lg-75">
-        <div class="col-12 col-md-6 h-100 px-3">
-            <div class="d-flex flex-column position-relative w-100">
-                <div class="row d-flex w-100 mx-0" id="slideContainer" style="max-height:300px">
-                    {% for image in product.images %}
-                        <div class="mySlides d-flex w-100 h-100 justify-content-center align-content-center"
-                             style="max-height: inherit">
-                            <img src="{{ image.image.url }}" style="object-fit: contain">
-                        </div>
-                    {% endfor %}
+        <div class="m-auto h-100 w-100 gap-3">
+            <div class="container mx-auto flex-wrap w-100 w-lg-75">
+                <div class="col-12 col-lg-6 d-flex h-100 justify-content-center">
+                    <div class="col-12 position-relative" id="slideContainer">
+                        {% if product.images.count > 0 %}
 
-                    <!-- Next and previous buttons -->
-                    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-                    <a class="next" onclick="plusSlides(1)">&#10095;</a>
-                </div>
-                <div class="row d-flex">
-                    <!-- Image text -->
-                    <div class="caption-container">
-                        <p id="caption"></p>
-                    </div>
-
-                    <!-- Thumbnail images -->
-                    <div class="row">
-                        {% for image in product.images %}
-                            <div class="column">
-                                <img class="demo cursor" src="{{ image.image.url }}" style="width:100%"
-                                     onclick="currentSlide(1)" alt="{{ image.name }}">
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-6 d-flex fit-content flex-wrap px-2">
-            <div class="col-12">
-                <h1 class="primary-color">{{ product.name }}</h1>
-            </div>
-            <div class="col-12">
-                {% include 'rating_average.html' %}
-            </div>
-
-            <div class="col-12 my-2">
-                {% include 'update_favorite.html' %}
-                <p class="primary-color">
-                    {{ product.description }}
-                </p>
-            </div>
-            <div class="col-12 d-flex pe-5">
-                <h3 class="col-5 primary-color"><span>Price:</span> ${{ product.price }}</h3>
-                <input class="col-4 btn p-0 btn-primary" type="number" id='quantity' placeholder="Quantity"/>
-            </div>
-            <div class="col-12 d-flex mt-3">
-                <button class="col-12 btn-primary btn" id="add_to_cart"
-                        value="{{ product.productId }}">Add To Cart
-                </button>
-            </div>
-        </div>
-        <div class="row mx-auto w-100 my-5">
-            <div class="col-8">
-                {% if ordered and not reviewed %}
-                    <h6 class="primary-color my-1">You've previously purchased this product</h6>
-                    <button class="col-6 btn-primary btn" id="product_review"
-                            value="{{ product.productId }}">Leave a review!
-                    </button>
-                {% endif %}
-                {% if reviewed %}
-                    <h6 class="primary-color my-1">You've already left a review on this product</h6>
-                    <label for="usersReview" class="primary-color">Your Review:</label><br>
-                    <div id="usersReview" class="col-12 primary-color w-100 p-1 border-1">
-                        <span style="font-weight:bold">{{ reviewed.reviewerId }}</span><br>
-                        <div class="position-relative">
-                            <div class="position-absolute top-0 left-0 z-1">
-                                <i class="{{ reviewed.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                <i class="{{ reviewed.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                <i class="{{ reviewed.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                <i class="{{ reviewed.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                <i class="{{ reviewed.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                            </div>
-                            <script>setStars({{ reviewed.reviewId }} + "2", {{ reviewed.rating }})</script>
-                            <div class="position-relative z-0 top-0 left-0">
-                                <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-                                <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-                                <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-                                <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-                                <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-                            </div>
-                        </div>
-                        <span style="opacity:75%">Reviewed on {{ reviewed.get_time }}</span><br>
-                        <span class="comment">{{ reviewed.comment }}</span>
-                    </div>
-                {% endif %}
-                <br>
-                <div>
-                <h4 class="primary-color">Customer Reviews</h4>
-                    {% for r in reviews %}
-                        <div class="col-12 primary-color w-100 p-1 border-1">
-                            <span style="font-weight:bold">{{ r.reviewerId }}</span><br>
-                            <div class="position-relative">
-                                <div class="position-absolute top-0 left-0 z-1">
-                                    <i class="{{ r.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                    <i class="{{ r.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                    <i class="{{ r.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                    <i class="{{ r.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
-                                    <i class="{{ r.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
+                            {% for image in product.images %}
+                                <div class="mySlides"
+                                     style="max-height: inherit">
+                                    <img src="{{ image.image.url }}"
+                                         style="width:100%;object-fit: cover;aspect-ratio: 1/1;max-height: 500px;min-height: 300px;">
                                 </div>
-                                <script>setStars({{ r.reviewId }} + "2", {{ r.rating }})</script>
-                                <div class="position-relative z-0 top-0 left-0">
-                                    <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-                                    <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-                                    <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-                                    <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-                                    <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-                                </div>
+                            {% endfor %}
+                            <!-- Next and previous buttons -->
+                            <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                            <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                        {% else %}
+                            <div class="mySlides"
+                                 style="max-height: inherit">
+                                <img src="https://via.placeholder.com/400x400/5f6467/ffffff?text=Logo"
+                                     style="width:100%;object-fit: cover;aspect-ratio: 1/1;max-height: 500px;min-height: 300px;">
                             </div>
-                            <span style="opacity:75%">Reviewed on {{ r.get_time }}</span><br>
-                            <span class="comment">{{ r.comment }}</span>
+                        {% endif %}
+                        <div class="col-12">
+                            {% for image in product.images %}
+                                <div class="column">
+                                    <img class="demo cursor" src="{{ image.image.url }}"
+                                         style="width:100%; aspect-ratio: 1/1; object-fit: cover;"
+                                         onclick="currentSlide(1)" alt="{{ image.name }}">
+                                </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 d-flex fit-content flex-wrap px-2">
+                    <div class="col-12">
+                        <h1 class="primary-color">{{ product.name }}</h1>
+                    </div>
+                    <div class="col-12">
+                        {% include 'rating_average.html' %}
+                    </div>
 
+                    <div class="col-12 my-2">
+                        {% include 'update_favorite.html' %}
+                        <p class="primary-color">
+                            {{ product.description }}
+                        </p>
+                    </div>
+                    <div class="col-12 d-flex pe-5">
+                        <h3 class="col-5 primary-color"><span>Price:</span> ${{ product.price }}</h3>
+                        <input class="col-4 btn p-0 btn-primary" type="number" id='quantity' placeholder="Quantity"/>
+                    </div>
+                    <div class="col-12 d-flex mt-3">
+                        <button class="col-12 btn-primary btn" id="add_to_cart"
+                                value="{{ product.productId }}">Add To Cart
+                        </button>
+                    </div>
+                </div>
+                <div class="row mx-auto w-100 my-5">
+                    <div class="col-8">
+                        {% if ordered and not reviewed %}
+                            <h6 class="primary-color my-1">You've previously purchased this product</h6>
+                            <button class="col-6 btn-primary btn" id="product_review"
+                                    value="{{ product.productId }}">Leave a review!
+                            </button>
+                        {% endif %}
+                        {% if reviewed %}
+                            <h6 class="primary-color my-1">You've already left a review on this product</h6>
+                            <label for="usersReview" class="primary-color">Your Review:</label><br>
+                            <div id="usersReview" class="col-12 primary-color w-100 p-1 border-1">
+                                <span style="font-weight:bold">{{ reviewed.reviewerId }}</span><br>
+                                <div class="position-relative">
+                                    <div class="position-absolute top-0 left-0 z-1">
+                                        <i class="{{ reviewed.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
+                                        <i class="{{ reviewed.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
+                                        <i class="{{ reviewed.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
+                                        <i class="{{ reviewed.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
+                                        <i class="{{ reviewed.reviewId }}2 fa fa-star fa-lg fa-regular unchecked"></i>
+                                    </div>
+                                    <script>setStars({{ reviewed.reviewId }} + "2", {{ reviewed.rating }})</script>
+                                    <div class="position-relative z-0 top-0 left-0">
+                                        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+                                        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+                                        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+                                        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+                                        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+                                    </div>
+                                </div>
+                                <span style="opacity:75%">Reviewed on {{ reviewed.get_time }}</span><br>
+                                <span class="comment">{{ reviewed.comment }}</span>
+                            </div>
+                        {% endif %}
+                        <br>
+                        <div>
+                            <h4 class="primary-color">Customer Reviews</h4>
+                            {% for r in reviews %}
+                                <div class="col-12 primary-color w-100 p-1 border-1">
+                                    <span style="font-weight:bold">{{ r.reviewerId }}</span><br>
+                                    <div class="position-relative">
+                                        <div class="position-absolute top-0 left-0 z-1">
+                                            <i class="{{ r.reviewId }} fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="{{ r.reviewId }} fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="{{ r.reviewId }} fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="{{ r.reviewId }} fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="{{ r.reviewId }} fa fa-star fa-lg fa-regular unchecked"></i>
+                                        </div>
+                                        <script>setStars({{ r.reviewId }}, {{ r.rating }})</script>
+                                        <div class="position-relative z-0 top-0 left-0">
+                                            <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+                                            <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+                                        </div>
+                                    </div>
+                                    <span style="opacity:75%">Reviewed on {{ r.get_time }}</span><br>
+                                    <span class="comment">{{ r.comment }}</span>
+                                </div>
+                            {% endfor %}
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        function toggleReview() {
-            let reviewForm = document.getElementById('reviewDiv');
-            let leaveReviewBtn = document.getElementById('leaveReviewBtn');
-
-            reviewForm.style.display = reviewForm.style.display === 'none' ? 'block' : 'none';
-            reviewForm.disabled = !reviewForm.disabled;
-            leaveReviewBtn.innerHTML = leaveReviewBtn.innerHTML === 'Write a Review' ? 'Cancel' : 'Write a Review';
-        }
-
-        // Define a function to handle the button click event
-        function redirectToReviewPage() {
-            // Get the product ID from the button's value attribute
-            var productId = document.getElementById('product_review').value;
-
-            // Construct the URL for redirection
-            var redirectUrl = '/review-product/' + productId;
-
-            // Redirect the browser to the constructed URL
-            window.location.href = redirectUrl;
-        }
-
-        // Attach the redirectToReviewPage function to the button's click event
-        document.getElementById('product_review').addEventListener('click', redirectToReviewPage);
-    </script>
-    {#    <script src="{% static 'js/product-detail.js' %}"></script>#}
+    <script src="{% static 'js/product-detail.js' %}"></script>
 {% endblock %}
 

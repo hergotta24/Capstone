@@ -2,26 +2,33 @@
 {% load static %}
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/productcard.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/storefront.css' %}">
 {% endblock %}
 {% block content %}
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
-        <div class="row d-flex mx-auto w-100 position-relative" style="height: 300px;" id="banner">
-            <img src="{{ store.bannerImage.url }}" class="p-0" alt="Banner" style="max-width: 100%; max-height: 100%;">
-            <div class="d-block justify-content-center align-items-center position-absolute z-1"
-                 style="height:150px; width: 150px; left:10px; top:10px;" id="logo">
-                <img src="{{ store.logoImage.url }}" alt="Logo" style="max-width: 100%; max-height: 100%;">
-            </div>
+        <div class="row d-flex mx-auto w-100 position-relative">
+            {% if store.bannerImage %}
+                <img id="bannerDisplay" src="{{ store.bannerImage.url }}" class="p-0 w-100 h-100" alt="Banner">
+            {% else %}
+                <img id="bannerDisplay" src="https://via.placeholder.com/1920x400/cccccc/ffffff?text=Banner"
+                     class="p-0 w-100 h-100" alt="Banner">
+            {% endif %}
+            <div class="d-block justify-content-center align-items-center position-absolute p-0 z-1" id="logo"
+                 style="left:10px;top:10px;width: 200px;">
+                {% if store.logoImage %}
+                    <img id="logoDisplay" src="{{ store.logoImage.url }}" alt="Logo" class="">
+                {% else %}
+                    <img id="logoDisplay" src="https://via.placeholder.com/400x400/5f6467/ffffff?text=Logo" alt="Logo"
+                         class="">
+                {% endif %}
         </div>
         <h1 class="primary-color">{{ store.name }}</h1>
         <p class="primary-color ps-3 mb-0">{{ store.description }}</p>
         <div class="m-auto h-100 w-100 gap-3">
-            <div class="row w-100 mx-auto position-relative">
-                <div class="container d-grid w-100 flex-wrap"
-                     style="grid-template-columns: repeat(6, 15%); grid-gap: 2%">
-                    {% for product in products %}
-                        {% include 'product_card.html' %}
-                    {% endfor %}
-                </div>
+            <div class="w-100 d-flex flex-wrap">
+                {% for product in products %}
+                    {% include 'product_card.html' %}
+                {% endfor %}
             </div>
         </div>
     </div>

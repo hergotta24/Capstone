@@ -85,34 +85,93 @@ function makeToast(message, status) {
     }, 4000);
 }
 
+
+
+
+
+let imagesArray = []
+let imgNum = 0;
+let max = 1;
+
 let slideIndex = 1;
 showSlides(slideIndex);
 
 // Next/previous controls
 function plusSlides(n) {
-  showSlides(slideIndex += n);
+    showSlides(slideIndex += n);
 }
 
 // Thumbnail image controls
 function currentSlide(n) {
-  showSlides(slideIndex = n);
+    showSlides(slideIndex = n);
 }
 
+function addImage() {
+    imgNum++
+    if (imgNum === 6) {
+        max = 0;
+        $('#addSlide').remove()
+        $('#addDemo').remove()
+    }
+    let newImage = document.getElementById('imageInput').files[0];
+    imagesArray.push(newImage);
+    let imageURL = URL.createObjectURL(newImage);
+    let img = $('<img src="" class="col-12" alt="image" style="object-fit: cover; aspect-ratio: 1/1; max-height: 500px;">');
+    img.attr('src', imageURL);
+    let newSlide = $('<div class="mySlides d-flex col-12 justify-content-center align-content-center"></div>');
+    let div = $('<div class="numbertext" style="left:0"><span class="slideNum"></span> / <span class="slideSize"></span></div>')
+    div.children('.slideNum').text(imgNum)
+    div.children('.slideSize').text(imagesArray.length + max)
+    newSlide.append(div)
+    newSlide.append(img)
+
+    $('#slideContainer').prepend(newSlide)
+    newSlide.addClass("d-none")
+    $('.slideSize').each(function () {
+        $(this).text(imagesArray.length + max)
+    })
+    slideIndex = 1;
+
+    let newDemo = $('<div class="col-2 d-flex" style="aspect-ratio: 1/1;object-fit: cover;">\n' +
+        '                                <img class="demo cursor" src="" style="max-height: 500px; width:100%; object-fit: cover;"\n' +
+        '                                     onclick="currentSlide(1)" alt="image">\n' +
+        '                            </div>')
+    newDemo.children(".demo").attr('src', imageURL)
+    $('#demoContainer').prepend(newDemo)
+
+    document.getElementById('imageInput').value = ''
+
+
+    showSlides(slideIndex)
+}
+
+
 function showSlides(n) {
-  console.log("it's working")
-  let i;
-  let slides = document.getElementsByClassName("mySlides");
-  let dots = document.getElementsByClassName("demo");
-  let captionText = document.getElementById("caption");
-  if (n > slides.length) {slideIndex = 1}
-  if (n < 1) {slideIndex = slides.length}
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none";
-  }
-  for (i = 0; i < dots.length; i++) {
-    dots[i].className = dots[i].className.replace(" active", "");
-  }
-  slides[slideIndex-1].style.display = "block";
-  dots[slideIndex-1].className += " active";
-  captionText.innerHTML = dots[slideIndex-1].alt;
+    console.log("it's working")
+    let slides = document.getElementsByClassName("mySlides");
+    //let dots = document.getElementsByClassName("demo");
+    //let captionText = document.getElementById("caption");
+    if (n > slides.length) {
+        slideIndex = 1
+        n = 1
+    }
+    if (n < 1) {
+        slideIndex = slides.length
+        n = slides.length
+    }
+    let count = 1
+    $('.mySlides').each(function () {
+        if(count != n){
+            $(this).addClass("d-none").removeClass('d-flex')
+        }else{
+            $(this).removeClass('d-none').addClass('d-flex')
+        }
+        count++
+    })
+
+    count = 1
+    $('.demo').each(function () {
+        $(this).attr('onclick', "currentSlide(" + count + ")")
+        count++
+    })
 }

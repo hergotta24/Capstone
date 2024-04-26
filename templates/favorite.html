@@ -1,21 +1,20 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/productcard.css' %}">
+{% endblock %}
 {% block content %}
-    {% load static %}
-    <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
-        <div class="d-grid m-auto h-100 w-100 align-content-start gap-3 p-3">
-            <div class="row d-flex flex-wrap w-100 rounded-1 position-relative">
-                <div class="row w-100 mx-auto position-relative pt-2" id="content">
-                    <div class="container d-grid w-100 flex-wrap" style="grid-template-columns: repeat(6, 15%); grid-gap: 2%">
-                        {% for product in products %}
-                            {% include 'product_card.html' %}
-                        {% endfor %}
-                    </div>
-                </div>
-s            </div>
+    <div class="col d-flex flex-column overflow-hidden w-100 h-100 pt-3" id="content">
+        <div class="row w-100 mx-auto position-relative pt-2">
+            <h3 class="col-12 primary-color">Favorites</h3>
+            <div class="w-100 d-flex flex-wrap">
+                {% for product in products %}
+                    {% include 'product_card.html' %}
+                {% endfor %}
+            </div>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="{% static 'js/favorite.js' %}"></script>
 {% endblock %}

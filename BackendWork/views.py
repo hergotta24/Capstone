@@ -20,6 +20,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.conf import settings
 from reportlab.lib.pagesizes import letter
+from EcommercePlatform.settings import DEBUG
 from reportlab.pdfgen import canvas
 from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.forms import PayPalPaymentsForm
@@ -68,11 +69,14 @@ class UserRegisterView(View):
 
         form = UserCreationForm(form_data)
         if form.is_valid():
-            inactive_user = send_verification_email(request, form)
-            Cart.objects.create(user=inactive_user)
-            Storefront.objects.create(owner=inactive_user, name=username + '\'s Store', description='')
+            if DEBUG:
+                form.save()
+                user = User.objects.get(email=email)
+            else:
+                user = send_verification_email(request, form)
+            Cart.objects.create(user=user)
+            Storefront.objects.create(owner=user, name=username + '\'s Store', description='')
             user = User.objects.get(email=email)
-            # Cart.objects.create(user=user)
             Storefront.objects.create(owner=user)
             return JsonResponse({'message': 'Account Registered! Redirecting you to login to sign in...'}, status=200)
         else:
@@ -181,6 +185,13 @@ def removeFavorite(request):
     print('Favorite product removed!')
     return JsonResponse({'message': 'Favorite product removed!'}, status=200)
 
+def removeProduct(request):
+    data = json.loads(request.body)
+    remove_id = data['remove_id']
+    product = get_object_or_404(Product, productId=remove_id)
+    Product.objects.get(productId=remove_id).delete()
+    print('Storefront product removed!')
+    return JsonResponse({'message': 'Homepage product removed!'}, status=200)
 
 def addFavorite(request):
     data = json.loads(request.body)

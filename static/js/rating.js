@@ -20,7 +20,9 @@ function setStars(className, rating) {
             i++
             r--
         }
-        i = (i - i%5) + 5
+        if (i !== 5) {
+            i = (i - i % 5) + 5
+        }
         num--
     }
 

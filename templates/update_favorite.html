@@ -1,10 +1,13 @@
 {% block content %}
     {% if user.is_authenticated %}
-        {% if product in user.favorite.all %}
-            <i class="js-favorite fa-solid fa-heart fa-lg cursor" data-productid="{{ product.productId }}"></i>
-        {% else %}
-            <i class="js-favorite fa-regular fa-heart fa-lg cursor" data-productid="{{ product.productId }}"></i>
-        {% endif %}
+        <div class="col-12">
+            {% if product in user.favorite.all %}
+                <i class="js-favorite fa-solid fa-heart fa-lg cursor" data-productid="{{ product.productId }}"></i>
+            {% else %}
+                <i class="js-favorite fa-regular fa-heart fa-lg cursor" data-productid="{{ product.productId }}"></i>
+            {% endif %}
+        </div>
+
     {% endif %}
 {% endblock %}
 

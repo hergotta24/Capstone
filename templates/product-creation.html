@@ -5,19 +5,17 @@
 {% endblock %}
 {% block content %}
     <div class="col d-flex flex-column overflow-x-hidden h-100 w-100 p-4" id="content">
-        <div class="m-auto h-100 w-100 gap-3 p-3">
-            <div class="container mx-auto flex-wrap w-100 w-lg-75">
+        <div class="m-auto h-100 w-100 gap-3">
+            <div class="d-flex flex-wrap w-100 w-lg-75">
                 <div class="col-12 col-md-6 h-100 px-3">
-                    <div class="d-flex flex-column position-relative w-100">
-
-                        <!-- Full-width images with number text -->
-                        <div class="row d-flex w-100 mx-0" id="slideContainer" style="max-height:300px;">
-                            <div class="mySlides d-flex w-100 h-100" id="addSlide" style="max-height: inherit">
+                    <div class="d-flex flex-wrap justify-content-center">
+                        <div class="d-flex col-12 position-relative mx-0" id="slideContainer" style="max-width:500px;">
+                            <div class="mySlides d-flex col-12" id="addSlide">
                                 <div class="numbertext"><span class="slideNum">1</span> / <span
                                         class="slideSize">1</span></div>
                                 <button type="button"
-                                        class="hover btn btn-dark w-75 h-100 border-0 mx-auto justify-content-center mx-0"
-                                        id="imageBtn" style="min-height:300px;"
+                                        class="hover border p-0 btn btn-dark col-12"
+                                        id="imageBtn" style="max-height: 500px;object-fit: cover;aspect-ratio: 1/1;"
                                         data-bs-toggle="modal"
                                         data-bs-target="#imageInputModal">
                                     <i class="fa fa-pencil fa-lg" style="visibility: inherit"></i>
@@ -29,14 +27,11 @@
                             <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
                             <a class="next" onclick="plusSlides(1)">&#10095;</a>
                         </div>
-                        <div class="row d-flex">
-                            <!-- Image text -->
-
-                            <!-- Thumbnail images -->
-                            <div class="row flex-nowrap" id="demoContainer" style="max-height:80px;height:80px;">
-                                <div class="col-lg-2 column position-relative my-auto" id="addDemo"
+                        <div class="col-12 d-flex justify-content-center" style="max-width:500px;">
+                            <div class="d-flex mt-2 flex-nowrap" id="demoContainer">
+                                <div class="col-2 d-flex" id="addDemo"
                                      style="min-width:16.6%;max-height: inherit">
-                                    <div class="demo cursor" style="width:100%"
+                                    <div class="align-content-center col-12 cursor demo" style="width:fit-content"
                                          onclick="currentSlide(1)"><i class="fa fa-plus fa-lg px-2"
                                                                       style="color:#e3d7c9"></i></div>
                                 </div>
@@ -45,7 +40,8 @@
                     </div>
                 </div>
                 <div class="col-12 col-md-6 d-flex fit-content flex-wrap px-2">
-                    <form id="productCreationForm" method="POST" enctype="multipart/form-data">
+                    <h3 class="col-12 primary-color">Create a Product</h3>
+                    <form id="productCreationForm" class="col-12" method="POST" enctype="multipart/form-data">
                         <div class="modal fade" id="imageInputModal" tabindex="-1"
                              aria-labelledby="imageInputModalLabel"
                              aria-hidden="true">
@@ -74,20 +70,21 @@
                         </div>
                         <div class="col-12 mb-2 pe-5">
                             <label for="product-name" class="col-12 col-lg-4 primary-color">Product Name:</label>
-                            <input id="product-name" type="text" class="col-12 col-lg-7 p-1 input"/>
+                            <input id="product-name" type="text" class="col-12 col-lg-7 btn p-0 btn-primary"/>
                         </div>
                         <div class="col-12 pe-5 mb-2">
                             <label for="product-price" class="col-12 col-lg-4 primary-color">Price: </label>
-                            <input id="product-price" class="col-12 col-lg-7 p-1 input" type="number"/>
+                            <input id="product-price" class="col-12 col-lg-7 btn p-0 btn-primary" type="number"/>
                         </div>
                         <div class="col-12 pe-5 mb-2">
                             <label for="product-qoh" class="col-12 col-lg-4 primary-color">Quantity On Hand: </label>
-                            <input id="product-qoh" class="col-12 col-lg-7 p-1 input" type="number"/>
+                            <input id="product-qoh" class="col-12 col-lg-7 btn p-0 btn-primary" type="number"/>
                         </div>
                         <div class="col-12 d-flex flex-wrap my-2">
                             <label for="product-description" class="col-12 primary-color">Product Description</label>
-                            <div contenteditable="true" id="product-description"
-                                 class="col-12 p-2 fit-content input"></div>
+                            <div contenteditable="true" style="min-height: 200px;" id="product-description"
+                                 class="col-12 p-2 fit-content primary-color border">{{ product.description }}
+                            </div>
                         </div>
 
                         <div class="col-12 d-flex mt-3">

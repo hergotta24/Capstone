@@ -1,21 +1,3 @@
-
-<div class="position-relative">
-    <div class="position-absolute top-0 left-0 z-1">
-        <i class="{{ product.productId }} fa fa-star fa-lg fa-regular unchecked"></i>
-        <i class="{{ product.productId }} fa fa-star fa-lg fa-regular unchecked"></i>
-        <i class="{{ product.productId }} fa fa-star fa-lg fa-regular unchecked"></i>
-        <i class="{{ product.productId }} fa fa-star fa-lg fa-regular unchecked"></i>
-        <i class="{{ product.productId }} fa fa-star fa-lg fa-regular unchecked"></i>
-    </div>
-    <script>setStars({{ product.productId }}, {{ product.get_rating_average }})</script>
-    <div class="position-relative z-0 top-0 left-0">
-        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
-    </div>
-</div>
 <style>
     .checked {
         color: orange;
@@ -25,3 +7,21 @@
         color: grey;
     }
 </style>
+
+<div class="position-relative">
+    <div class="position-absolute top-0 left-0 z-1">
+        <i class="{{ product.productId }} fa fa-star fa-lg fa-regular unchecked"></i>
+        <i class="{{ product.productId }} fa fa-star fa-lg fa-regular unchecked"></i>
+        <i class="{{ product.productId }} fa fa-star fa-lg fa-regular unchecked"></i>
+        <i class="{{ product.productId }} fa fa-star fa-lg fa-regular unchecked"></i>
+        <i class="{{ product.productId }} fa fa-star fa-lg fa-regular unchecked"></i>
+    </div>
+    <div class="position-relative z-0 top-0 left-0">
+        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+        <i class="fa fa-star fa-lg fa-regular unchecked"></i>
+    </div>
+</div>
+<script>setStars({{ product.productId }}, {{ product.get_rating_average }})</script>
